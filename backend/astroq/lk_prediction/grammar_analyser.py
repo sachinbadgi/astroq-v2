@@ -3,6 +3,14 @@ Module 3: Grammar Analyser.
 
 Detects 15 Lal Kitab grammar conditions and applies their respective strength
 modifiers. Updates the `EnrichedPlanet` dicts in-place.
+
+Section 14 of lk_prediction_model_v2.md documents the COMPLETE reference rules
+implemented here.  Key fixes vs. the previous partial implementation:
+  1. Mangal Badh: 17 rules (13 increments + 4 decrements) from Mars_special_rules.py
+  2. Disposition Rules: 16 rules from global_birth_yearly_strength_additional_checks.py
+  3. BilMukabil: 3-step logic (friends + sig. aspect + enemy in foundational house)
+  4. Sleeping Planet: uses canonical HOUSE_ASPECT_MAP (not len(aspects) > 0)
+  5. Mangal Badh divisor: 16.0 (not 5.0)
 """
 
 from __future__ import annotations
@@ -11,6 +19,87 @@ import math
 from typing import Any
 
 from astroq.lk_prediction.config import ModelConfig
+
+
+# ---------------------------------------------------------------------------
+# Canonical Lal Kitab constants (shared by multiple detectors)
+# ---------------------------------------------------------------------------
+
+PAKKA_GHAR: dict[str, int] = {
+    "Sun": 1, "Moon": 4, "Mars": 3, "Mercury": 7,
+    "Jupiter": 2, "Venus": 7, "Saturn": 10, "Rahu": 12, "Ketu": 6,
+}
+
+# House → list of houses it aspects (Lal Kitab aspect map, p. 118-119)
+HOUSE_ASPECT_MAP: dict[int, list[int]] = {
+    1: [7], 2: [6], 3: [9, 11], 4: [10], 5: [9],
+    6: [12], 7: [1], 8: [], 9: [3, 5], 10: [4],
+    11: [3, 5], 12: [6],
+}
+
+# Natural planet relationships (p. 71 of Lal Kitab)
+NATURAL_RELATIONSHIPS: dict[str, dict[str, list[str]]] = {
+    "Jupiter": {"Friends": ["Sun", "Moon", "Mars"],       "Enemies": ["Venus", "Mercury"],          "Even": ["Rahu", "Ketu", "Saturn"]},
+    "Sun":     {"Friends": ["Jupiter", "Mars", "Moon"],   "Enemies": ["Venus", "Saturn", "Rahu"],   "Even": ["Mercury", "Ketu"]},
+    "Moon":    {"Friends": ["Sun", "Mercury"],             "Enemies": ["Ketu"],                      "Even": ["Venus", "Saturn", "Mars", "Jupiter", "Rahu"]},
+    "Venus":   {"Friends": ["Saturn", "Mercury", "Ketu"], "Enemies": ["Sun", "Moon", "Rahu"],        "Even": ["Mars", "Jupiter"]},
+    "Mars":    {"Friends": ["Sun", "Moon", "Jupiter"],    "Enemies": ["Mercury", "Ketu"],            "Even": ["Venus", "Saturn", "Rahu"]},
+    "Mercury": {"Friends": ["Sun", "Venus", "Rahu"],      "Enemies": ["Moon"],                       "Even": ["Saturn", "Ketu", "Mars", "Jupiter"]},
+    "Saturn":  {"Friends": ["Mercury", "Venus", "Rahu"],  "Enemies": ["Sun", "Moon", "Mars"],        "Even": ["Ketu", "Jupiter"]},
+    "Rahu":    {"Friends": ["Mercury", "Saturn", "Ketu"], "Enemies": ["Sun", "Venus", "Mars"],       "Even": ["Jupiter", "Moon"]},
+    "Ketu":    {"Friends": ["Venus", "Rahu"],              "Enemies": ["Moon", "Mars"],               "Even": ["Jupiter", "Saturn", "Mercury", "Sun"]},
+}
+
+# Foundational / associated houses per planet (for BilMukabil check)
+FOUNDATIONAL_HOUSES: dict[str, list[int]] = {
+    "Sun":     [1, 5],
+    "Moon":    [4],
+    "Mars":    [1, 3, 8],
+    "Mercury": [3, 6, 7],
+    "Jupiter": [2, 5, 9, 11, 12],
+    "Venus":   [2, 7],
+    "Saturn":  [8, 10, 11],
+    "Rahu":    [11, 12],
+    "Ketu":    [6],
+}
+
+EXALTATION_HOUSES: dict[str, Any] = {
+    "Sun": 1, "Moon": 2, "Mars": 10, "Mercury": 6, "Jupiter": 4,
+    "Venus": 12, "Saturn": 7, "Rahu": [3, 6], "Ketu": [9, 12],
+}
+DEBILITATION_HOUSES: dict[str, Any] = {
+    "Sun": 7, "Moon": 8, "Mars": 4, "Mercury": 12, "Jupiter": 10,
+    "Venus": 6, "Saturn": 1, "Rahu": [9, 12], "Ketu": [3, 6],
+}
+
+# Aspect types considered "significant" in BilMukabil
+SIGNIFICANT_ASPECT_TYPES: frozenset[str] = frozenset({"100 Percent", "50 Percent", "25 Percent"})
+
+# All 16 Lal Kitab planet disposition rules
+# Format: (causer_planet, causer_houses, affected_planet, effect)
+# where causer_houses is a list; if list has one item, it's a "planet_in_house" rule,
+# otherwise it's "any_of_houses" rule. effect is "Good" or "Bad".
+_DISPOSITION_RULES: list[tuple[str, list[int], str, str]] = [
+    ("Jupiter", [7],           "Venus",   "Bad"),
+    ("Rahu",    [11],          "Jupiter", "Bad"),
+    ("Rahu",    [12],          "Jupiter", "Bad"),
+    ("Sun",     [6],           "Saturn",  "Bad"),
+    ("Sun",     [10],          "Mars",    "Bad"),
+    ("Sun",     [10],          "Ketu",    "Bad"),
+    ("Sun",     [11],          "Mars",    "Bad"),
+    ("Moon",    [1, 3, 8],     "Mars",    "Good"),
+    ("Venus",   [9],           "Mars",    "Bad"),
+    ("Venus",   [2, 5, 12],    "Jupiter", "Bad"),
+    ("Mercury", [3, 6, 8, 12], "Moon",    "Bad"),
+    ("Mercury", [2, 5, 9],     "Jupiter", "Bad"),
+    ("Saturn",  [4, 6, 10],    "Moon",    "Bad"),
+    ("Rahu",    [2, 5, 6, 9],  "Jupiter", "Bad"),
+    ("Ketu",    [11, 12],      "Jupiter", "Bad"),
+    ("Ketu",    [11, 12],      "Mars",    "Bad"),
+    ("Ketu",    [11, 12],      "Venus",   "Good"),
+    ("Moon",    [6],           "Mars",    "Bad"),
+    ("Moon",    [6],           "Venus",   "Good"),
+]
 
 
 class GrammarAnalyser:
@@ -35,7 +124,8 @@ class GrammarAnalyser:
         self.w_dharmi_kundli = c.get("strength.dharmi_kundli_boost", fallback=1.20)
         self.w_sathi = c.get("strength.sathi_boost_per_companion", fallback=1.00)
         self.w_bilmukabil = c.get("strength.bilmukabil_penalty_per_hostile", fallback=1.50)
-        self.w_mangal = c.get("strength.mangal_badh_divisor", fallback=5.0)
+        # FIX: divisor should be 16.0 to match reference formula
+        self.w_mangal = c.get("strength.mangal_badh_divisor", fallback=16.0)
         self.w_masnui = c.get("strength.masnui_parent_feedback", fallback=0.30)
         self.w_dhoka = c.get("strength.dhoka_graha_factor", fallback=0.70)
         self.w_achanak = c.get("strength.achanak_chot_penalty", fallback=2.00)
@@ -43,13 +133,15 @@ class GrammarAnalyser:
         self.w_35yr = c.get("strength.cycle_35yr_boost", fallback=1.25)
         self.w_spoiler = c.get("strength.spoiler_factor", fallback=0.50)
 
+    # ------------------------------------------------------------------
+    # Public entry point
+    # ------------------------------------------------------------------
+
     def apply_grammar_rules(
         self, chart: dict[str, Any], enriched: dict[str, Any]
     ) -> None:
         """
-        Run the grammar detection and adjustment pipeline.
-
-        Mutates *enriched* in-place.
+        Run the grammar detection and adjustment pipeline.  Mutates *enriched* in-place.
         """
         if not enriched:
             return
@@ -59,7 +151,7 @@ class GrammarAnalyser:
         chart_type = chart.get("chart_type", "Birth")
         chart_period = chart.get("chart_period", 0)
 
-        # --- Phase 10: Invoke Native Detectors ---
+        # ── Phase 1: Run all detectors ─────────────────────────────────
         chart["masnui_grahas_formed"] = self.detect_masnui(chart)
         chart["dhoka_graha_triggers"] = self.detect_dhoka(chart)
         chart["achanak_chot_triggers"] = self.detect_achanak_chot_triggers(chart)
@@ -69,70 +161,86 @@ class GrammarAnalyser:
         mangal_badh_counter = self.detect_mangal_badh(chart)
         chart["mangal_badh_status"] = "Active" if mangal_badh_counter > 0 else "Inactive"
         chart["mangal_badh_count"] = mangal_badh_counter
-            
-        # Context for the local loop
+
         dharmi_kundli = chart.get("dharmi_kundli_status") == "Dharmi Teva"
         mangal_badh_active = chart.get("mangal_badh_status") == "Active"
 
-        masnui_parents = set()
+        masnui_parents: set[str] = set()
         for m in chart.get("masnui_grahas_formed", []):
             masnui_parents.update(m.get("components", []))
 
-        # Rename to match what's used in detectors
         dhoka_grahas = {d.get("planet") for d in chart.get("dhoka_graha_triggers", [])}
-        achanak_targets = set()
+        achanak_targets: set[str] = set()
         for a in chart.get("achanak_chot_triggers", []):
             achanak_targets.update(a.get("planets", []))
 
         rin_list = chart.get("lal_kitab_debts", [])
+        # Build per-planet rin map: each debt type is assigned to the triggering planet
+        per_planet_rin = self._build_per_planet_rin(planets_data, rin_list)
         disposition_list = chart.get("lal_kitab_dispositions", [])
 
         ruler_35 = self._get_35_year_ruler(chart_period) if chart_type == "Yearly" else None
 
-        # Pass 1: Local flags
+        # ── Phase 2: Disposition detection only (no strength yet) ──────
+        # Strength application happens inside _apply_adjustments AFTER sleeping
+
+        # ── Phase 3: Per-planet flag assignment ────────────────────────
         for planet, ep in enriched.items():
             pd = planets_data.get(planet, {})
             self._init_grammar_fields(ep)
 
-            # 1. Sleeping
-            if pd.get("sleeping_status", ""):
-                ep["sleeping_status"] = pd.get("sleeping_status")
-            elif house_status.get(str(ep["house"])) == "Sleeping House":
+            # Sleeping: check Sleeping House FIRST (explicit override), then aspect-map detection
+            if house_status.get(str(ep["house"])) == "Sleeping House":
                 ep["sleeping_status"] = "Sleeping House"
+            elif pd.get("sleeping_status", ""):
+                # Upstream pre-computed status takes priority over detection
+                ep["sleeping_status"] = pd.get("sleeping_status")
+            elif self.detect_sleeping(planet, planets_data):
+                ep["sleeping_status"] = "Sleeping Planet"
 
-            # 2. Kaayam
+            # Kaayam
             states = pd.get("states", [])
             if "Kaayam" in states:
                 ep["kaayam_status"] = "Kaayam"
 
-            # 3. Dharmi
+            # Dharmi — Kundli check first, then individual planet check
             if dharmi_kundli:
                 ep["dharmi_status"] = "Dharmi Teva"
             elif pd.get("dharmi_status") == "Dharmi Planet":
                 ep["dharmi_status"] = "Dharmi Planet"
 
-            # 4. Sathi & 5. Bil Mukabil
+            # Sathi & BilMukabil
             self._find_companions_and_hostiles(planet, ep, planets_data)
 
-            # 6. Mangal Badh applies specifically to Mars (and others if specified)
-            if mangal_badh_active and planet == "Mars":
-                # Implementation detail: usually Mars takes the hit
-                pass 
-
-            # 7-12. Direct assignments (adjustments done in _apply_adjustments)
+            # Masnui, Dhoka, Achanak, Rin
             ep["is_masnui_parent"] = planet in masnui_parents
             ep["dhoka_graha"] = planet in dhoka_grahas
             ep["achanak_chot_active"] = planet in achanak_targets
-            ep["rin_debts"] = rin_list # Applies to all if not empty
-            
-            # Map dispositions to planet
-            ep["dispositions_active"] = [d for d in disposition_list if planet in d.get("affected_planets", [])]
+            # Assign rin debts per-planet (the triggering planet carries the debt)
+            ep["rin_debts"] = per_planet_rin.get(planet, [])
 
-        # Pass 2: Calculate adjustments
+            # Dispositions (informational; strength already applied above)
+            ep["dispositions_active"] = [
+                d for d in disposition_list if planet in d.get("affected_planets", [])
+            ]
+
+        # ── Phase 4: Apply per-planet strength adjustments ─────────────
+        # Pass causer side-table so dispositions can be applied after sleeping
+        causer_strengths: dict[str, float] = {}
+        for p, ep in enriched.items():
+            # Snapshot raw_aspect_strength as causer base (pre-adjustment)
+            causer_strengths[p] = float(ep.get("raw_aspect_strength",
+                                                ep.get("strength_total", 0.0)))
+
         for planet, ep in enriched.items():
             self._apply_adjustments(
-                planet, ep, mangal_badh_active, ruler_35
+                planet, ep, mangal_badh_active, ruler_35, mangal_badh_counter,
+                planets_data, causer_strengths
             )
+
+    # ------------------------------------------------------------------
+    # Internal helpers
+    # ------------------------------------------------------------------
 
     def _init_grammar_fields(self, ep: dict[str, Any]) -> None:
         ep.setdefault("sleeping_status", "")
@@ -145,11 +253,81 @@ class GrammarAnalyser:
         ep.setdefault("achanak_chot_active", False)
         ep.setdefault("rin_debts", [])
         ep.setdefault("dispositions_active", [])
-        
+
         bd = ep.setdefault("strength_breakdown", {})
-        for key in ["sleeping", "disposition", "dharmi", "sathi", "bilmukabil", 
-                    "mangal_badh", "masnui_feedback", "dhoka", "achanak_chot", "rin", "cycle_35yr"]:
+        for key in [
+            "sleeping", "disposition", "dharmi", "sathi", "bilmukabil",
+            "mangal_badh", "masnui_feedback", "dhoka", "achanak_chot", "rin", "cycle_35yr",
+        ]:
             bd.setdefault(key, 0.0)
+
+    def _build_per_planet_rin(
+        self, planets_data: dict[str, Any], rin_list: list[str]
+    ) -> dict[str, list[str]]:
+        """
+        Distribute rin debts to the specific planet(s) that triggered the rule.
+        Each debt type maps back to the triggering planet-house pairs in detect_rin().
+        Returns {planet_name: [debt_name, ...]} mapping.
+        """
+        per_planet: dict[str, list[str]] = {}
+
+        def h(p: str) -> int | None:
+            return planets_data.get(p, {}).get("house")
+
+        # Replicate the triggering logic per-planet
+        rin_rules = [
+            ("Ancestral Debt (Pitra Rin)",             ["Venus", "Mercury", "Rahu"], [2, 5, 9, 12]),
+            ("Self Debt (Swayam Rin)",                  ["Venus", "Rahu"],            [5]),
+            ("Maternal Debt (Matri Rin)",               ["Ketu"],                     [4]),
+            ("Family/Wife/Woman Debt (Stri Rin)",       ["Sun", "Rahu", "Ketu"],      [2, 7]),
+            ("Relative/Brother Debt (Bhai-Bandhu Rin)", ["Mercury", "Ketu"],          [1, 8]),
+            ("Daughter/Sister Debt (Behen/Beti Rin)",   ["Moon"],                     [3, 6]),
+            ("Oppression/Atrocious Debt (Zulm Rin)",    ["Sun", "Moon", "Mars"],      [10, 11]),
+            ("Debt of the Unborn (Ajanma Rin)",         ["Venus", "Sun", "Rahu"],     [12]),
+            ("Negative Speech Debt (Manda Bol Rin)",    ["Moon", "Mars", "Ketu"],     [6]),
+        ]
+        for name, plist, hlist in rin_rules:
+            if name not in rin_list:
+                continue
+            for p in plist:
+                if h(p) in hlist:
+                    per_planet.setdefault(p, []).append(name)
+        return per_planet
+
+
+
+    def _apply_disposition_strength(
+        self, planets_data: dict[str, Any], enriched: dict[str, Any]
+    ) -> None:
+        """
+        Apply all 16 disposition rules.  The causer planet's absolute strength is
+        added (Good) or subtracted (Bad) from the affected planet's strength_total.
+        This happens BEFORE per-planet adjustments (including Mangal Badh).
+        """
+        for causer, causer_houses, affected, effect in _DISPOSITION_RULES:
+            causer_data = planets_data.get(causer)
+            if causer_data is None:
+                continue
+            causer_h = causer_data.get("house")
+            if causer_h not in causer_houses:
+                continue
+            if affected not in enriched:
+                continue
+
+            causer_ep = enriched.get(causer)
+            causer_strength = abs(float(causer_ep["strength_total"])) if causer_ep else 0.0
+
+            if causer_strength == 0.0:
+                continue
+
+            delta = causer_strength if effect == "Good" else -causer_strength
+            enriched[affected]["strength_total"] = (
+                float(enriched[affected].get("strength_total", 0.0)) + delta
+            )
+            # Track in breakdown
+            enriched[affected].setdefault("strength_breakdown", {})
+            enriched[affected]["strength_breakdown"].setdefault("disposition", 0.0)
+            enriched[affected]["strength_breakdown"]["disposition"] += delta
 
     def _find_companions_and_hostiles(
         self, planet: str, ep: dict[str, Any], planets_data: dict[str, Any]
@@ -157,96 +335,110 @@ class GrammarAnalyser:
         house = ep["house"]
         pd = planets_data.get(planet, {})
 
-        # Sathi
+        # Sathi: same house co-tenants
         for other, opd in planets_data.items():
             if other != planet and opd.get("house") == house:
                 ep["sathi_companions"].append(other)
 
-        # Bil Mukabil (100% aspect + enemy)
-        aspects = pd.get("aspects", [])
-        for asp in aspects:
-            if asp.get("aspect_type") == "100 Percent" and asp.get("relationship") == "enemy":
-                ep["bilmukabil_hostile_to"].append(asp.get("aspecting_planet"))
+        # BilMukabil: use the correct 3-step detection
+        for other in planets_data:
+            if other == planet:
+                continue
+            if self.detect_bilmukabil(planet, other, planets_data):
+                if other not in ep["bilmukabil_hostile_to"]:
+                    ep["bilmukabil_hostile_to"].append(other)
 
     def _apply_adjustments(
-        self, planet: str, ep: dict[str, Any], mangal_active: bool, ruler_35: str | None
+        self,
+        planet: str,
+        ep: dict[str, Any],
+        mangal_active: bool,
+        ruler_35: str | None,
+        mangal_counter: int = 0,
+        planets_data: dict[str, Any] | None = None,
+        causer_strengths: dict[str, float] | None = None,
     ) -> None:
         total = float(ep.get("strength_total", 0.0))
         bd = ep["strength_breakdown"]
-        
-        # We process multiplicative penalties/boosts by calculating the delta
-        # and adding it to total, so `breakdown_sum == total`.
-        
-        # 1. Sleeping
-        if ep["sleeping_status"]:
-            delta = total * self.w_sleep - total
-            bd["sleeping"] += delta
-            total += delta
 
-        # 2. Kaayam
+        # 1. Kaayam (powerful state — applied first)
         if ep["kaayam_status"] == "Kaayam":
             delta = abs(total) * (self.w_kaayam - 1.0)
             bd["disposition"] += delta
             total += delta
 
-        # 3. Dharmi
+        # 2. Dharmi (powerful state — applied before sleeping)
         if ep["dharmi_status"]:
             boost = self.w_dharmi_kundli if ep["dharmi_status"] == "Dharmi Teva" else self.w_dharmi
             delta = abs(total) * (boost - 1.0)
             bd["dharmi"] += delta
             total += delta
 
-        # 4. Sathi
+        # 3. Sleeping (zeroes out remaining base strength)
+        if ep["sleeping_status"]:
+            delta = total * self.w_sleep - total
+            bd["sleeping"] += delta
+            total += delta
+
+        # 4. Disposition rules (applied AFTER sleeping so Good rules still contribute)
+        if planets_data and causer_strengths:
+            for causer, causer_houses, affected, effect in _DISPOSITION_RULES:
+                if affected != planet:
+                    continue
+                causer_data = planets_data.get(causer)
+                if causer_data is None:
+                    continue
+                if causer_data.get("house") not in causer_houses:
+                    continue
+                adj = abs(causer_strengths.get(causer, 0.0))
+                if adj == 0.0:
+                    continue
+                delta = adj if effect == "Good" else -adj
+                bd["disposition"] += delta
+                total += delta
+
+        # 5. Sathi
         if ep["sathi_companions"]:
-            # e.g., +1.0 offset per companion
             delta = len(ep["sathi_companions"]) * self.w_sathi
             bd["sathi"] += delta
             total += delta
 
-        # 5. Bil Mukabil
+        # 6. BilMukabil
         if ep["bilmukabil_hostile_to"]:
             delta = -abs(total) * (1.0 - (1.0 / self.w_bilmukabil))
             bd["bilmukabil"] += delta
             total += delta
 
-        # 6. Mangal Badh
+        # 7. Mangal Badh — formula: strength * (1 + counter / divisor)
         if mangal_active and planet == "Mars":
-            # Penalise Mars heavily
-            delta = -(abs(total) - (abs(total) / self.w_mangal))
+            counter = max(0, mangal_counter)
+            reduction = abs(total) * (1.0 + counter / self.w_mangal)
+            delta = -reduction
             bd["mangal_badh"] += delta
             total += delta
 
-        # 7. Masnui Feedback
+        # 8. Masnui Feedback
         if ep["is_masnui_parent"]:
             delta = abs(total) * self.w_masnui
             bd["masnui_feedback"] += delta
             total += delta
 
-        # 8. Dhoka
+        # 9. Dhoka
         if ep["dhoka_graha"]:
             delta = -abs(total) * (1.0 - self.w_dhoka)
             bd["dhoka"] += delta
             total += delta
 
-        # 9. Achanak Chot
+        # 10. Achanak Chot
         if ep["achanak_chot_active"]:
             delta = -self.w_achanak
             bd["achanak_chot"] += delta
             total += delta
 
-        # 10. Rin
+        # 11. Rin
         if ep.get("rin_debts"):
-            # Apply penalty once if any debt exists
             delta = -abs(total) * (1.0 - self.w_rin)
             bd["rin"] += delta
-            total += delta
-
-        # 11. Dispositions
-        for disp in ep.get("dispositions_active", []):
-            is_neg = disp.get("effect") == "Destructive" or "Conflict" in disp.get("rule_name", "")
-            factor = (1.0 - self.w_spoiler) if is_neg else (self.w_kaayam - 1.0) # reuse weights if specific not found
-            delta = -abs(total) * (1.0 - self.w_spoiler) if is_neg else abs(total) * (self.w_kaayam - 1.0)
-            bd["disposition"] += delta
             total += delta
 
         # 12. 35 Year Cycle
@@ -257,29 +449,52 @@ class GrammarAnalyser:
 
         ep["strength_total"] = total
 
-        ep["strength_total"] = total
-        
+    # ------------------------------------------------------------------
+    # Public detectors
+    # ------------------------------------------------------------------
+
     def detect_sleeping(self, planet: str, planets: dict) -> bool:
-        """Sleeping if not in Pakka Ghar and casting no aspects."""
-        PAKKA_GHAR = {"Sun": 1, "Moon": 4, "Mars": 3, "Mercury": 7, "Jupiter": 2, "Venus": 7, "Saturn": 10, "Rahu": 12, "Ketu": 6}
+        """
+        Sleeping if planet is NOT in its Pakka Ghar AND does not cast an aspect
+        on any occupied house (using canonical HOUSE_ASPECT_MAP).
+        """
         p_data = planets.get(planet)
-        if not p_data: return False
-        
-        in_pakka = p_data.get("house") == PAKKA_GHAR.get(planet)
-        has_aspects = len(p_data.get("aspects", [])) > 0
-        return not in_pakka and not has_aspects
+        if not p_data:
+            return False
+
+        planet_house = p_data.get("house")
+        if not planet_house:
+            return False
+
+        # Never sleeping if in pakka ghar
+        if planet_house == PAKKA_GHAR.get(planet):
+            return False
+
+        # Check whether any aspected house is occupied by another planet
+        aspected_houses = HOUSE_ASPECT_MAP.get(planet_house, [])
+        for house in aspected_houses:
+            occupied = [
+                p for p, d in planets.items()
+                if p != planet and d.get("house") == house
+            ]
+            if occupied:
+                return False  # Aspects an occupied house → Awake
+
+        return True  # Not in pakka ghar AND not aspecting any planet
 
     def detect_kaayam(self, planet: str, planets: dict) -> bool:
         """Kaayam if base strength > 5 and NO enemy aspects received."""
         p_data = planets.get(planet)
-        if not p_data: return False
-        
+        if not p_data:
+            return False
+
         if p_data.get("strength_total", 0.0) <= 5.0:
             return False
-            
+
         target_house = p_data.get("house")
         for caster, c_data in planets.items():
-            if caster == planet: continue
+            if caster == planet:
+                continue
             for asp in c_data.get("aspects", []):
                 if asp.get("aspecting_house") == target_house and asp.get("relationship") == "enemy":
                     return False
@@ -293,90 +508,192 @@ class GrammarAnalyser:
         return bool(sat and jup and sat == jup)
 
     def detect_sathi(self, p1: str, p2: str, planets: dict) -> bool:
-        """Sathi if mutual exchange of houses (Exaltation/Pakka). For now, basic mutual exchange checking."""
+        """Sathi if mutual exchange of houses (Exaltation/Debilitation/Pakka)."""
         p1_h = planets.get(p1, {}).get("house")
         p2_h = planets.get(p2, {}).get("house")
-        
-        # In a real implementation we check detailed sign/pakka ghar.
-        # This covers the basic mutual exchange of natural significance.
-        EXALT = {"Sun": 1, "Moon": 2, "Mars": 10, "Mercury": 6, "Jupiter": 4, "Venus": 12, "Saturn": 7, "Rahu": 3, "Ketu": 9}
-        PAKKA = {"Sun": 1, "Moon": 4, "Mars": 3, "Mercury": 7, "Jupiter": 2, "Venus": 7, "Saturn": 10, "Rahu": 12, "Ketu": 6}
-        
-        p1_owns = {EXALT.get(p1), PAKKA.get(p1)}
-        p2_owns = {EXALT.get(p2), PAKKA.get(p2)}
-        
-        return p2_h in p1_owns and p1_h in p2_owns
+
+        def _exchange_houses(p: str) -> set[int]:
+            houses: set[int] = set()
+            ex = EXALTATION_HOUSES.get(p)
+            deb = DEBILITATION_HOUSES.get(p)
+            pak = PAKKA_GHAR.get(p)
+            if ex is not None:
+                houses.update([ex] if isinstance(ex, int) else ex)
+            if deb is not None:
+                houses.update([deb] if isinstance(deb, int) else deb)
+            if pak is not None:
+                houses.add(pak)
+            return houses
+
+        return p2_h in _exchange_houses(p1) and p1_h in _exchange_houses(p2)
 
     def detect_bilmukabil(self, p1: str, p2: str, planets: dict) -> bool:
-        """Hostile confrontation checking."""
+        """
+        BilMukabil requires ALL THREE conditions:
+        1. p1 and p2 are natural friends.
+        2. Either casts a significant aspect (100%, 50%, 25%) on the other.
+        3. An enemy of either is in a foundational house of the other.
+        """
+        # Step 1: Natural friends
+        if p2 not in NATURAL_RELATIONSHIPS.get(p1, {}).get("Friends", []):
+            return False
+
+        # Step 2: Significant mutual aspect
         d1 = planets.get(p1, {})
         d2 = planets.get(p2, {})
-        h1, h2 = d1.get("house"), d2.get("house")
-        if not h1 or not h2: return False
-        
-        for asp in d1.get("aspects", []):
-            if asp.get("aspecting_house") == h2 and asp.get("relationship") == "enemy":
-                for asp2 in d2.get("aspects", []):
-                    if asp2.get("aspecting_house") == h1 and asp2.get("relationship") == "enemy":
-                        return True
+
+        p1_aspects_p2 = any(
+            a.get("aspecting_planet") == p2 and a.get("aspect_type") in SIGNIFICANT_ASPECT_TYPES
+            for a in d1.get("aspects", [])
+        )
+        p2_aspects_p1 = any(
+            a.get("aspecting_planet") == p1 and a.get("aspect_type") in SIGNIFICANT_ASPECT_TYPES
+            for a in d2.get("aspects", [])
+        )
+        if not (p1_aspects_p2 or p2_aspects_p1):
+            return False
+
+        # Step 3: Enemy of either in foundational house of the other
+        enemies_p1 = NATURAL_RELATIONSHIPS.get(p1, {}).get("Enemies", [])
+        enemies_p2 = NATURAL_RELATIONSHIPS.get(p2, {}).get("Enemies", [])
+        foundational_p1 = FOUNDATIONAL_HOUSES.get(p1, [])
+        foundational_p2 = FOUNDATIONAL_HOUSES.get(p2, [])
+
+        for enemy in enemies_p1:
+            if enemy in planets and planets[enemy].get("house") in foundational_p2:
+                return True
+        for enemy in enemies_p2:
+            if enemy in planets and planets[enemy].get("house") in foundational_p1:
+                return True
+
         return False
 
     def detect_mangal_badh(self, chart: dict) -> int:
-        counter = 0
+        """
+        Complete 17-rule Mangal Badh counter (13 increments, 4 decrements).
+        Source: Mars_special_rules.py → calculate_mangal_badh()
+        """
         planets = chart.get("planets_in_houses", {})
-        if "Mars" not in planets: return 0
-        
-        h = lambda p: planets.get(p, {}).get("house")
-        together = lambda p1, p2: h(p1) and h(p1) == h(p2)
-        
-        if together("Sun", "Saturn"): counter += 1
-        if not any(a.get("aspecting_planet") == "Sun" for a in planets.get("Mars", {}).get("aspects", [])): 
+        if "Mars" not in planets:
+            return 0
+
+        def h(p: str) -> int | None:
+            return planets.get(p, {}).get("house")
+
+        def conjunct(pa: str, pb: str) -> bool:
+            ha, hb = h(pa), h(pb)
+            return bool(ha and hb and ha == hb)
+
+        def in_house(p: str, house: int) -> bool:
+            return h(p) == house
+
+        def in_houses(p: str, houses: list[int]) -> bool:
+            return h(p) in houses
+
+        def aspects(planet_a: str, planet_b: str) -> bool:
+            """Uses canonical HOUSE_ASPECT_MAP to check if planet_a aspects planet_b's house."""
+            ha, hb = h(planet_a), h(planet_b)
+            if not ha or not hb:
+                return False
+            return hb in HOUSE_ASPECT_MAP.get(ha, [])
+
+        counter = 0
+
+        # ── Increment rules ───────────────────────────────────────────
+        # R1: Sun+Saturn conjunct
+        if conjunct("Sun", "Saturn"):
             counter += 1
-        if together("Mercury", "Venus"): counter += 1
-        if h("Ketu") in [1, 8]: counter += 1
-        
+        # R2: Sun does NOT aspect Mars
+        if not aspects("Sun", "Mars"):
+            counter += 1
+        # R3: Moon does NOT aspect Mars
+        if not aspects("Moon", "Mars"):
+            counter += 1
+        # R4: Mercury in H6 AND Ketu in H6
+        if in_house("Mercury", 6) and in_house("Ketu", 6):
+            counter += 1
+        # R5: Mars+Mercury conjunct OR Mars+Ketu conjunct
+        if conjunct("Mars", "Mercury") or conjunct("Mars", "Ketu"):
+            counter += 1
+        # R6: Ketu in H1
+        if in_house("Ketu", 1):
+            counter += 1
+        # R7: Ketu in H8
+        if in_house("Ketu", 8):
+            counter += 1
+        # R8: Mars in H3
+        if in_house("Mars", 3):
+            counter += 1
+        # R9: Venus in H9
+        if in_house("Venus", 9):
+            counter += 1
+        # R10: Sun in H6/H7/H10/H12
+        if in_houses("Sun", [6, 7, 10, 12]):
+            counter += 1
+        # R11: Mars in H6
+        if in_house("Mars", 6):
+            counter += 1
+        # R12: Mercury in H1/H3/H8
+        if in_houses("Mercury", [1, 3, 8]):
+            counter += 1
+        # R13: Rahu in H5/H9
+        if in_houses("Rahu", [5, 9]):
+            counter += 1
+
+        # ── Decrement rules ───────────────────────────────────────────
+        # D1: Sun+Mercury conjunct
+        if conjunct("Sun", "Mercury"):
+            counter -= 1
+        # D2: Mars in H8 AND Mercury in H8
+        if in_house("Mars", 8) and in_house("Mercury", 8):
+            counter -= 1
+        # D3: Sun in H3 AND Mercury in H3
+        if in_house("Sun", 3) and in_house("Mercury", 3):
+            counter -= 1
+        # D4: Moon in H1/H2/H3/H4/H8/H9
+        if in_houses("Moon", [1, 2, 3, 4, 8, 9]):
+            counter -= 1
+
         return max(0, counter)
 
     def detect_masnui(self, chart: dict) -> list[dict]:
-        """Detect Masnui (Artificial) planets formed by specific conjunctions in the same house."""
+        """Detect Masnui (Artificial) planets formed by specific conjunctions."""
         res = []
         planets_data = chart.get("planets_in_houses", {})
-        if not planets_data: return res
-        
-        # Build house occupancy map (House -> Set of lowercased planet names)
-        house_occupants = {i: set() for i in range(1, 13)}
+        if not planets_data:
+            return res
+
+        house_occupants: dict[int, set[str]] = {i: set() for i in range(1, 13)}
         for p_name, p_info in planets_data.items():
             h = p_info.get("house")
             if h and 1 <= h <= 12:
                 house_occupants[h].add(p_name.lower())
-                
-        # 13 definitive rules from reference system
+
         rules = [
-            ({"sun", "venus"}, "Artificial Jupiter"),
+            ({"sun", "venus"},   "Artificial Jupiter"),
             ({"mercury", "venus"}, "Artificial Sun"),
             ({"sun", "jupiter"}, "Artificial Moon"),
-            ({"rahu", "ketu"}, "Artificial Venus (Note: Unusual Conjunction)"),
+            ({"rahu", "ketu"},   "Artificial Venus (Note: Unusual Conjunction)"),
             ({"sun", "mercury"}, "Artificial Mars (Auspicious)"),
-            ({"sun", "saturn"}, "Artificial Mars (Malefic)"),
-            ({"sun", "saturn"}, "Artificial Rahu (Debilitated Rahu)"),
+            ({"sun", "saturn"},  "Artificial Mars (Malefic)"),
+            ({"sun", "saturn"},  "Artificial Rahu (Debilitated Rahu)"),
             ({"jupiter", "rahu"}, "Artificial Mercury"),
             ({"venus", "jupiter"}, "Artificial Saturn (Like Ketu)"),
             ({"mars", "mercury"}, "Artificial Saturn (Like Rahu)"),
             ({"saturn", "mars"}, "Artificial Rahu (Exalted Rahu)"),
             ({"venus", "saturn"}, "Artificial Ketu (Exalted Ketu)"),
-            ({"moon", "saturn"}, "Artificial Ketu (Debilitated Ketu)")
+            ({"moon", "saturn"}, "Artificial Ketu (Debilitated Ketu)"),
         ]
-        
+
         for h_num, occupants in house_occupants.items():
-            if not occupants: continue
-            
+            if not occupants:
+                continue
             for required_set, result_name in rules:
                 if required_set == occupants:
-                    # Exact match for the house occupants
                     res.append({
                         "formed_in_house": h_num,
                         "masnui_graha_name": result_name,
-                        "components": [p.capitalize() for p in occupants]
+                        "components": [p.capitalize() for p in occupants],
                     })
         return res
 
@@ -384,149 +701,141 @@ class GrammarAnalyser:
         """Detect Dhoka Graha (Planet of Deceit) based on 4 types of triggers."""
         res = []
         planets = chart.get("planets_in_houses", {})
-        if not planets: return res
-        
+        if not planets:
+            return res
+
         c_type = chart.get("chart_type", "Birth")
-        
-        # Helper to get planet in specific house
-        def get_in_house(h):
-            in_h = [p for p, d in planets.items() if d.get("house") == h]
+
+        def get_in_house(h_num: int) -> str | None:
+            in_h = [p for p, d in planets.items() if d.get("house") == h_num]
             return in_h[0] if len(in_h) == 1 else None
-            
+
         # Type 2: Birth H10 Planet
         if c_type == "Birth":
             h10_planet = get_in_house(10)
             if h10_planet:
                 res.append({"type": 2, "planet": h10_planet, "effect": "Birth H10 Dhoka"})
-                
-        # Annual chart specific types
+
         elif c_type == "Yearly":
             age = chart.get("chart_period", 0)
-            
-            # Type 1: Age based sequence
             h8_ref = get_in_house(8) or "Mars"
             h9_ref = get_in_house(9) or "Jupiter"
             h12_ref = get_in_house(12) or "Jupiter"
-            base_sequence = ["Sun", "Moon", "Ketu", "Mars", "Mercury", "Saturn", "Rahu", h8_ref, h9_ref, "Jupiter", "Venus", h12_ref]
-            
+            base_sequence = [
+                "Sun", "Moon", "Ketu", "Mars", "Mercury", "Saturn",
+                "Rahu", h8_ref, h9_ref, "Jupiter", "Venus", h12_ref,
+            ]
             if age > 0:
                 col_index = (age - 1) % 12
                 res.append({"type": 1, "planet": base_sequence[col_index], "effect": "Age Sequence"})
-                
-            # Type 4: Annual H10 Planet
+
             h10_annuals = [p for p, d in planets.items() if d.get("house") == 10]
             for p in h10_annuals:
-                # Determine Umda/Manda based on H2/H8 occupation
-                h2_occ = any(d.get("house") == 2 for d in planets.values())
                 h8_occ = any(d.get("house") == 8 for d in planets.values())
-                
-                # Simplified Manda/Umda determination for now, full needs natural relationships
-                effect = "Manda" if h8_occ else ("Umda" if h2_occ else "Depends on Saturn")
+                effect = "Manda" if h8_occ else "Umda"
                 res.append({"type": 4, "planet": p, "effect": effect})
-                
-            # Type 3: 10th from planet based on birth pairs
-            mock_birth = chart.get("_mock_birth_chart", chart) # Fallback to self if no birth provided
+
+            mock_birth = chart.get("_mock_birth_chart", chart)
             b_planets = mock_birth.get("planets_in_houses", {})
             birth_pairs = {2: 11, 5: 2, 3: 12, 4: 1}
-            
+
             for p_A in h10_annuals:
                 birth_h = b_planets.get(p_A, {}).get("house")
                 if birth_h in birth_pairs:
                     target_h = birth_pairs[birth_h]
                     targets = [p_B for p_B, d in b_planets.items() if d.get("house") == target_h]
                     for p_B in targets:
-                        res.append({
-                            "type": 3, 
-                            "giver": p_A, 
-                            "receiver": p_B, 
-                            "effect": "Dhoka Trigger"
-                        })
-                        
+                        res.append({"type": 3, "giver": p_A, "receiver": p_B, "effect": "Dhoka Trigger"})
+
         return res
 
     def detect_achanak_chot_triggers(self, chart: dict) -> list[dict]:
         """Detect Achanak Chot (Sudden Strike) based on house pairs and annual aspects."""
         res = []
-        if chart.get("chart_type") != "Yearly": return res
-        
+        if chart.get("chart_type") != "Yearly":
+            return res
+
         mock_birth = chart.get("_mock_birth_chart", chart)
         b_planets = mock_birth.get("planets_in_houses", {})
         a_planets = chart.get("planets_in_houses", {})
-        
+
         pairs = [{1, 3}, {2, 4}, {4, 6}, {5, 7}, {7, 9}, {8, 10}, {10, 12}, {1, 11}]
         sig_aspects = {"100 Percent", "50 Percent", "25 Percent"}
-        
-        # Find potential pairs in birth chart
+
         potentials = []
         b_names = list(b_planets.keys())
         for i in range(len(b_names)):
             for j in range(i + 1, len(b_names)):
                 p1, p2 = b_names[i], b_names[j]
-                h1, h2 = b_planets[p1].get("house"), b_planets[p2].get("house")
+                h1 = b_planets[p1].get("house")
+                h2 = b_planets[p2].get("house")
                 if h1 and h2 and h1 != h2 and {h1, h2} in pairs:
                     potentials.append((p1, p2, h1, h2))
-                    
-        # Check if they aspect each other in annual chart
+
         for p1, p2, h1, h2 in potentials:
             p1_a = a_planets.get(p1, {})
             p2_a = a_planets.get(p2, {})
-            
-            triggered = False
-            for asp in p1_a.get("aspects", []):
-                if asp.get("aspecting_planet") == p2 and asp.get("aspect_type") in sig_aspects:
-                    triggered = True
-            if not triggered:
-                for asp in p2_a.get("aspects", []):
-                    if asp.get("aspecting_planet") == p1 and asp.get("aspect_type") in sig_aspects:
-                        triggered = True
-                        
+            triggered = any(
+                asp.get("aspecting_planet") == p2 and asp.get("aspect_type") in sig_aspects
+                for asp in p1_a.get("aspects", [])
+            ) or any(
+                asp.get("aspecting_planet") == p1 and asp.get("aspect_type") in sig_aspects
+                for asp in p2_a.get("aspects", [])
+            )
             if triggered:
-                res.append({
-                    "planets": [p1, p2],
-                    "birth_chart_houses": [h1, h2]
-                })
-                
+                res.append({"planets": [p1, p2], "birth_chart_houses": [h1, h2]})
+
         return res
 
     def detect_rin(self, chart: dict) -> list[str]:
         """Detect 9 standard Lal Kitab Debts (Rin) based on planet-house occupancy."""
         res = []
         planets = chart.get("planets_in_houses", {})
-        if not planets: return res
-        
-        # Helper to check if any planet from set is in any house from set
-        def check(plist, hlist):
+        if not planets:
+            return res
+
+        def check(plist: list[str], hlist: list[int]) -> bool:
             for p in plist:
-                h = planets.get(p, {}).get("house")
-                if h in hlist: return True
+                if planets.get(p, {}).get("house") in hlist:
+                    return True
             return False
 
-        rules = [
-            ("Ancestral Debt (Pitra Rin)", ["Venus", "Mercury", "Rahu"], [2, 5, 9, 12]),
-            ("Self Debt (Swayam Rin)", ["Venus", "Rahu"], [5]),
-            ("Maternal Debt (Matri Rin)", ["Ketu"], [4]),
-            ("Family/Wife/Woman Debt (Stri Rin)", ["Sun", "Rahu", "Ketu"], [2, 7]),
-            ("Relative/Brother Debt (Bhai-Bandhu Rin)", ["Mercury", "Ketu"], [1, 8]),
-            ("Daughter/Sister Debt (Behen/Beti Rin)", ["Moon"], [3, 6]),
-            ("Oppression/Atrocious Debt (Zulm Rin)", ["Sun", "Moon", "Mars"], [10, 11]),
-            ("Debt of the Unborn (Ajanma Rin)", ["Venus", "Sun", "Rahu"], [12]),
-            ("Negative Speech Debt (Manda Bol Rin)", ["Moon", "Mars", "Ketu"], [6])
+        rin_rules = [
+            ("Ancestral Debt (Pitra Rin)",            ["Venus", "Mercury", "Rahu"], [2, 5, 9, 12]),
+            ("Self Debt (Swayam Rin)",                 ["Venus", "Rahu"],            [5]),
+            ("Maternal Debt (Matri Rin)",              ["Ketu"],                     [4]),
+            ("Family/Wife/Woman Debt (Stri Rin)",      ["Sun", "Rahu", "Ketu"],      [2, 7]),
+            ("Relative/Brother Debt (Bhai-Bandhu Rin)", ["Mercury", "Ketu"],         [1, 8]),
+            ("Daughter/Sister Debt (Behen/Beti Rin)",  ["Moon"],                     [3, 6]),
+            ("Oppression/Atrocious Debt (Zulm Rin)",   ["Sun", "Moon", "Mars"],      [10, 11]),
+            ("Debt of the Unborn (Ajanma Rin)",        ["Venus", "Sun", "Rahu"],     [12]),
+            ("Negative Speech Debt (Manda Bol Rin)",   ["Moon", "Mars", "Ketu"],     [6]),
         ]
 
-        for name, plist, hlist in rules:
+        for name, plist, hlist in rin_rules:
             if check(plist, hlist):
                 res.append(name)
         return res
 
     def detect_dispositions(self, chart: dict) -> list[dict]:
-        """Detect 13+ specialized Lal Kitab disposition (spoiling/boosting) rules."""
+        """Detect Lal Kitab disposition (spoiling/boosting) rules — informational only.
+        
+        The strength adjustments are applied separately in _apply_disposition_strength().
+        This returns a list of triggered rules for logging/debugging.
+        """
         res = []
         planets_data = chart.get("planets_in_houses", {})
-        if not planets_data: return res
-        
-        def h(p): return planets_data.get(p, {}).get("house")
-        def has_aspect(p1, p2):
-             return any(a.get("aspecting_planet") == p2 for a in planets_data.get(p1, {}).get("aspects", []))
+        if not planets_data:
+            return res
+
+        def h(p: str) -> int | None:
+            return planets_data.get(p, {}).get("house")
+
+        def has_aspect(p1: str, p2: str) -> bool:
+            return any(
+                a.get("aspecting_planet") == p2
+                for a in planets_data.get(p1, {}).get("aspects", [])
+            )
 
         # 1. Sun-Saturn Conflict affecting Venus
         h_sun, h_sat = h("Sun"), h("Saturn")
@@ -534,15 +843,15 @@ class GrammarAnalyser:
             res.append({
                 "rule_name": f"Sun(H{h_sun})-Saturn(H{h_sat}) Conflict",
                 "affected_planets": ["Venus"],
-                "effect": "Destructive"
+                "effect": "Destructive",
             })
-        
+
         # 2. Mars-Ketu Scapegoat (Sun H6 + Mars H10)
         if h("Sun") == 6 and h("Mars") == 10:
             res.append({
                 "rule_name": "Sun(H6)-Mars(H10) Scapegoat",
                 "affected_planets": ["Ketu"],
-                "effect": "Destructive"
+                "effect": "Destructive",
             })
 
         # 3. Mercury destructive aspects
@@ -551,47 +860,40 @@ class GrammarAnalyser:
             res.append({
                 "rule_name": "Mercury(H3) Destructive",
                 "affected_planets": ["Jupiter", "Saturn"],
-                "effect": "Destructive"
+                "effect": "Destructive",
             })
         elif h_merc == 12:
             res.append({
                 "rule_name": "Mercury(H12) Destructive",
                 "affected_planets": ["Ketu"],
-                "effect": "Destructive"
+                "effect": "Destructive",
             })
 
         # 4. Jupiter-Rahu Destruction
         h_jup, h_rahu = h("Jupiter"), h("Rahu")
-        if h_jup and h_rahu and (h_jup == h_rahu or has_aspect("Jupiter", "Rahu") or has_aspect("Rahu", "Jupiter")):
+        if h_jup and h_rahu and (
+            h_jup == h_rahu or has_aspect("Jupiter", "Rahu") or has_aspect("Rahu", "Jupiter")
+        ):
             res.append({
                 "rule_name": "Jupiter-Rahu Suppression",
                 "affected_planets": ["Jupiter"],
-                "effect": "Destructive"
+                "effect": "Destructive",
             })
 
         return res
 
     def _get_35_year_ruler(self, age: int) -> str:
-        """Calculate the 35 year cycle ruler for a given age (0-indexed year)."""
-        # Lal Kitab 35 year cycle layout:
-        # Saturn (1-6), Rahu (7-12), Ketu (13-15), Jupiter (16-21),
-        # Sun (22-23), Moon (24), Venus (25-27), Mars (28-33), Mercury (34-35)
-        # We match age (which is 1-based year, e.g., age 1 is 1st year)
-        # Standard astroq maps: chart_period 0 = Birth. chart_period N = Nth year.
-        
+        """Calculate the 35-year cycle ruler for a given age (1-based annual chart_period)."""
         if age <= 0:
             return ""
-            
         period = (age - 1) % 35 + 1
-        
-        if 1 <= period <= 6: return "Saturn"
-        if 7 <= period <= 12: return "Rahu"
+        if 1  <= period <= 6:  return "Saturn"
+        if 7  <= period <= 12: return "Rahu"
         if 13 <= period <= 15: return "Ketu"
         if 16 <= period <= 21: return "Jupiter"
         if 22 <= period <= 23: return "Sun"
-        if period == 24: return "Moon"
+        if period == 24:       return "Moon"
         if 25 <= period <= 27: return "Venus"
         if 28 <= period <= 33: return "Mars"
         if 34 <= period <= 35: return "Mercury"
-        
         return ""

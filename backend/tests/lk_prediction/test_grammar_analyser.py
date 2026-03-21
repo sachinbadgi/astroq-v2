@@ -104,11 +104,13 @@ class TestGrammarAnalyser:
     def test_dharmi_planet_gets_boost(self, tmp_defaults, tmp_db):
         analyser = self._make_analyser(tmp_defaults, tmp_db)
         enriched = {"Saturn": _make_enriched_planet(11, 10.0)}
+        # Must pass dharmi_status in planet data so analyser picks it up
         chart = {"planets_in_houses": {"Saturn": {"house": 11, "dharmi_status": "Dharmi Planet"}}}
         analyser.apply_grammar_rules(chart, enriched)
         
         assert enriched["Saturn"]["dharmi_status"] == "Dharmi Planet"
         assert enriched["Saturn"]["strength_breakdown"]["dharmi"] > 0
+
 
     def test_dharmi_kundli_boosts_all_planets(self, tmp_defaults, tmp_db):
         analyser = self._make_analyser(tmp_defaults, tmp_db)
@@ -122,8 +124,14 @@ class TestGrammarAnalyser:
         analyser.apply_grammar_rules(chart, enriched)
         
         assert chart["dharmi_kundli_status"] == "Dharmi Teva"
+        assert enriched["Saturn"]["dharmi_status"] == "Dharmi Teva"
+        # Dharmi boost is applied via strength_breakdown["dharmi"]
         assert enriched["Saturn"]["strength_breakdown"]["dharmi"] > 0
+        # Jupiter is in H10 — it aspects H4 (occupied only if something is in H4).
+        # In this chart H4 is empty, so Jupiter is sleeping. After sleeping→dharmi boost
+        # the net dharmi entry should still be > 0 (applied before sleeping zeroes).
         assert enriched["Jupiter"]["strength_breakdown"]["dharmi"] > 0
+
 
     # -- 4. Sathi (Companions) --
     def test_sathi_companions_get_boost(self, tmp_defaults, tmp_db):
@@ -142,20 +150,31 @@ class TestGrammarAnalyser:
 
     # -- 5. Bil Mukabil (Hostile Confrontation) --
     def test_bilmukabil_penalty_for_enemies(self, tmp_defaults, tmp_db):
-        """100% aspect (e.g. 1->7) between enemies causes Bil Mukabil penalty."""
+        """BilMukabil requires natural friends + significant aspect + enemy in foundational house.
+        
+        The correct 3-step logic per Section 14.3 of lk_prediction_model_v2.md:
+          1. Natural friends (Sun and Moon are friends)
+          2. Significant aspect (H1↔H7 = 100% aspect)
+          3. Enemy in foundational: Saturn (enemy of Sun) in H4 = foundational house of Moon [4]
+        """
         analyser = self._make_analyser(tmp_defaults, tmp_db)
         enriched = {
-            "Sun": _make_enriched_planet(1, 10.0),
-            "Saturn": _make_enriched_planet(7, 10.0)
+            "Sun":  _make_enriched_planet(1, 10.0),
+            "Moon": _make_enriched_planet(7, 10.0)
         }
         chart = _make_minimal_chart({
-            "Sun": {"house": 1, "aspects": [{"aspecting_planet": "Saturn", "house": 7, "aspect_type": "100 Percent", "relationship": "enemy"}]},
-            "Saturn": {"house": 7, "aspects": [{"aspecting_planet": "Sun", "house": 1, "aspect_type": "100 Percent", "relationship": "enemy"}]}
+            # Sun(H1) and Moon(H7): natural friends; H1↔H7 is 100% mutual aspect
+            "Sun":    {"house": 1, "aspects": [{"aspecting_planet": "Moon", "aspect_type": "100 Percent", "relationship": "friend"}]},
+            "Moon":   {"house": 7, "aspects": [{"aspecting_planet": "Sun", "aspect_type": "100 Percent", "relationship": "friend"}]},
+            # Saturn (enemy of Sun) in H4 = foundational house of Moon [4] → triggers!
+            "Saturn": {"house": 4, "aspects": []},
         })
         analyser.apply_grammar_rules(chart, enriched)
         
-        assert "Saturn" in enriched["Sun"]["bilmukabil_hostile_to"]
+        assert "Moon" in enriched["Sun"]["bilmukabil_hostile_to"]
         assert enriched["Sun"]["strength_breakdown"]["bilmukabil"] < 0
+
+
 
     # -- 6. Mangal Badh --
     def test_mangal_badh_penalty_applies_to_mars(self, tmp_defaults, tmp_db):
@@ -225,14 +244,18 @@ class TestGrammarAnalyser:
     def test_rin_debt_penalty_applied(self, tmp_defaults, tmp_db):
         analyser = self._make_analyser(tmp_defaults, tmp_db)
         enriched = {"Venus": _make_enriched_planet(2, 10.0)}
+        # Venus in H2 (aspects H6), Mars in H6 → Venus aspect hits occupied house → awake
         chart = {
-            "planets_in_houses": {"Venus": {"house": 2}},
+            "planets_in_houses": {"Venus": {"house": 2}, "Mars": {"house": 6}},
         }
+        # Add Mars to enriched too so apply_grammar_rules works properly
+        enriched["Mars"] = _make_enriched_planet(6, 3.0)
         analyser.apply_grammar_rules(chart, enriched)
         
-        # detector finds "Ancestral Debt (Pitra Rin)" because Venus is in H2
+        # Venus in H2 triggers Ancestral Debt (Pitra Rin) — Venus carries the debt
         assert "Ancestral Debt (Pitra Rin)" in enriched["Venus"]["rin_debts"]
         assert enriched["Venus"]["strength_breakdown"]["rin"] < 0
+
 
     # -- 11. 35 Year Cycle System --
     def test_35_year_cycle_boost(self, tmp_defaults, tmp_db):
@@ -314,10 +337,23 @@ class TestGrammarAnalyser:
         assert is_sleeping is True
 
     def test_detector_sleeping_planet_false_if_aspecting(self, tmp_defaults, tmp_db):
-        """A planet casting aspects is awake."""
+        """A planet casting aspects to an OCCUPIED house (via aspect map) is awake.
+        
+        Using the canonical HOUSE_ASPECT_MAP:
+          H2 aspects H6. If Moon is in H2 and Saturn is in H6 → Moon is Awake.
+        NOTE: The old test used 'aspects' list data but the new implementation 
+        uses the canonical HOUSE_ASPECT_MAP instead.
+        """
         analyser = self._make_analyser(tmp_defaults, tmp_db)
-        chart = {"planets_in_houses": {"Sun": {"house": 2, "aspects": [{"aspecting_planet": "Saturn"}]}}}
-        assert analyser.detect_sleeping("Sun", chart["planets_in_houses"]) is False
+        # Moon (pakka ghar = H4) in H2 → not in pakka ghar.
+        # H2 aspects H6 (via HOUSE_ASPECT_MAP). Saturn in H6 → H6 occupied.
+        # So Moon is AWAKE (not sleeping).
+        chart = {"planets_in_houses": {
+            "Moon":   {"house": 2},
+            "Saturn": {"house": 6},
+        }}
+        assert analyser.detect_sleeping("Moon", chart["planets_in_houses"]) is False
+
 
     def test_detector_kaayam_true(self, tmp_defaults, tmp_db):
         """Planet with base strength > 5 and NO enemy aspects received is Kaayam."""
@@ -343,25 +379,54 @@ class TestGrammarAnalyser:
         assert analyser.detect_sathi("Jupiter", "Moon", chart["planets_in_houses"]) is True
 
     def test_detector_bilmukabil(self, tmp_defaults, tmp_db):
+        """BilMukabil requires natural friends + significant aspect + enemy in foundational house.
+        
+        Jupiter(H4) and Sun(H10) are natural friends; H4↔H10 is 100% aspect.
+        Saturn (enemy of Sun) is in H2 = foundational house of Jupiter → triggers!
+        """
         analyser = self._make_analyser(tmp_defaults, tmp_db)
         chart = {"planets_in_houses": {
-            "Saturn": {"house": 7, "aspects": [{"aspecting_house": 1, "aspect_type": "100 Percent", "relationship": "enemy"}]},
-            "Sun": {"house": 1, "aspects": [{"aspecting_house": 7, "aspect_type": "100 Percent", "relationship": "enemy"}]}
+            "Jupiter": {"house": 4, "aspects": [{"aspecting_planet": "Sun", "aspect_type": "100 Percent", "relationship": "friend"}]},
+            "Sun":     {"house": 10, "aspects": [{"aspecting_planet": "Jupiter", "aspect_type": "100 Percent", "relationship": "friend"}]},
+            "Saturn":  {"house": 2, "aspects": []},   # enemy of Sun; H2 is foundational of Jupiter
         }}
-        assert analyser.detect_bilmukabil("Saturn", "Sun", chart["planets_in_houses"]) is True
+        assert analyser.detect_bilmukabil("Jupiter", "Sun", chart["planets_in_houses"]) is True
+
 
     def test_detector_mangal_badh_counter(self, tmp_defaults, tmp_db):
-        """Test counters based on Mars afflictions."""
+        """Test counters based on Mars afflictions using the complete 17-rule system.
+        
+        Chart arrangements:
+          - Sun(H1), Saturn(H1): R1 fires (+1: Sun+Saturn conjunct)
+          - Moon(H5): OUT of [1,2,3,4,8,9] so D4 doesn't fire
+          - Venus(H2): R9 checks Venus in H9 (not H2) → doesn't fire
+          - Mars(H4): R8 checks H3 (not H4) → doesn't fire; R11 H6 → not H4
+          - Mercury(H2): R12 checks H1,H3,H8 → H2 doesn't fire
+          - Rahu(H7): R13 checks H5,H9 → H7 doesn't fire
+          - Ketu(H12): R6 H1 → no; R7 H8 → no
+          - Sun(H1): Sun NOT in [6,7,10,12] → R10 doesn't fire
+          - Does Moon aspect Mars? Moon(H5) → HOUSE_ASPECT_MAP[5]=[9], Mars in H4 → H4 not in [9] → R3 fires (+1)
+          - Does Sun aspect Mars? Sun(H1) → [7], Mars in H4 → H4 not in [7] → R2 fires (+1)
+         = Total increments: R1+R2+R3 = 3, decrements: 0
+        """
         analyser = self._make_analyser(tmp_defaults, tmp_db)
         chart = _make_minimal_chart({
-            "Mars": {"house": 4, "aspects": [{"aspecting_planet": "Sun"}]},
-            "Sun": {"house": 1},
-            "Saturn": {"house": 1}, # +1 counter
+            "Mars":    {"house": 4, "aspects": [{"aspecting_planet": "Sun"}]},
+            "Sun":     {"house": 1},
+            "Saturn":  {"house": 1},  # R1: Sun+Saturn conjunct → +1
             "Mercury": {"house": 2},
-            "Venus": {"house": 2},  # +1 counter
+            "Venus":   {"house": 2},  # Venus NOT in H9 → R9 doesn't fire
+            "Moon":    {"house": 5},  # Moon→H9 (aspect), Mars in H4 → R3 fires (+1)
+            "Rahu":    {"house": 7},  # Not H5/H9 → R13 doesn't fire
+            "Ketu":    {"house": 12}, # Not H1/H8 → R6/R7 don't fire
+            "Jupiter": {"house": 9},
         })
         counter = analyser.detect_mangal_badh(chart)
-        assert counter == 2
+        # R1(Sun+Sat conjunct)=+1, R2(Sun no aspect Mars)=+1, R3(Moon no aspect Mars)=+1
+        # Sun H1 aspects H7; Mars in H4, NOT H7 → Sun doesn't aspect Mars → R2 fires
+        # Moon H5 aspects H9; Mars in H4, NOT H9 → Moon doesn't aspect Mars → R3 fires
+        assert counter == 3, f"Expected 3, got {counter}"
+
 
     def test_detector_masnui_forms_combinations(self, tmp_defaults, tmp_db):
         """Test Masnui combinations (Sun+Venus=Jupiter etc) in the same house."""

@@ -879,3 +879,294 @@ Phase 10: Tune      → Adjust config overrides per figure → Re-benchmark
 | LLM-based natural language polishing of prediction text | Low | Future enhancement |
 | Expand deterministic rules beyond 1074 (additional Goswami tables) | Medium | Depends on data extraction |
 | Frontend integration for prediction display | Low | After backend complete |
+
+---
+
+## 14. Complete Grammar Feature Reference
+
+> **CRITICAL**: This section documents the EXACT rules from the reference codebase that must be
+> implemented in full. No stubs allowed. Every rule below has a corresponding test.
+
+---
+
+### 14.1 Mangal Badh — Complete 17-Rule System
+
+**Source**: `D:\astroq-mar26\backend\astroq\Mars_special_rules.py` → `calculate_mangal_badh()`
+
+The Mangal Badh counter uses **additive increment** (13 rules) and **subtractive decrement** (4 rules).
+Final counter can be negative (means NO Mangal Badh).
+
+#### Increment Rules (+1 each)
+
+| Rule | Condition |
+|------|-----------|
+| R1 | Sun and Saturn are conjunct (same house) |
+| R2 | Sun does NOT cast an aspect to Mars |
+| R3 | Moon does NOT cast an aspect to Mars |
+| R4 | Mercury in H6 **AND** Ketu in H6 |
+| R5 | Mars+Mercury conjunct **OR** Mars+Ketu conjunct |
+| R6 | Ketu in H1 |
+| R7 | Ketu in H8 |
+| R8 | Mars in H3 |
+| R9 | Venus in H9 |
+| R10 | Sun in any of H6, H7, H10, H12 |
+| R11 | Mars in H6 |
+| R12 | Mercury in any of H1, H3, H8 |
+| R13 | Rahu in any of H5, H9 |
+
+> **Note**: R2/R3 may appear twice in the original logic for a max total of 17 increments.
+> The counter is computed as `sum(increments) - sum(decrements)`.
+
+#### Decrement Rules (−1 each)
+
+| Rule | Condition |
+|------|-----------|
+| D1 | Sun and Mercury are conjunct (same house) |
+| D2 | Mars in H8 **AND** Mercury in H8 |
+| D3 | Sun in H3 **AND** Mercury in H3 |
+| D4 | Moon in any of H1, H2, H3, H4, H8, H9 |
+
+#### Strength Reduction Formula
+
+```python
+# Applied to Mars strength AFTER all disposition rules
+mangal_badh_counter = max(0, counter)   # only apply if positive
+reduction = abs(mars_strength_total) * (1 + mangal_badh_counter / 16.0)
+mars_new_strength = mars_strength_total - reduction
+```
+
+> **Config Key**: `strength.mangal_badh_divisor` must be **16.0** (NOT 5.0).
+> The formula is: `strength * (1 + counter/divisor)` is the **reduction amount**,
+> subtracted from the current strength.
+
+#### Aspect Detection Helper
+
+To check if planet A "aspects" planet B, use the canonical Lal Kitab aspect map:
+
+```python
+HOUSE_ASPECT_MAP = {
+    1: [7], 2: [6], 3: [9, 11], 4: [10], 5: [9],
+    6: [12], 7: [1], 8: [], 9: [3, 5], 10: [4],
+    11: [3, 5], 12: [6]
+}
+
+def planet_aspects(planet_a, planet_b, planets_data):
+    h_a = planets_data.get(planet_a, {}).get("house")
+    h_b = planets_data.get(planet_b, {}).get("house")
+    if not h_a or not h_b:
+        return False
+    return h_b in HOUSE_ASPECT_MAP.get(h_a, [])
+```
+
+---
+
+### 14.2 Disposition Rules — Complete 16-Rule System
+
+**Source**: `D:\astroq-mar26\backend\astroq\global_birth_yearly_strength_additional_checks.py`
+→ `lal_kitab_planet_disposition_rules` list
+
+Each rule specifies a `causer_planet` and `affected_planet`. The causer's absolute strength
+is **added to** (Good) or **subtracted from** (Bad) the affected planet's `strength_total`.
+
+```python
+adjustment_amount = abs(causer_planet.strength_total)
+if disposition == "Good":
+    affected_planet.strength_total += adjustment_amount
+elif disposition == "Bad":
+    affected_planet.strength_total -= adjustment_amount
+```
+
+#### Rule Table
+
+| Rule ID | Causer Condition | Affected Planet | Effect |
+|---------|-----------------|-----------------|--------|
+| DISP_JUP7_VENUS_BAD | Jupiter in H7 | Venus | Bad |
+| DISP_RAHU_H11_JUP_BAD | Rahu in H11 | Jupiter | Bad |
+| DISP_RAHU_H12_JUP_BAD | Rahu in H12 | Jupiter | Bad |
+| DISP_SUN_H6_SATURN_BAD | Sun in H6 | Saturn | Bad |
+| DISP_SUN_H10_MARS_KETU_BAD | Sun in H10 | Mars, Ketu | Bad (both) |
+| DISP_SUN_H11_MARS_BAD | Sun in H11 | Mars | Bad |
+| DISP_MOON_H1_H3_H8_MARS_GOOD | Moon in H1, H3, or H8 | Mars | Good |
+| DISP_VENUS_H9_MARS_BAD | Venus in H9 | Mars | Bad |
+| DISP_VENUS_H2_H5_H12_JUP_BAD | Venus in H2, H5, or H12 | Jupiter | Bad |
+| DISP_MERCURY_H3_H6_H8_H12_MOON_BAD | Mercury in H3, H6, H8, or H12 | Moon | Bad |
+| DISP_MERCURY_H2_H5_H9_JUP_BAD | Mercury in H2, H5, or H9 | Jupiter | Bad |
+| DISP_SATURN_H4_H6_H10_MOON_BAD | Saturn in H4, H6, or H10 | Moon | Bad |
+| DISP_RAHU_H2_H5_H6_H9_JUP_BAD | Rahu in H2, H5, H6, or H9 | Jupiter | Bad |
+| DISP_KETU_H11_H12_JUP_BAD | Ketu in H11 or H12 | Jupiter | Bad |
+| DISP_KETU_H11_H12_MARS_BAD_VENUS_GOOD | Ketu in H11 or H12 | Mars (Bad), Venus (Good) | Mixed |
+| DISP_MOON_H6_MARS_BAD_VENUS_GOOD | Moon in H6 | Mars (Bad), Venus (Good) | Mixed |
+
+> **Order**: These are applied **before** the Mangal Badh reduction. Both birth and annual
+> charts get disposition rules applied independently.
+
+---
+
+### 14.3 BilMukabil — Correct 3-Step Detection
+
+**Source**: `D:\astroq-mar26\backend\astroq\global_birth_yearly_grammer_rules.py`
+→ `check_bilmukabil()`
+
+The current implementation only checks if planets have 100% enemy aspects. The **CORRECT** logic
+requires ALL THREE conditions:
+
+#### Natural Relationships Table
+
+```python
+NATURAL_RELATIONSHIPS = {
+    "Jupiter": {"Friends": ["Sun", "Moon", "Mars"], "Enemies": ["Venus", "Mercury"],  "Even": ["Rahu", "Ketu", "Saturn"]},
+    "Sun":     {"Friends": ["Jupiter", "Mars", "Moon"], "Enemies": ["Venus", "Saturn", "Rahu"], "Even": ["Mercury", "Ketu"]},
+    "Moon":    {"Friends": ["Sun", "Mercury"], "Enemies": ["Ketu"],  "Even": ["Venus", "Saturn", "Mars", "Jupiter", "Rahu"]},
+    "Venus":   {"Friends": ["Saturn", "Mercury", "Ketu"], "Enemies": ["Sun", "Moon", "Rahu"], "Even": ["Mars", "Jupiter"]},
+    "Mars":    {"Friends": ["Sun", "Moon", "Jupiter"], "Enemies": ["Mercury", "Ketu"], "Even": ["Venus", "Saturn", "Rahu"]},
+    "Mercury": {"Friends": ["Sun", "Venus", "Rahu"], "Enemies": ["Moon"], "Even": ["Saturn", "Ketu", "Mars", "Jupiter"]},
+    "Saturn":  {"Friends": ["Mercury", "Venus", "Rahu"], "Enemies": ["Sun", "Moon", "Mars"], "Even": ["Ketu", "Jupiter"]},
+    "Rahu":    {"Friends": ["Mercury", "Saturn", "Ketu"], "Enemies": ["Sun", "Venus", "Mars"], "Even": ["Jupiter", "Moon"]},
+    "Ketu":    {"Friends": ["Venus", "Rahu"], "Enemies": ["Moon", "Mars"], "Even": ["Jupiter", "Saturn", "Mercury", "Sun"]},
+}
+```
+
+#### Foundational Houses Table
+
+```python
+FOUNDATIONAL_HOUSES = {
+    "Sun":     [1, 5],
+    "Moon":    [4],
+    "Mars":    [1, 3, 8],
+    "Mercury": [3, 6, 7],
+    "Jupiter": [2, 5, 9, 11, 12],
+    "Venus":   [2, 7],
+    "Saturn":  [8, 10, 11],
+    "Rahu":    [11, 12],
+    "Ketu":    [6],
+}
+```
+
+#### Detection Algorithm
+
+```python
+def detect_bilmukabil(p1, p2, planets_data):
+    # Step 1: Must be natural friends
+    if p2 not in NATURAL_RELATIONSHIPS.get(p1, {}).get("Friends", []):
+        return False
+
+    # Step 2: Significant mutual aspect (100%, 50%, or 25%)
+    SIGNIFICANT = {"100 Percent", "50 Percent", "25 Percent"}
+    p1_aspects_p2 = any(
+        a.get("aspecting_planet") == p2 and a.get("aspect_type") in SIGNIFICANT
+        for a in planets_data.get(p1, {}).get("aspects", [])
+    )
+    p2_aspects_p1 = any(
+        a.get("aspecting_planet") == p1 and a.get("aspect_type") in SIGNIFICANT
+        for a in planets_data.get(p2, {}).get("aspects", [])
+    )
+    if not (p1_aspects_p2 or p2_aspects_p1):
+        return False
+
+    # Step 3: Enemy of either in the foundational house of the other
+    enemies_p1 = NATURAL_RELATIONSHIPS.get(p1, {}).get("Enemies", [])
+    enemies_p2 = NATURAL_RELATIONSHIPS.get(p2, {}).get("Enemies", [])
+    foundational_p1 = FOUNDATIONAL_HOUSES.get(p1, [])
+    foundational_p2 = FOUNDATIONAL_HOUSES.get(p2, [])
+
+    for enemy in enemies_p1:
+        if enemy in planets_data and planets_data[enemy].get("house") in foundational_p2:
+            return True
+    for enemy in enemies_p2:
+        if enemy in planets_data and planets_data[enemy].get("house") in foundational_p1:
+            return True
+
+    return False
+```
+
+---
+
+### 14.4 Sleeping Planet — Canonical Aspect-Map Detection
+
+**Source**: `D:\astroq-mar26\backend\astroq\global_birth_yearly_grammer_rules.py`
+→ `check_sleeping_planet()`
+
+The current implementation uses `len(aspects) > 0` which relies on pre-computed aspect data.
+The CORRECT implementation checks whether a planet casts aspects **to occupied houses** using
+the canonical Lal Kitab aspect map:
+
+```python
+HOUSE_ASPECT_MAP = {
+    1: [7], 2: [6], 3: [9, 11], 4: [10], 5: [9],
+    6: [12], 7: [1], 8: [], 9: [3, 5], 10: [4],
+    11: [3, 5], 12: [6]
+}
+
+def detect_sleeping(planet, planets_data):
+    PAKKA_GHAR = {"Sun": 1, "Moon": 4, "Mars": 3, "Mercury": 7, "Jupiter": 2,
+                  "Venus": 7, "Saturn": 10, "Rahu": 12, "Ketu": 6}
+    p_data = planets_data.get(planet)
+    if not p_data:
+        return False
+
+    planet_house = p_data.get("house")
+    if not planet_house:
+        return False
+
+    # Condition 1: In pakka ghar → never sleeping
+    if planet_house == PAKKA_GHAR.get(planet):
+        return False
+
+    # Condition 2: Check if planet's aspect map targets any OCCUPIED house
+    aspected_houses = HOUSE_ASPECT_MAP.get(planet_house, [])
+    for house in aspected_houses:
+        occupied = [p for p, d in planets_data.items()
+                    if p != planet and d.get("house") == house]
+        if occupied:
+            return False  # Aspects another planet → Awake
+
+    return True  # Not in pakka ghar AND not aspecting any planet → Sleeping
+```
+
+---
+
+### 14.5 Processing Order (Updated)
+
+With the complete grammar rules, the processing order in `apply_grammar_rules()` must be:
+
+```
+1. Detect all grammar flags:
+   - detect_sleeping() [uses HOUSE_ASPECT_MAP]
+   - detect_dharmi_kundli()
+   - detect_dharmi_graha() per planet
+   - detect_kaayam() per planet
+   - detect_sathi() per planet pair
+   - detect_bilmukabil() per planet pair [3-step logic]
+   - detect_masnui()
+   - detect_dhoka()
+   - detect_achanak_chot_triggers()
+   - detect_rin()
+   - detect_mangal_badh() [17-rule counter]
+
+2. Apply disposition rules (16 rules)
+   - Causer's |strength| added to or subtracted from affected planets
+
+3. Apply per-planet strength adjustments (in this order):
+   a. Sleeping factor (zeros out)
+   b. Kaayam boost
+   c. Dharmi boost (or Dharmi Teva boost)
+   d. Sathi companion additive boost
+   e. BilMukabil penalty
+   f. Masnui parent feedback
+   g. Dhoka Graha penalty
+   h. Achanak Chot flat penalty
+   i. Rin debt penalty
+   j. 35Y cycle ruler boost
+
+4. Apply Mangal Badh to Mars strength last:
+   - Formula: mars_strength -= mars_strength * (1 + counter / 16.0)
+```
+
+---
+
+### 14.6 Config Key Updates
+
+| Config Key | Old Default | Correct Value | Reason |
+|-----------|-------------|---------------|--------|
+| `strength.mangal_badh_divisor` | 5.0 | **16.0** | Reference formula uses /16 |
+
