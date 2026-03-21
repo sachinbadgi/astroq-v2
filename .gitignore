@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.benchmarks/
+.DS_Store
+.env
+venv/
+env/
+dist/
+build/
+*.bak
+*.swp
+*.log

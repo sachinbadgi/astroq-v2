@@ -1,0 +1,444 @@
+{
+    "client_name": "Test User",
+    "dob": "1990-05-15",
+    "tob": "14:30:00",
+    "place": "New Delhi, India",
+    "natal_chart_data": {
+        "chart_type": "Birth",
+        "chart_period": 0,
+        "birth_time": "1990-05-15T14:30:00",
+        "planets_in_houses": {
+            "Sun": {
+                "house": 9,
+                "house_natal": 9,
+                "aspects": [
+                    {
+                        "aspect_strength": 0.75,
+                        "aspect_type": "Confrontation",
+                        "relationship": "friend"
+                    },
+                    {
+                        "aspect_strength": -5,
+                        "aspect_type": "Confrontation",
+                        "relationship": "enemy"
+                    },
+                    {
+                        "aspect_strength": -5,
+                        "aspect_type": "Foundation",
+                        "relationship": "enemy"
+                    },
+                    {
+                        "aspect_strength": 2,
+                        "aspect_type": "Deception",
+                        "relationship": "friend"
+                    },
+                    {
+                        "aspect_strength": 0.666667,
+                        "aspect_type": "Joint Wall",
+                        "relationship": "friend"
+                    }
+                ]
+            },
+            "Moon": {
+                "house": 4,
+                "house_natal": 4,
+                "aspects": [
+                    {
+                        "aspect_strength": 2,
+                        "aspect_type": "Outside Help",
+                        "relationship": "friend"
+                    },
+                    {
+                        "aspect_strength": 2,
+                        "aspect_type": "General Condition",
+                        "relationship": "equal"
+                    },
+                    {
+                        "aspect_strength": -5,
+                        "aspect_type": "Confrontation",
+                        "relationship": "enemy"
+                    },
+                    {
+                        "aspect_strength": 0.5,
+                        "aspect_type": "Joint Wall",
+                        "relationship": "enemy"
+                    },
+                    {
+                        "aspect_strength": 2,
+                        "aspect_type": "100 Percent",
+                        "relationship": "equal"
+                    }
+                ]
+            },
+            "Mercury": {
+                "house": 8,
+                "house_natal": 8,
+                "aspects": [
+                    {
+                        "aspect_strength": 0.5,
+                        "aspect_type": "Foundation",
+                        "relationship": "enemy"
+                    },
+                    {
+                        "aspect_strength": 1.25,
+                        "aspect_type": "Foundation",
+                        "relationship": "equal"
+                    },
+                    {
+                        "aspect_strength": 2,
+                        "aspect_type": "Deception",
+                        "relationship": "friend"
+                    },
+                    {
+                        "aspect_strength": 2,
+                        "aspect_type": "Joint Wall",
+                        "relationship": "friend"
+                    }
+                ]
+            },
+            "Venus": {
+                "house": 7,
+                "house_natal": 7,
+                "aspects": [
+                    {
+                        "aspect_strength": 2,
+                        "aspect_type": "Outside Help",
+                        "relationship": "friend"
+                    },
+                    {
+                        "aspect_strength": 0.5,
+                        "aspect_type": "Deception",
+                        "relationship": "enemy"
+                    },
+                    {
+                        "aspect_strength": 0.333333,
+                        "aspect_type": "Deception",
+                        "relationship": "friend"
+                    },
+                    {
+                        "aspect_strength": 1,
+                        "aspect_type": "Joint Wall",
+                        "relationship": "friend"
+                    }
+                ]
+            },
+            "Mars": {
+                "house": 6,
+                "house_natal": 6,
+                "aspects": [
+                    {
+                        "aspect_strength": 2,
+                        "aspect_type": "Outside Help",
+                        "relationship": "friend"
+                    },
+                    {
+                        "aspect_strength": 0.333333,
+                        "aspect_type": "Joint Wall",
+                        "relationship": "equal"
+                    }
+                ]
+            },
+            "Jupiter": {
+                "house": 10,
+                "house_natal": 10,
+                "aspects": [
+                    {
+                        "aspect_strength": 0.5,
+                        "aspect_type": "General Condition",
+                        "relationship": "friend"
+                    },
+                    {
+                        "aspect_strength": 3,
+                        "aspect_type": "General Condition",
+                        "relationship": "equal"
+                    },
+                    {
+                        "aspect_strength": 2,
+                        "aspect_type": "Confrontation",
+                        "relationship": "equal"
+                    },
+                    {
+                        "aspect_strength": 2,
+                        "aspect_type": "Foundation",
+                        "relationship": "friend"
+                    },
+                    {
+                        "aspect_strength": 3.75,
+                        "aspect_type": "Deception",
+                        "relationship": "enemy"
+                    },
+                    {
+                        "aspect_strength": 0.83333,
+                        "aspect_type": "Joint Wall",
+                        "relationship": "equal"
+                    }
+                ]
+            },
+            "Saturn": {
+                "house": 4,
+                "house_natal": 4,
+                "aspects": [
+                    {
+                        "aspect_strength": 0.8,
+                        "aspect_type": "Outside Help",
+                        "relationship": "friend"
+                    },
+                    {
+                        "aspect_strength": 1.25,
+                        "aspect_type": "General Condition",
+                        "relationship": "equal"
+                    },
+                    {
+                        "aspect_strength": 0.5,
+                        "aspect_type": "Confrontation",
+                        "relationship": "equal"
+                    },
+                    {
+                        "aspect_strength": 2,
+                        "aspect_type": "Joint Wall",
+                        "relationship": "friend"
+                    },
+                    {
+                        "aspect_strength": 1.25,
+                        "aspect_type": "100 Percent",
+                        "relationship": "equal"
+                    }
+                ]
+            },
+            "Rahu": {
+                "house": 5,
+                "house_natal": 5,
+                "aspects": [
+                    {
+                        "aspect_strength": -5,
+                        "aspect_type": "Outside Help",
+                        "relationship": "enemy"
+                    },
+                    {
+                        "aspect_strength": 1,
+                        "aspect_type": "General Condition",
+                        "relationship": "friend"
+                    },
+                    {
+                        "aspect_strength": 1,
+                        "aspect_type": "Joint Wall",
+                        "relationship": "enemy"
+                    },
+                    {
+                        "aspect_strength": -5,
+                        "aspect_type": "50 Percent",
+                        "relationship": "enemy"
+                    }
+                ]
+            },
+            "Ketu": {
+                "house": 11,
+                "house_natal": 11,
+                "aspects": [
+                    {
+                        "aspect_strength": 1,
+                        "aspect_type": "General Condition",
+                        "relationship": "friend"
+                    },
+                    {
+                        "aspect_strength": 0.5,
+                        "aspect_type": "Confrontation",
+                        "relationship": "enemy"
+                    },
+                    {
+                        "aspect_strength": 2,
+                        "aspect_type": "Foundation",
+                        "relationship": "friend"
+                    },
+                    {
+                        "aspect_strength": 0.75,
+                        "aspect_type": "Deception",
+                        "relationship": "equal"
+                    }
+                ]
+            }
+        }
+    },
+    "lk_predictions_v2": [
+        {
+            "domain": "Emotions",
+            "event_type": "Moon_mixed",
+            "prediction_text": "Lal Kitab prediction for Moon in House 4",
+            "confidence": "CERTAIN",
+            "polarity": "MIXED",
+            "peak_age": 0,
+            "age_window": [
+                0,
+                0
+            ],
+            "probability": 0.9268398274821904,
+            "affected_people": [
+                "Mother",
+                "Public",
+                "Women"
+            ],
+            "affected_items": [
+                "Home",
+                "Milk",
+                "Property",
+                "Rice",
+                "Silver",
+                "Vehicles",
+                "Water"
+            ],
+            "source_planets": [
+                "Moon"
+            ],
+            "source_houses": [
+                4
+            ],
+            "source_rules": [],
+            "remedy_applicable": false,
+            "remedy_hints": []
+        },
+        {
+            "domain": "Business",
+            "event_type": "Mercury_mixed",
+            "prediction_text": "Lal Kitab prediction for Mercury in House 8",
+            "confidence": "CERTAIN",
+            "polarity": "MIXED",
+            "peak_age": 0,
+            "age_window": [
+                0,
+                0
+            ],
+            "probability": 0.95,
+            "affected_people": [
+                "Business Partners",
+                "Daughters",
+                "Sisters"
+            ],
+            "affected_items": [
+                "Books",
+                "Business",
+                "Green items",
+                "Hidden Wealth",
+                "Obstacles"
+            ],
+            "source_planets": [
+                "Mercury"
+            ],
+            "source_houses": [
+                8
+            ],
+            "source_rules": [],
+            "remedy_applicable": false,
+            "remedy_hints": []
+        },
+        {
+            "domain": "Business",
+            "event_type": "Venus_mixed",
+            "prediction_text": "Lal Kitab prediction for Venus in House 7",
+            "confidence": "CERTAIN",
+            "polarity": "MIXED",
+            "peak_age": 0,
+            "age_window": [
+                0,
+                0
+            ],
+            "probability": 0.95,
+            "affected_people": [
+                "Partners",
+                "Spouse",
+                "Wife",
+                "Women"
+            ],
+            "affected_items": [
+                "Clothes",
+                "Cosmetics",
+                "Luxury",
+                "Vehicles"
+            ],
+            "source_planets": [
+                "Venus"
+            ],
+            "source_houses": [
+                7
+            ],
+            "source_rules": [],
+            "remedy_applicable": false,
+            "remedy_hints": []
+        },
+        {
+            "domain": "Accidents",
+            "event_type": "Mars_volatile",
+            "prediction_text": "Lal Kitab prediction for Mars in House 6",
+            "confidence": "POSSIBLE",
+            "polarity": "VOLATILE",
+            "peak_age": 0,
+            "age_window": [
+                0,
+                0
+            ],
+            "probability": 0.5880682912945114,
+            "affected_people": [
+                "Brothers",
+                "Enemies",
+                "Friends"
+            ],
+            "affected_items": [
+                "Blood",
+                "Debts",
+                "Diseases",
+                "Land",
+                "Property",
+                "Weapons"
+            ],
+            "source_planets": [
+                "Mars"
+            ],
+            "source_houses": [
+                6
+            ],
+            "source_rules": [],
+            "remedy_applicable": true,
+            "remedy_hints": [
+                "Lal Kitab remedy required for Mars",
+                "Check condition of House 6",
+                "Feed animals associated with planet"
+            ]
+        },
+        {
+            "domain": "Career",
+            "event_type": "Saturn_mixed",
+            "prediction_text": "Lal Kitab prediction for Saturn in House 4",
+            "confidence": "CERTAIN",
+            "polarity": "MIXED",
+            "peak_age": 0,
+            "age_window": [
+                0,
+                0
+            ],
+            "probability": 0.95,
+            "affected_people": [
+                "Elderly",
+                "Mother",
+                "Subordinates",
+                "Uncles"
+            ],
+            "affected_items": [
+                "Home",
+                "Iron",
+                "Machinery",
+                "Oil",
+                "Property",
+                "Shoes",
+                "Vehicles"
+            ],
+            "source_planets": [
+                "Saturn"
+            ],
+            "source_houses": [
+                4
+            ],
+            "source_rules": [],
+            "remedy_applicable": false,
+            "remedy_hints": []
+        }
+    ]
+}
