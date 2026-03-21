@@ -1,0 +1,4 @@
+{
+  "event_classifier.threshold_absolute": 0.65,
+  "probability.delivery_pucca_ghar": 1.5
+}

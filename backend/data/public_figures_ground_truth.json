@@ -1,0 +1,106 @@
+[
+  {
+    "name": "Amitabh Bachchan",
+    "dob": "1942-10-11",
+    "tob": "16:00",
+    "events": [
+      {"age": 31, "year": 1973, "domain": "career", "description": "Zanjeer release (stardom) and Marriage to Jaya"},
+      {"age": 40, "year": 1982, "domain": "health", "description": "Coolie accident - nearly fatal injury"},
+      {"age": 58, "year": 2000, "domain": "career", "description": "KBC premiere and massive career comeback"},
+      {"age": 57, "year": 1999, "domain": "finance", "description": "Financial collapse of ABCL"}
+    ]
+  },
+  {
+    "name": "Sachin Tendulkar",
+    "dob": "1973-04-24",
+    "tob": "16:15",
+    "events": [
+      {"age": 16, "year": 1989, "domain": "career", "description": "International cricket debut"},
+      {"age": 22, "year": 1995, "domain": "marriage", "description": "Marriage to Anjali"},
+      {"age": 38, "year": 2011, "domain": "career", "description": "Cricket World Cup victory"},
+      {"age": 40, "year": 2013, "domain": "career", "description": "Retirement from cricket"}
+    ]
+  },
+  {
+    "name": "Narendra Modi",
+    "dob": "1950-09-17",
+    "tob": "09:35",
+    "events": [
+      {"age": 51, "year": 2001, "domain": "career", "description": "Chief Minister of Gujarat"},
+      {"age": 64, "year": 2014, "domain": "career", "description": "Prime Minister of India"},
+      {"age": 69, "year": 2019, "domain": "career", "description": "Re-elected as Prime Minister"}
+    ]
+  },
+  {
+    "name": "Steve Jobs",
+    "dob": "1955-02-24",
+    "tob": "19:15",
+    "events": [
+      {"age": 21, "year": 1976, "domain": "career", "description": "Founding of Apple"},
+      {"age": 30, "year": 1985, "domain": "career", "description": "Fired from Apple"},
+      {"age": 42, "year": 1997, "domain": "career", "description": "Return to Apple and NeXT acquisition"},
+      {"age": 56, "year": 2011, "domain": "health", "description": "Death due to pancreatic cancer"}
+    ]
+  },
+  {
+    "name": "Bill Gates",
+    "dob": "1955-10-28",
+    "tob": "21:15",
+    "events": [
+      {"age": 20, "year": 1975, "domain": "career", "description": "Co-founded Microsoft"},
+      {"age": 39, "year": 1994, "domain": "marriage", "description": "Marriage to Melinda"},
+      {"age": 66, "year": 2021, "domain": "marriage", "description": "Divorce from Melinda"}
+    ]
+  },
+  {
+    "name": "Princess Diana",
+    "dob": "1961-07-01",
+    "tob": "19:45",
+    "events": [
+      {"age": 20, "year": 1981, "domain": "marriage", "description": "Marriage to Prince Charles"},
+      {"age": 35, "year": 1996, "domain": "marriage", "description": "Divorce finalization"},
+      {"age": 36, "year": 1997, "domain": "health", "description": "Death in car accident"}
+    ]
+  },
+  {
+    "name": "Shah Rukh Khan",
+    "dob": "1965-11-02",
+    "tob": "02:30",
+    "events": [
+      {"age": 26, "year": 1991, "domain": "marriage", "description": "Marriage to Gauri"},
+      {"age": 27, "year": 1992, "domain": "career", "description": "Deewana release (Film debut)"},
+      {"age": 58, "year": 2023, "domain": "career", "description": "Pathaan and Jawan (Massive comeback)"}
+    ]
+  },
+  {
+    "name": "Michael Jackson",
+    "dob": "1958-08-29",
+    "tob": "23:45",
+    "events": [
+      {"age": 11, "year": 1969, "domain": "career", "description": "Jackson 5 signing with Motown"},
+      {"age": 24, "year": 1982, "domain": "career", "description": "Thriller release (peak fame)"},
+      {"age": 35, "year": 1993, "domain": "legal", "description": "First major child abuse allegations"},
+      {"age": 51, "year": 2009, "domain": "health", "description": "Death"}
+    ]
+  },
+  {
+    "name": "Indira Gandhi",
+    "dob": "1917-11-19",
+    "tob": "23:11",
+    "events": [
+      {"age": 49, "year": 1966, "domain": "career", "description": "First time Prime Minister"},
+      {"age": 58, "year": 1975, "domain": "career", "description": "Imposition of Emergency"},
+      {"age": 67, "year": 1984, "domain": "health", "description": "Assassination/Death"}
+    ]
+  },
+  {
+    "name": "Elon Musk",
+    "dob": "1971-06-28",
+    "tob": "07:30",
+    "events": [
+      {"age": 31, "year": 2002, "domain": "career", "description": "Founding of SpaceX"},
+      {"age": 37, "year": 2008, "domain": "finance", "description": "Tesla/SpaceX near bankruptcy + Falcon 1 success"},
+      {"age": 51, "year": 2022, "domain": "career", "description": "Acquisition of Twitter"}
+    ]
+  }
+]
