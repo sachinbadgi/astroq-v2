@@ -52,6 +52,20 @@ class RulesEngine:
             self.db_path = cfg_or_db_path._db_path
             self.boost_scaling = cfg_or_db_path.get("rules.boost_scaling", fallback=0.04)
             self.penalty_scaling = cfg_or_db_path.get("rules.penalty_scaling", fallback=0.15)
+            
+            # Check if deterministic_rules table exists in this DB (e.g. for tests)
+            # If not, use the global rules.db
+            import sqlite3
+            import os
+            try:
+                con = sqlite3.connect(self.db_path)
+                con.execute("SELECT 1 FROM deterministic_rules LIMIT 1")
+            except sqlite3.OperationalError:
+                default_dir = os.path.join(os.path.dirname(__file__), '..', '..', 'data')
+                self.db_path = os.path.abspath(os.path.join(default_dir, "rules.db"))
+            finally:
+                if 'con' in locals():
+                    con.close()
 
     def evaluate_chart(self, chart: dict[str, Any]) -> list[RuleHit]:
         """
@@ -115,6 +129,9 @@ class RulesEngine:
         Recursive evaluator.
         Returns (is_match, specificity, target_planets, target_houses)
         """
+        if not node or not isinstance(node, dict):
+            return False, 0, set(), set()
+            
         n_type = node.get("type", "")
 
         if n_type == "AND":

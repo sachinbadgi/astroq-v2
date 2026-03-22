@@ -121,10 +121,10 @@ if __name__ == "__main__":
     print(f"Baseline -> HR: {baseline['hit_rate']:.2%}, Offset: {baseline['offset']:.2f}, Composite: {baseline['composite']:.3f}")
 
     # 2. Setup grid
-    # A small grid for demonstration/testing to ensure it runs
+    # Experiment 7: expedited 9-combo Classifier & Scaling Synergy
     param_grid = {
-        "event_classifier.threshold_absolute": [0.65],
-        "probability.delivery_pucca_ghar": [1.5]
+        "event_classifier.threshold_absolute": [0.65, 0.70, 0.75],
+        "rules.boost_scaling": [0.03, 0.04, 0.05]
     }
     
     if args.iterations > 1:

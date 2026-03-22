@@ -39,6 +39,8 @@ def main():
         tob = input("Enter Time of Birth (HH:MM): ").strip()
         place = input("Enter Place of Birth (e.g., 'New Delhi, India'): ").strip()
         
+        target_age_input = input("Enter Target Age (e.g., '34', '30-35') or leave empty for just Natal: ").strip()
+        
         # Defaulting to KP system for the Lal Kitab engine base
         chart_system = "kp"
         
@@ -47,7 +49,7 @@ def main():
         sys.exit(0)
 
     if not all([client_name, dob, tob, place]):
-        print("\nError: All fields are required!")
+        print("\nError: All fields are required except Target Age!")
         sys.exit(1)
 
     print(f"\n[1/3] Generating astronomical chart for {client_name}...")
@@ -90,31 +92,60 @@ def main():
     lk_pipeline = LKPredictionPipeline(cfg)
     
     print("[3/3] Executing Predictions...")
+    
+    # Determine which charts to process
+    charts_to_process = [(0, natal_chart)]
+    if target_age_input:
+        if "-" in target_age_input:
+            start_str, end_str = target_age_input.split("-")
+            start_age = int(start_str.strip())
+            end_age   = int(end_str.strip())
+            for age in range(start_age, end_age + 1):
+                chart_key = f"chart_{age}"
+                if chart_key in full_payload:
+                    charts_to_process.append((age, full_payload[chart_key]))
+        else:
+            age = int(target_age_input.strip())
+            chart_key = f"chart_{age}"
+            if chart_key in full_payload:
+                charts_to_process.append((age, full_payload[chart_key]))
+
     try:
         lk_pipeline.load_natal_baseline(natal_chart)
-        predictions = lk_pipeline.generate_predictions(natal_chart)
+        
+        # Format output data
+        output_data = {
+            "client_name": client_name,
+            "dob": dob,
+            "tob": tob,
+            "place": place,
+            "chart_system": chart_system,
+            "natal_chart_data": natal_chart,
+            "predictions_by_age": {}
+        }
+        
+        total_predictions = 0
+        for age, chart in charts_to_process:
+            print(f"  -> Predicting for age {age}..." if age > 0 else "  -> Predicting Natal chart...")
+            predictions = lk_pipeline.generate_predictions(chart)
+            predictions = [p for p in predictions if p.confidence != "UNLIKELY"]
+            total_predictions += len(predictions)
+            
+            # Map predictions to dict
+            output_data["predictions_by_age"][f"age_{age}"] = [p.__dict__ for p in predictions]
+            
     except Exception as e:
         print(f"\nError running predictions: {e}")
         sys.exit(1)
     
-    # Format output data
-    output_data = {
-        "client_name": client_name,
-        "dob": dob,
-        "tob": tob,
-        "place": place,
-        "chart_system": chart_system,
-        "natal_chart_data": natal_chart,
-        "lk_predictions_v2": [p.__dict__ for p in predictions]
-    }
     
     # Save to file
-    filename = f"{sanitize_filename(client_name)}_chart.json"
+    filename = f"{sanitize_filename(client_name)}_predictions.json"
     
     with open(filename, "w") as f:
         json.dump(output_data, f, indent=4)
         
-    print(f"\n=> SUCCESS! Fully populated JSON chart and {len(predictions)} predictions written to '{filename}'.")
+    print(f"\n=> SUCCESS! Fully populated JSON chart and {total_predictions} predictions written to '{filename}'.")
     print(f"You can open '{filename}' to manually check the accuracy.")
 
 if __name__ == "__main__":
