@@ -9,6 +9,7 @@ provides remedy hints for malefic events.
 
 from __future__ import annotations
 
+from typing import Any
 from astroq.lk_prediction.config import ModelConfig
 from astroq.lk_prediction.data_contracts import ClassifiedEvent, LKPrediction
 
@@ -58,13 +59,19 @@ ITEMS_MAP = {
 class PredictionTranslator:
     """Translates classified events into final LKPrediction outputs."""
 
-    def __init__(self, config: ModelConfig) -> None:
+    def __init__(self, config: ModelConfig, remedy_engine: Any | None = None) -> None:
         self._cfg = config
+        self.remedy_engine = remedy_engine
         self.cert_thresh = config.get("translation.certain_threshold", fallback=0.85)
         self.high_thresh = config.get("translation.highly_likely_threshold", fallback=0.65)
         self.poss_thresh = config.get("translation.possible_threshold", fallback=0.40)
 
-    def translate(self, events: list[ClassifiedEvent]) -> list[LKPrediction]:
+    def translate(
+        self,
+        events: list[ClassifiedEvent],
+        enriched_natal: dict | None = None,
+        enriched_annual: dict | None = None,
+    ) -> list[LKPrediction]:
         """Convert a list of ClassifiedEvents into LKPredictions."""
         predictions = []
         for ev in events:
@@ -81,7 +88,7 @@ class PredictionTranslator:
             confidence = self._map_confidence(ev.probability)
             people = self._resolve_affected_people(ev)
             items = self._resolve_affected_items(ev)
-            remedy_needed, hints = self._generate_remedies(ev)
+            remedy_needed, hints = self._generate_remedies(ev, enriched_natal, enriched_annual)
             
             p = LKPrediction(
                 domain=domain,
@@ -138,8 +145,27 @@ class PredictionTranslator:
             
         return sorted(list(items))
 
-    def _generate_remedies(self, ev: ClassifiedEvent) -> tuple[bool, list[str]]:
+    def _generate_remedies(
+        self,
+        ev: ClassifiedEvent,
+        natal: dict | None,
+        annual: dict | None,
+    ) -> tuple[bool, list[str]]:
         """If malefic or volatile, generate remedy hints."""
+        # Use RemedyEngine if provided
+        if self.remedy_engine and natal and annual:
+            year_options = self.remedy_engine.get_year_shifting_options(
+                birth_chart=natal,
+                annual_chart=annual,
+                age=ev.peak_age,
+            )
+            p_result = year_options.get(ev.planet)
+            if p_result and p_result.safe_matches:
+                hints = self.remedy_engine.generate_remedy_hints({ev.planet: p_result})
+                return True, hints
+            return False, []
+
+        # Fallback if no engine
         if ev.sentiment in ("MALEFIC", "VOLATILE"):
             hints = [
                 f"Lal Kitab remedy required for {ev.planet}",

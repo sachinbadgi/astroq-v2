@@ -76,5 +76,20 @@
         "strong_possibility": 0.60,
         "possible": 0.40,
         "dormant": 0.0
-    }
+    },
+
+    "remedy.shifting_boost": 2.5,
+    "remedy.residual_impact_factor": 0.05,
+    "remedy.safe_multiplier": 1.0,
+    "remedy.unsafe_multiplier": 0.5,
+    "remedy.tvp_boost_per_unit": 0.1,
+    "remedy.goswami_h9_weight": 30,
+    "remedy.goswami_h2_weight": 20,
+    "remedy.goswami_h4_weight": 10,
+    "remedy.goswami_unblock_weight": 50,
+    "remedy.goswami_pair_weight": 40,
+    "remedy.goswami_doubtful_weight": 20,
+    "remedy.critical_score_threshold": 60,
+    "remedy.high_score_threshold": 40,
+    "remedy.medium_score_threshold": 20
 }

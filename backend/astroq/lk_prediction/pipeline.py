@@ -16,6 +16,11 @@ from astroq.lk_prediction.prediction_translator import PredictionTranslator
 from astroq.lk_prediction.probability_engine import ProbabilityEngine
 from astroq.lk_prediction.rules_engine import RulesEngine
 from astroq.lk_prediction.strength_engine import StrengthEngine
+from astroq.lk_prediction.remedy_engine import RemedyEngine
+
+class _StubItemsResolver:
+    def get_planet_items(self, planet: str, house: int) -> list[str]:
+        return ["Associated items (see physical Lal Kitab)"]
 
 
 class LKPredictionPipeline:
@@ -30,7 +35,8 @@ class LKPredictionPipeline:
         self.rules_engine = RulesEngine(config)
         self.prob_engine = ProbabilityEngine(config)
         self.classifier = EventClassifier(config)
-        self.translator = PredictionTranslator(config)
+        self.remedy_engine = RemedyEngine(config, _StubItemsResolver())
+        self.translator = PredictionTranslator(config, remedy_engine=self.remedy_engine)
         
         # State
         self._natal_baseline: dict[str, EnrichedPlanet] | None = None
@@ -167,7 +173,14 @@ class LKPredictionPipeline:
             classified = filtered
 
         # 9. Translation
-        final_predictions = self.translator.translate(classified)
+        wrap_natal = {"planets_in_houses": self._natal_baseline} if self._natal_baseline else None
+        wrap_annual = {"planets_in_houses": enriched}
+        
+        final_predictions = self.translator.translate(
+            classified,
+            enriched_natal=wrap_natal,
+            enriched_annual=wrap_annual
+        )
         
         return final_predictions
 

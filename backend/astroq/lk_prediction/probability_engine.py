@@ -107,7 +107,8 @@ class ProbabilityEngine:
         return max(mod, 0.5)
 
     def calculate_event_probability(
-        self, planet: str, age: int, natal_score: float, annual_magnitude: float
+        self, planet: str, age: int, natal_score: float, annual_magnitude: float,
+        applied_remedies: list[dict] | None = None
     ) -> tuple[float, dict[str, float]]:
         """
         Calculates the complete probability for an event trigger.
@@ -122,6 +123,16 @@ class ProbabilityEngine:
         k = self._calculate_adaptive_k(natal_score)
         ea = self._calculate_ea(natal_score)
         tvp_mod = self._calculate_tvp_modifier(planet, age)
+        
+        if applied_remedies:
+            for rem in applied_remedies:
+                if (rem.get("planet") == planet 
+                        and rem.get("age") == age 
+                        and rem.get("is_safe", False)):
+                    tvp_boost = float(self._cfg.get("remedy.tvp_boost_per_unit", fallback=0.1))
+                    tvp_mod *= (1.0 + tvp_boost)
+                    break
+                    
         dcorr_mod = self._calculate_dcorr(age)
         
         # 1. Base sigmoid from annual magnitude
@@ -150,7 +161,8 @@ class ProbabilityEngine:
         return final_prob, breakdown
 
     def batch_evaluate(
-        self, events: list[dict[str, Any]], age: int
+        self, events: list[dict[str, Any]], age: int,
+        applied_remedies: list[dict] | None = None
     ) -> list[dict[str, Any]]:
         """
         Process multiple events at once.
@@ -163,7 +175,7 @@ class ProbabilityEngine:
             mag = ev.get("magnitude", 0.0)
             natal = ev.get("natal_score", 0.0)
             
-            prob, brk = self.calculate_event_probability(planet, age, natal, mag)
+            prob, brk = self.calculate_event_probability(planet, age, natal, mag, applied_remedies)
             
             # Copy event to avoid mutation side effects on original list
             result_ev = ev.copy()

@@ -131,6 +131,17 @@ def main():
             predictions = [p for p in predictions if p.confidence != "UNLIKELY"]
             total_predictions += len(predictions)
             
+            # Print remedies nicely
+            remedied = [p for p in predictions if p.remedy_applicable]
+            if remedied:
+                print(f"    [Remedies Generated for {len(remedied)} malefic events!]")
+                for i, p in enumerate(remedied[:2]): 
+                    msg = p.remedy_hints[0] if p.remedy_hints else "(No high-priority shifting recommended this year)"
+                    planet_name = p.source_planets[0] if p.source_planets else "Unknown"
+                    print(f"      * {planet_name}: {msg}")
+                if len(remedied) > 2:
+                    print(f"      * ...and {len(remedied)-2} more.")
+            
             # Map predictions to dict
             output_data["predictions_by_age"][f"age_{age}"] = [p.__dict__ for p in predictions]
             
