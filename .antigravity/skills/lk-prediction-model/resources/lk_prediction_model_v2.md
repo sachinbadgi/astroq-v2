@@ -118,70 +118,54 @@ graph TD
 ### 3.1 Input: Chart Data (per chart)
 
 ```python
-ChartData = {
-    "chart_type": "Birth" | "Yearly",
-    "chart_period": int,  # 0=birth, 1-75=annual year
-    "planets_in_houses": {
-        "Sun": {
-            "house": int,           # 1-12
-            "states": list[str],    # ["Exalted", "Fixed House Lord"]
-            "aspects": list[dict],  # [{aspecting_planet, house, strength, type, relationship}]
-            "strength_total": float
-        },
-        # ... 9 planets
-    },
-    "mangal_badh_counter": int,
-    "mangal_badh_status": str,
-    "dharmi_kundli_status": str,
-    "house_status": dict,           # {"1": "Occupied", "2": "Sleeping House", ...}
-    "masnui_grahas_formed": list,
-    "lal_kitab_debts": list,
-    "achanak_chot_triggers": list,
-    "35_year_intermediary_ruler": str
-}
+class ChartData(TypedDict, total=False):
+    chart_type: str                         # "Birth" | "Yearly"
+    chart_period: int                       # 0=birth, 1-75=annual year
+    planets_in_houses: dict[str, PlanetInHouse]
+    mangal_badh_counter: int
+    mangal_badh_status: str
+    dharmi_kundli_status: str
+    house_status: dict[str, str]            # {"1": "Occupied", "2": "Sleeping House", ...}
+    masnui_grahas_formed: list[dict]
+    lal_kitab_debts: list[dict]
+    achanak_chot_triggers: list[dict]
+    varshaphal_metadata: dict[str, Any]
+    dhoka_graha_analysis: list[dict]
+
+class PlanetInHouse(TypedDict, total=False):
+    house: int
+    states: list[str]           # ["Exalted", "Fixed House Lord", ...]
+    aspects: list[AspectInfo]
+    strength_total: float
+    sleeping_status: str
+    dharmi_status: str
 ```
 
 ### 3.2 Intermediate: Enriched Planet
 
 ```python
-EnrichedPlanet = {
+class EnrichedPlanet(TypedDict, total=False):
     # From StrengthEngine
-    "house": int,
-    "raw_aspect_strength": float,
-    "dignity_score": float,
-    "scapegoat_adjustment": float,
+    house: int
+    raw_aspect_strength: float
+    dignity_score: float
+    scapegoat_adjustment: float
 
     # From GrammarAnalyser
-    "sleeping_status": str,
-    "kaayam_status": str,
-    "dharmi_status": str,
-    "sathi_companions": list[str],
-    "bilmukabil_hostile_to": list[str],
-    "is_masnui_parent": bool,
-    "masnui_feedback_strength": float,
-    "dhoka_graha": bool,
-    "achanak_chot_active": bool,
-    "rin_debts": list[str],
+    sleeping_status: str
+    kaayam_status: str
+    dharmi_status: str
+    sathi_companions: list[str]
+    bilmukabil_hostile_to: list[str]
+    is_masnui_parent: bool
+    masnui_feedback_strength: float
+    dhoka_graha: bool
+    achanak_chot_active: bool
+    rin_debts: list[str]
 
     # Final
-    "strength_total": float,  # ALL factors incorporated
-    "strength_breakdown": {
-        "aspects": float,
-        "dignity": float,
-        "scapegoat": float,
-        "disposition": float,
-        "mangal_badh": float,
-        "cycle_35yr": float,
-        "bilmukabil": float,
-        "sathi": float,
-        "dhoka": float,
-        "sleeping": float,
-        "dharmi": float,
-        "achanak_chot": float,
-        "masnui_feedback": float,
-        "rin": float
-    }
-}
+    strength_total: float
+    strength_breakdown: StrengthBreakdown
 ```
 
 ### 3.3 Output: LKPrediction
@@ -189,21 +173,21 @@ EnrichedPlanet = {
 ```python
 @dataclass
 class LKPrediction:
-    domain: str                 # "career", "marriage", "health", etc.
-    event_type: str             # "promotion", "marriage_timing", etc.
-    prediction_text: str        # Natural language prediction
-    confidence: str             # "certain", "highly_likely", "possible"
-    polarity: str               # "benefic", "malefic", "mixed"
-    peak_age: int
-    age_window: tuple[int, int]
-    probability: float          # 0.0 - 1.0
-    affected_people: list[str]  # ["father", "wife"]
-    affected_items: list[str]   # ["gold", "property"]
-    source_planets: list[str]
-    source_houses: list[int]
-    source_rules: list[str]     # rule_ids that fired
-    remedy_applicable: bool
-    remedy_hints: list[str]
+    domain: str                     # "career", "marriage", "health", etc.
+    event_type: str                 # "promotion", "marriage_timing", etc.
+    prediction_text: str            # Natural language prediction
+    confidence: str                 # "certain", "highly_likely", "possible", "UNLIKELY"
+    polarity: str                   # "benefic", "malefic", "mixed", "VOLATILE"
+    peak_age: int = 0
+    age_window: tuple[int, int] = (0, 0)
+    probability: float = 0.0
+    affected_people: list[str] = field(default_factory=list)
+    affected_items: list[str] = field(default_factory=list)
+    source_planets: list[str] = field(default_factory=list)
+    source_houses: list[int] = field(default_factory=list)
+    source_rules: list[str] = field(default_factory=list)
+    remedy_applicable: bool = False
+    remedy_hints: list[str] = field(default_factory=list)
 ```
 
 ---
@@ -532,65 +516,65 @@ Wraps the existing `deterministic_rules` table (1074 rules, 10 domains).
 
 ### Rule Schema (from DB)
 
-```python
-Rule = {
-    "rule_id": str,          # e.g., "LK_GOSW_P104_SUN_H4_JOB_22"
-    "domain": str,           # "profession", "marriage", "health", etc.
-    "description": str,      # Human-readable rule description
-    "condition_json": str,   # Recursive condition tree (AND/OR/NOT)
-    "verdict": str,          # Outcome description
-    "primary_target_planets": list[str],
-    "target_houses": list[int],
-    "magnitude": float,      # Effect size
-    "scoring_type": str,     # "boost", "penalty", "neutral"
-    "source_page": str,      # Book reference
-    "hit_count": int,        # Self-learning: how often matched
-    "success_weight": float  # Self-learning: accuracy weight
+### Rule Schema (`rules.db`)
+
+Each deterministic rule (of the 1074 legacy Lal Kitab rules) is stored as a row in the `deterministic_rules` SQLite table matching this precise schema:
+
+```sql
+id TEXT PRIMARY KEY
+domain TEXT NOT NULL
+description TEXT NOT NULL
+condition TEXT NOT NULL        -- The JSON Abstract Syntax Tree (AST)
+verdict TEXT NOT NULL
+scale TEXT NOT NULL            -- "minor", "moderate", "major", "extreme"
+scoring_type TEXT NOT NULL     -- "boost", "penalty", "neutral"
+source_page TEXT
+success_weight REAL DEFAULT 1.0
+```
+
+### JSON Condition AST Structure
+
+The logic for triggering each specific astrological event is stored entirely in JSON under the `condition` field using recursive nodes.
+
+**Logical Operators:**
+```json
+{
+  "type": "AND",  // or "OR", "NOT"
+  "conditions": [ ... array of sub-nodes ... ]
 }
 ```
 
-### Condition Types
-
+**Supported Astrological Condition Leaf Types:**
 | Type | Fields | Evaluates |
 |------|--------|-----------|
-| `placement` | planet, house, chart | Is planet in specific house? |
-| `house_status` | house, state | Is house empty/occupied? |
-| `conjunction` | planets, house | Are planets in same house? |
-| `confrontation` | planets | Are planets in opposite houses (1↔7)? |
-| `planet_state` | planet, condition | Is planet strong/malefic/exalted? |
-| `house_health` | house, state | Is house afflicted? |
-| `current_age` | age | Is native at specific age? |
+| `placement` | `planet`, `houses` (array) | Is planet in any of the specified houses? |
+| `house_status` | `house`, `state` | Is house empty/occupied? |
+| `confrontation` | `planet_a`, `planet_b` | Does Planet A aspect Planet B with 100% strength? |
+| `conjunction` | `planets`, `house` | Are multiple planets conjunct in a specific house? |
+| `planet_state` | `planet`, `condition` | Is the planet in a specific grammar state (Sleeping, Exalted)? |
+
+*Note: The legacy rules utilize elaborate `AND`/`OR` nesting within these elements precisely to replicate complex textual Lal Kitab conditions.*
 
 ### API
 
 ```python
 class RulesEngine:
-    def __init__(self, config: ModelConfig, db_path: str): ...
-    def load_rules(self, domain: str = "general") -> list[Rule]: ...
-    def evaluate(self, annual_chart: dict, birth_chart: dict) -> list[RuleHit]: ...
-    def evaluate_node(self, node: dict, annual: dict, birth: dict) -> tuple[bool, int]: ...
-    def get_rules_by_domain(self, domain: str) -> list[Rule]: ...
-    def update_hit_count(self, rule_id: str): ...
+    def __init__(self, cfg_or_db_path: ModelConfig | str): ...
+    def evaluate_chart(self, chart: dict[str, Any]) -> list[RuleHit]: ...
+    def _evaluate_node(self, node: dict, pd: dict) -> tuple[bool, int, set[str], set[int]]: ...
+    # Safely skips NoneType branches from malformed JSON
 ```
 
 ### Tests (Module 5)
 
+The TDD tests ensure the recursive JSON AST parses and evaluates correctly without breaking the pipeline.
+
 ```
-test_placement_rule_matches_planet_in_house
-test_placement_rule_fails_planet_in_wrong_house
-test_conjunction_rule_two_planets_same_house
-test_confrontation_rule_opposite_houses
-test_and_operator_requires_all_children
-test_or_operator_requires_any_child
-test_not_operator_inverts_result
-test_nested_and_or_conditions
-test_planet_state_strong_positive_strength
-test_house_status_empty
-test_specificity_score_increases_with_depth
-test_rules_sorted_by_specificity_descending
-test_load_rules_filters_by_domain
-test_hit_count_increments_on_fire
-```
+test_rules_engine_evaluates_placement_node
+test_rules_engine_evaluates_confrontation_node
+test_rules_engine_evaluates_nested_and_or_nodes
+test_rules_engine_applies_scale_to_magnitude
+test_rules_engine_ignores_nonetype_malformed_nodes
 
 ---
 
@@ -731,55 +715,37 @@ test_full_translation_returns_lk_prediction
 
 ### Execution Flow
 
+### Execution Flow
+
 ```python
-def run_prediction_pipeline(birth_chart: dict, annual_charts: dict,
-                            domain: str = "general",
-                            figure: str = None) -> list[LKPrediction]:
-    
-    # 1. Load config (with optional figure-specific overrides)
-    config = ModelConfig(DB_PATH, DEFAULTS_PATH)
-    
-    # 2. Calculate strengths for birth chart
-    strength_engine = StrengthEngine(config)
-    natal_enriched = strength_engine.calculate_chart_strengths(birth_chart)
-    
-    # 3. Apply grammar analysis to birth chart
-    grammar = GrammarAnalyser(config)
-    natal_enriched = grammar.analyse(birth_chart, natal_enriched)
-    
-    # 4. For each annual chart year (1-75):
-    predictions = []
-    rules_engine = RulesEngine(config, DB_PATH)
-    prob_engine = ProbabilityEngine(config)
-    classifier = EventClassifier(config)
-    translator = PredictionTranslator(config, LKItemsResolver())
-    
-    yearly_probabilities = []
-    for age, annual_chart in annual_charts.items():
-        # 4a. Calculate annual strengths + merge with natal
-        annual_enriched = strength_engine.calculate_chart_strengths(annual_chart)
-        annual_enriched = strength_engine.merge_natal_annual(natal_enriched, annual_enriched)
-        annual_enriched = grammar.analyse(annual_chart, annual_enriched)
+class LKPredictionPipeline:
+    def __init__(self, config: ModelConfig) -> None:
+        self.cfg = config
+        self.strength_engine = StrengthEngine(config)
+        self.grammar_analyser = GrammarAnalyser(config)
+        self.rules_engine = RulesEngine(config)
+        self.prob_engine = ProbabilityEngine(config)
+        self.classifier = EventClassifier(config)
+        self.translator = PredictionTranslator(config)
         
-        # 4b. Fire deterministic rules
-        fired_rules = rules_engine.evaluate(annual_chart, birth_chart)
-        
-        # 4c. Calculate probability
-        year_prob = prob_engine.calculate_yearly_probability(
-            domain, age, natal_enriched, annual_enriched, fired_rules
-        )
-        yearly_probabilities.append(year_prob)
-    
-    # 5. Detect peaks across the 75-year curve
-    peaks = classifier.detect_peaks(yearly_probabilities)
-    
-    # 6. Classify and translate each peak into a prediction
-    for peak in peaks:
-        event = classifier.classify_event(peak, peak["fired_rules"], natal_enriched)
-        prediction = translator.translate(event, natal_enriched, peak["annual_enriched"])
-        predictions.append(prediction)
-    
-    return predictions
+        # State: Maintains momentum metrics across sequential chart calls
+        self._natal_baseline: dict[str, EnrichedPlanet] | None = None
+        self._prediction_history: dict[str, float] = {}
+
+    def load_natal_baseline(self, chart: ChartData) -> None:
+        # Calculate base strengths -> Apply grammar -> Save baseline
+        pass
+
+    def generate_predictions(
+        self, chart: ChartData, focus_domains: list[str] | None = None
+    ) -> list[LKPrediction]:
+        # 1. Base Strengths & Additive Merge (if Annual)
+        # 2. Grammar Analyser
+        # 3. Format context & Rules Engine Evaluation
+        # 4. Probabilities & Momentum History Update
+        # 5. Classify Sentiment/Domains
+        # 6. Translate to Natural Language LKPrediction objects
+        pass
 ```
 
 ### Tests (Pipeline)
