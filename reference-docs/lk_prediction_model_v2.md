@@ -579,6 +579,14 @@ Rule = {
 
 ### Condition Types
 
+**Domains Supported:**
+- `general` (General events and conditions)
+- `profession` / `service` (Chapter 16: Sun/accounts, Jupiter/law, etc.)
+- `travel` (Chapter 16: Ketu in specific houses causing travel)
+- `marriage` (Chapter 17: Timing, delays, number of spouses)
+- `progeny` (Chapter 17: Child birth, gender prediction, issuelessness)
+- `wealth` / `income` (Chapter 18: Monthly income units based on exalted/live planets)
+
 | Type | Fields | Evaluates |
 |------|--------|-----------|
 | `placement` | planet, house, chart | Is planet in specific house? |

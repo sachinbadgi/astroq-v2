@@ -69,6 +69,35 @@ def _setup_test_rules_db(db_path):
              {"type": "placement", "planet": "Jupiter", "houses": [10]}
          }),
          "Saved from debilitation", "minor", "boost", 0.4, "Page 50"),
+         
+        # New Rule: Chapter 16 Travel
+        ("LK_GOSW_CH16_TRAVEL_KETU_H7", "travel", "Ketu in H7 -> Auspicious travel",
+         json.dumps({"type": "placement", "planet": "Ketu", "houses": [7]}),
+         "Auspicious travel and change of city.", "major", "boost", 0.85, "Page 296"),
+
+        # New Rule: Chapter 17 Marriage
+        ("LK_GOSW_CH17_MARR_VENUS_H4", "marriage", "Venus in H4 -> Delayed marriage",
+         json.dumps({"type": "placement", "planet": "Venus", "houses": [4]}),
+         "Marriage may be delayed or doubtful without remedies.", "moderate", "penalty", 0.8, "Page 298"),
+
+        # New Rule: Chapter 16 Profession
+        ("LK_GOSW_CH16_PROF_SUN_H10", "profession", "Sun in H10 -> Govt, Accounts",
+         json.dumps({"type": "placement", "planet": "Sun", "houses": [10]}),
+         "Profession / Fortune related to: Govt, Accounts, Books.", "major", "boost", 0.8, "Page 280-281"),
+
+        # New Rule: Chapter 17 Progeny
+        ("LK_GOSW_CH17_PROG_KETU_H11", "progeny", "Ketu in H11 -> Male Child",
+         json.dumps({"type": "placement", "planet": "Ketu", "houses": [11]}),
+         "Gives male child.", "major", "boost", 0.85, "Page 308-313"),
+
+        # New Rule: Chapter 18 Wealth
+        ("LK_GOSW_CH18_WEALTH_JUPITER_SUN", "wealth", "Jupiter-Sun together",
+         json.dumps({"type": "AND", "conditions": [
+            {"type": "OR", "conditions": [
+                 {"type": "AND", "conditions": [{"type": "placement", "planet": "Jupiter", "houses": [1]}, {"type": "placement", "planet": "Sun", "houses": [1]}]}
+            ]}
+         ]}),
+         "Super-royal income, yielding 21 base income units.", "extreme", "boost", 0.8, "Page 314"),
     ]
 
     cur.executemany('''
@@ -213,3 +242,44 @@ class TestRulesEngine:
         assert len(hits) >= 2
         assert hits[0].rule_id == "rule_sun_mer_h1"
         assert hits[1].rule_id == "rule_sun_h1"
+
+    # -- 7. Gosvami Ch 16-19 Domain Rules Evaluation --
+    def test_travel_ketu_h7_rule_fires(self, rules_engine):
+        chart = _make_minimal_chart({"Ketu": {"house": 7}})
+        hits = rules_engine.evaluate_chart(chart)
+        assert any(h.rule_id == "LK_GOSW_CH16_TRAVEL_KETU_H7" for h in hits)
+        hit = next(h for h in hits if h.rule_id == "LK_GOSW_CH16_TRAVEL_KETU_H7")
+        assert hit.domain == "travel"
+        assert hit.scoring_type == "boost"
+
+    def test_marriage_venus_h4_rule_fires(self, rules_engine):
+        chart = _make_minimal_chart({"Venus": {"house": 4}})
+        hits = rules_engine.evaluate_chart(chart)
+        assert any(h.rule_id == "LK_GOSW_CH17_MARR_VENUS_H4" for h in hits)
+        hit = next(h for h in hits if h.rule_id == "LK_GOSW_CH17_MARR_VENUS_H4")
+        assert hit.domain == "marriage"
+        assert hit.scoring_type == "penalty"
+
+    def test_profession_sun_h10_rule_fires(self, rules_engine):
+        chart = _make_minimal_chart({"Sun": {"house": 10}})
+        hits = rules_engine.evaluate_chart(chart)
+        assert any(h.rule_id == "LK_GOSW_CH16_PROF_SUN_H10" for h in hits)
+        hit = next(h for h in hits if h.rule_id == "LK_GOSW_CH16_PROF_SUN_H10")
+        assert hit.domain == "profession"
+        assert hit.scoring_type == "boost"
+
+    def test_progeny_ketu_h11_rule_fires(self, rules_engine):
+        chart = _make_minimal_chart({"Ketu": {"house": 11}})
+        hits = rules_engine.evaluate_chart(chart)
+        assert any(h.rule_id == "LK_GOSW_CH17_PROG_KETU_H11" for h in hits)
+        hit = next(h for h in hits if h.rule_id == "LK_GOSW_CH17_PROG_KETU_H11")
+        assert hit.domain == "progeny"
+        assert hit.scoring_type == "boost"
+
+    def test_wealth_jup_sun_rule_fires(self, rules_engine):
+        chart = _make_minimal_chart({"Sun": {"house": 1}, "Jupiter": {"house": 1}})
+        hits = rules_engine.evaluate_chart(chart)
+        assert any(h.rule_id == "LK_GOSW_CH18_WEALTH_JUPITER_SUN" for h in hits)
+        hit = next(h for h in hits if h.rule_id == "LK_GOSW_CH18_WEALTH_JUPITER_SUN")
+        assert hit.domain == "wealth"
+        assert hit.scoring_type == "boost"
