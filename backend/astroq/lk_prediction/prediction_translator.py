@@ -160,8 +160,11 @@ class PredictionTranslator:
                 age=ev.peak_age,
             )
             p_result = year_options.get(ev.planet)
-            if p_result and p_result.safe_matches:
-                hints = self.remedy_engine.generate_remedy_hints({ev.planet: p_result})
+            # Use event planet's results if safe matches exist
+            target_opts = {ev.planet: p_result} if p_result and p_result.safe_matches else {}
+            # Generate hints including birth-day and Mars context
+            hints = self.remedy_engine.generate_remedy_hints(target_opts, chart=natal)
+            if hints:
                 return True, hints
             return False, []
 

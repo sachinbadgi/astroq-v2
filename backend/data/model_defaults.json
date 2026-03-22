@@ -91,5 +91,19 @@
     "remedy.goswami_doubtful_weight": 20,
     "remedy.critical_score_threshold": 60,
     "remedy.high_score_threshold": 40,
-    "remedy.medium_score_threshold": 20
+    "remedy.medium_score_threshold": 20,
+    "remedy.mangal_badh_hints": [
+        "Feed sweet tandoori rotis to dogs",
+        "Keep honey in a silver bowl/pot",
+        "Bury honey in a mud pot in a deserted place"
+    ],
+    "remedy.birth_day_remedies": {
+        "0": "Sunday: Feed jaggery to a red cow",
+        "1": "Monday: Donate milk or silver to a temple",
+        "2": "Tuesday: Donate gram dal (chana) or honey",
+        "3": "Wednesday: Feed green fodder (chara) to cows",
+        "4": "Thursday: Apply saffron (kesar) tilak on forehead",
+        "5": "Friday: Donate white clothes or curd (dahi)",
+        "6": "Saturday: Donate oil or black items to the needy"
+    }
 }

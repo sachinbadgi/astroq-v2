@@ -53,6 +53,16 @@ def tmp_defaults(tmp_path):
         "remedy.critical_score_threshold": 60,
         "remedy.high_score_threshold": 40,
         "remedy.medium_score_threshold": 20,
+        "remedy.mangal_badh_hints": ["Honey in bowl", "Sweet rotis"],
+        "remedy.birth_day_remedies": {
+            "0": "Sunday remedy",
+            "1": "Monday: milk",
+            "2": "Tuesday remedy",
+            "3": "Wednesday remedy",
+            "4": "Thursday remedy",
+            "5": "Friday remedy",
+            "6": "Saturday remedy"
+        }
     }
     f = tmp_path / "defaults.json"
     f.write_text(json.dumps(defaults))
@@ -412,6 +422,54 @@ class TestGenerateRemedyHints:
         year_options = {"Sun": self._make_shifting_result("Sun", [])}
         hints = engine.generate_remedy_hints(year_options)
         assert hints == []
+
+    # --- Phase F: Chapter 8 Alignment ---
+
+    def test_generate_remedy_hints_includes_mangal_badh_special_hints(self, tmp_db, tmp_defaults):
+        """If mangal_badh_status is 'Active', special Mars hints are included."""
+        engine = _make_engine(tmp_db, tmp_defaults)
+        opts = [self._make_option(10, 70, "CRITICAL")]
+        year_options = {"Mars": self._make_shifting_result("Mars", opts)}
+        
+        chart = {
+            "planets_in_houses": {"Mars": {"house": 4}},
+            "mangal_badh_status": "Active"
+        }
+        hints = engine.generate_remedy_hints(year_options, chart=chart)
+        # Should contain some special Mars text from defaults
+        assert any("honey" in h.lower() or "tandoori" in h.lower() for h in hints)
+
+    def test_generate_remedy_hints_includes_birth_day_remedy(self, tmp_db, tmp_defaults):
+        """If birth_time is provided, the helpful remedy for that weekday is included."""
+        engine = _make_engine(tmp_db, tmp_defaults)
+        opts = [self._make_option(1, 70, "CRITICAL")]
+        year_options = {"Sun": self._make_shifting_result("Sun", opts)}
+        
+        chart = {
+            "planets_in_houses": {"Sun": {"house": 1}},
+            "birth_time": "1977-11-28T18:30:00" # Monday
+        }
+        hints = engine.generate_remedy_hints(year_options, chart=chart)
+        assert any("Monday" in h or "milk" in h.lower() for h in hints)
+
+    def test_generate_remedy_hints_sorts_by_kendra_priority(self, tmp_db, tmp_defaults):
+        """If scores are equal, hints are sorted by Order of Remedies (1 > 10 > 7 > 4)."""
+        engine = _make_engine(tmp_db, tmp_defaults)
+        
+        # Mercury in H10 (Kendra) vs Jupiter in H9 (not Kendra)
+        # Set Mercury house to 10 in shifting result so it's matched
+        opts_j = [self._make_option(9, 70, "CRITICAL")]
+        opts_m = [self._make_option(10, 70, "CRITICAL")]
+        
+        year_options = {
+            "Jupiter": self._make_shifting_result("Jupiter", opts_j),
+            "Mercury": self._make_shifting_result("Mercury", opts_m),
+        }
+        
+        hints = engine.generate_remedy_hints(year_options)
+        # Mercury in H10 has higher priority than Jupiter in H9
+        assert "Mercury" in hints[0]
+        assert "Jupiter" in hints[1]
 
 
 # ===========================================================================

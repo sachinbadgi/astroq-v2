@@ -43,7 +43,7 @@ class MockRemedyEngine:
             )
         }
         
-    def generate_remedy_hints(self, year_options):
+    def generate_remedy_hints(self, year_options, chart=None):
         # Return exactly the hint formats checking the options
         hints = []
         for planet, res in year_options.items():

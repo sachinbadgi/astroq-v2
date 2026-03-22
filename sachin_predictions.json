@@ -1,0 +1,480 @@
+{
+    "client_name": "sachin",
+    "dob": "1977-11-28",
+    "tob": "18:30",
+    "place": "Mumbai",
+    "chart_system": "kp",
+    "natal_chart_data": {
+        "chart_type": "Birth",
+        "chart_period": 0,
+        "birth_time": "1977-11-28T18:30:00",
+        "planets_in_houses": {
+            "Sun": {
+                "house": 6,
+                "house_natal": 6,
+                "aspects": [
+                    {
+                        "aspect_strength": 0.75,
+                        "aspect_type": "Confrontation",
+                        "relationship": "friend"
+                    },
+                    {
+                        "aspect_strength": 0.666667,
+                        "aspect_type": "Confrontation",
+                        "relationship": "friend"
+                    },
+                    {
+                        "aspect_strength": 2,
+                        "aspect_type": "Deception",
+                        "relationship": "friend"
+                    },
+                    {
+                        "aspect_strength": -5,
+                        "aspect_type": "Deception",
+                        "relationship": "enemy"
+                    },
+                    {
+                        "aspect_strength": 0.5,
+                        "aspect_type": "Joint Wall",
+                        "relationship": "equal"
+                    }
+                ]
+            },
+            "Moon": {
+                "house": 1,
+                "house_natal": 1,
+                "aspects": [
+                    {
+                        "aspect_strength": 0.5,
+                        "aspect_type": "Outside Help",
+                        "relationship": "enemy"
+                    },
+                    {
+                        "aspect_strength": 2,
+                        "aspect_type": "General Condition",
+                        "relationship": "friend"
+                    },
+                    {
+                        "aspect_strength": 2,
+                        "aspect_type": "100 Percent",
+                        "relationship": "friend"
+                    }
+                ]
+            },
+            "Mercury": {
+                "house": 7,
+                "house_natal": 7,
+                "aspects": [
+                    {
+                        "aspect_strength": 0.25,
+                        "aspect_type": "Outside Help",
+                        "relationship": "equal"
+                    },
+                    {
+                        "aspect_strength": 0.5,
+                        "aspect_type": "General Condition",
+                        "relationship": "enemy"
+                    },
+                    {
+                        "aspect_strength": 0.5,
+                        "aspect_type": "General Condition",
+                        "relationship": "equal"
+                    },
+                    {
+                        "aspect_strength": 1,
+                        "aspect_type": "Foundation",
+                        "relationship": "equal"
+                    },
+                    {
+                        "aspect_strength": 1.25,
+                        "aspect_type": "Foundation",
+                        "relationship": "equal"
+                    }
+                ]
+            },
+            "Venus": {
+                "house": 6,
+                "house_natal": 6,
+                "aspects": [
+                    {
+                        "aspect_strength": 0.5,
+                        "aspect_type": "Confrontation",
+                        "relationship": "enemy"
+                    },
+                    {
+                        "aspect_strength": 0.5,
+                        "aspect_type": "Confrontation",
+                        "relationship": "equal"
+                    },
+                    {
+                        "aspect_strength": 1.333333,
+                        "aspect_type": "Deception",
+                        "relationship": "equal"
+                    },
+                    {
+                        "aspect_strength": 0.333333,
+                        "aspect_type": "Deception",
+                        "relationship": "friend"
+                    },
+                    {
+                        "aspect_strength": 1,
+                        "aspect_type": "Joint Wall",
+                        "relationship": "friend"
+                    }
+                ]
+            },
+            "Mars": {
+                "house": 3,
+                "house_natal": 3,
+                "aspects": [
+                    {
+                        "aspect_strength": 2,
+                        "aspect_type": "Outside Help",
+                        "relationship": "enemy"
+                    },
+                    {
+                        "aspect_strength": 0.5,
+                        "aspect_type": "Foundation",
+                        "relationship": "enemy"
+                    },
+                    {
+                        "aspect_strength": 0.5,
+                        "aspect_type": "50 Percent",
+                        "relationship": "enemy"
+                    }
+                ]
+            },
+            "Jupiter": {
+                "house": 1,
+                "house_natal": 1,
+                "aspects": [
+                    {
+                        "aspect_strength": 2,
+                        "aspect_type": "Outside Help",
+                        "relationship": "equal"
+                    },
+                    {
+                        "aspect_strength": 2,
+                        "aspect_type": "General Condition",
+                        "relationship": "enemy"
+                    },
+                    {
+                        "aspect_strength": 2,
+                        "aspect_type": "100 Percent",
+                        "relationship": "enemy"
+                    }
+                ]
+            },
+            "Saturn": {
+                "house": 3,
+                "house_natal": 3,
+                "aspects": [
+                    {
+                        "aspect_strength": 0.8,
+                        "aspect_type": "Outside Help",
+                        "relationship": "friend"
+                    },
+                    {
+                        "aspect_strength": 0.5,
+                        "aspect_type": "Foundation",
+                        "relationship": "equal"
+                    },
+                    {
+                        "aspect_strength": 0.5,
+                        "aspect_type": "50 Percent",
+                        "relationship": "equal"
+                    }
+                ]
+            },
+            "Rahu": {
+                "house": 5,
+                "house_natal": 5,
+                "aspects": [
+                    {
+                        "aspect_strength": 1,
+                        "aspect_type": "General Condition",
+                        "relationship": "friend"
+                    },
+                    {
+                        "aspect_strength": 0.5,
+                        "aspect_type": "Foundation",
+                        "relationship": "equal"
+                    },
+                    {
+                        "aspect_strength": 0,
+                        "aspect_type": "Foundation",
+                        "relationship": "equal"
+                    },
+                    {
+                        "aspect_strength": -5,
+                        "aspect_type": "Joint Wall",
+                        "relationship": "enemy"
+                    },
+                    {
+                        "aspect_strength": 0.5,
+                        "aspect_type": "Joint Wall",
+                        "relationship": "enemy"
+                    }
+                ]
+            },
+            "Ketu": {
+                "house": 11,
+                "house_natal": 11,
+                "aspects": [
+                    {
+                        "aspect_strength": 0.5,
+                        "aspect_type": "Outside Help",
+                        "relationship": "enemy"
+                    },
+                    {
+                        "aspect_strength": 2,
+                        "aspect_type": "Outside Help",
+                        "relationship": "equal"
+                    },
+                    {
+                        "aspect_strength": 1,
+                        "aspect_type": "General Condition",
+                        "relationship": "friend"
+                    },
+                    {
+                        "aspect_strength": 0.5,
+                        "aspect_type": "Confrontation",
+                        "relationship": "equal"
+                    },
+                    {
+                        "aspect_strength": 2,
+                        "aspect_type": "Confrontation",
+                        "relationship": "friend"
+                    },
+                    {
+                        "aspect_strength": 0.75,
+                        "aspect_type": "Foundation",
+                        "relationship": "equal"
+                    }
+                ]
+            }
+        },
+        "masnui_grahas_formed": [
+            {
+                "formed_in_house": 3,
+                "masnui_graha_name": "Artificial Rahu (Exalted Rahu)",
+                "components": [
+                    "Mars",
+                    "Saturn"
+                ]
+            },
+            {
+                "formed_in_house": 6,
+                "masnui_graha_name": "Artificial Jupiter",
+                "components": [
+                    "Venus",
+                    "Sun"
+                ]
+            }
+        ],
+        "dhoka_graha_triggers": [],
+        "achanak_chot_triggers": [],
+        "lal_kitab_debts": [
+            "Ancestral Debt (Pitra Rin)",
+            "Self Debt (Swayam Rin)"
+        ],
+        "lal_kitab_dispositions": [],
+        "dharmi_kundli_status": "Normal",
+        "mangal_badh_status": "Active",
+        "mangal_badh_count": 4
+    },
+    "predictions_by_age": {
+        "age_0": [
+            {
+                "domain": "Emotions",
+                "event_type": "Moon_mixed",
+                "prediction_text": "Lal Kitab prediction for Moon in House 1",
+                "confidence": "POSSIBLE",
+                "polarity": "MIXED",
+                "peak_age": 0,
+                "age_window": [
+                    0,
+                    0
+                ],
+                "probability": 0.5718919669501288,
+                "affected_people": [
+                    "Mother",
+                    "Public",
+                    "Women"
+                ],
+                "affected_items": [
+                    "Milk",
+                    "Rice",
+                    "Silver",
+                    "Water"
+                ],
+                "source_planets": [
+                    "Moon"
+                ],
+                "source_houses": [
+                    1
+                ],
+                "source_rules": [],
+                "remedy_applicable": true,
+                "remedy_hints": [
+                    "Helpful Remedy: Monday: Donate milk or silver to a temple",
+                    "Mars Malefic (-): Feed sweet tandoori rotis to dogs",
+                    "Shift Moon to House 2 [CRITICAL]: House 2 \u2014 Preferred house H2; Goswami pair Moon+Jupiter \u2192 H2. Articles: Associated items (see physical Lal Kitab)",
+                    "Shift Moon to House 4 [CRITICAL]: House 4 \u2014 Preferred house H4; Goswami pair Moon+Jupiter \u2192 H4. Articles: Associated items (see physical Lal Kitab)"
+                ]
+            },
+            {
+                "domain": "Business",
+                "event_type": "Mercury_mixed",
+                "prediction_text": "Lal Kitab prediction for Mercury in House 7",
+                "confidence": "CERTAIN",
+                "polarity": "MIXED",
+                "peak_age": 0,
+                "age_window": [
+                    0,
+                    0
+                ],
+                "probability": 0.8610641406037418,
+                "affected_people": [
+                    "Business Partners",
+                    "Daughters",
+                    "Partners",
+                    "Sisters",
+                    "Spouse"
+                ],
+                "affected_items": [
+                    "Books",
+                    "Business",
+                    "Green items"
+                ],
+                "source_planets": [
+                    "Mercury"
+                ],
+                "source_houses": [
+                    7
+                ],
+                "source_rules": [],
+                "remedy_applicable": true,
+                "remedy_hints": [
+                    "Helpful Remedy: Monday: Donate milk or silver to a temple",
+                    "Mars Malefic (-): Feed sweet tandoori rotis to dogs"
+                ]
+            },
+            {
+                "domain": "Daily Work",
+                "event_type": "Venus_mixed",
+                "prediction_text": "Lal Kitab prediction for Venus in House 6",
+                "confidence": "HIGHLY_LIKELY",
+                "polarity": "MIXED",
+                "peak_age": 0,
+                "age_window": [
+                    0,
+                    0
+                ],
+                "probability": 0.7219373756384404,
+                "affected_people": [
+                    "Spouse",
+                    "Wife",
+                    "Women"
+                ],
+                "affected_items": [
+                    "Clothes",
+                    "Cosmetics",
+                    "Debts",
+                    "Diseases",
+                    "Luxury",
+                    "Vehicles"
+                ],
+                "source_planets": [
+                    "Venus"
+                ],
+                "source_houses": [
+                    6
+                ],
+                "source_rules": [],
+                "remedy_applicable": true,
+                "remedy_hints": [
+                    "Helpful Remedy: Monday: Donate milk or silver to a temple",
+                    "Mars Malefic (-): Feed sweet tandoori rotis to dogs"
+                ]
+            }
+        ],
+        "age_48": [
+            {
+                "domain": "Business",
+                "event_type": "Mercury_mixed",
+                "prediction_text": "Lal Kitab prediction for Mercury in House 7",
+                "confidence": "CERTAIN",
+                "polarity": "MIXED",
+                "peak_age": 0,
+                "age_window": [
+                    0,
+                    0
+                ],
+                "probability": 0.95,
+                "affected_people": [
+                    "Business Partners",
+                    "Daughters",
+                    "Partners",
+                    "Sisters",
+                    "Spouse"
+                ],
+                "affected_items": [
+                    "Books",
+                    "Business",
+                    "Green items"
+                ],
+                "source_planets": [
+                    "Mercury"
+                ],
+                "source_houses": [
+                    7
+                ],
+                "source_rules": [],
+                "remedy_applicable": true,
+                "remedy_hints": [
+                    "Helpful Remedy: Monday: Donate milk or silver to a temple",
+                    "Mars Malefic (-): Feed sweet tandoori rotis to dogs"
+                ]
+            },
+            {
+                "domain": "Longevity",
+                "event_type": "Venus_mixed",
+                "prediction_text": "Lal Kitab prediction for Venus in House 8",
+                "confidence": "HIGHLY_LIKELY",
+                "polarity": "MIXED",
+                "peak_age": 0,
+                "age_window": [
+                    0,
+                    0
+                ],
+                "probability": 0.7656531623399302,
+                "affected_people": [
+                    "Spouse",
+                    "Wife",
+                    "Women"
+                ],
+                "affected_items": [
+                    "Clothes",
+                    "Cosmetics",
+                    "Hidden Wealth",
+                    "Luxury",
+                    "Obstacles",
+                    "Vehicles"
+                ],
+                "source_planets": [
+                    "Venus"
+                ],
+                "source_houses": [
+                    8
+                ],
+                "source_rules": [],
+                "remedy_applicable": true,
+                "remedy_hints": [
+                    "Helpful Remedy: Monday: Donate milk or silver to a temple",
+                    "Mars Malefic (-): Feed sweet tandoori rotis to dogs"
+                ]
+            }
+        ]
+    }
+}

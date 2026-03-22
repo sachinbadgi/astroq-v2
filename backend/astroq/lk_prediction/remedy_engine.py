@@ -538,10 +538,15 @@ class RemedyEngine:
     def generate_remedy_hints(
         self,
         year_options: dict[str, PlanetShiftingResult],
+        chart: dict | None = None,
     ) -> list[str]:
         """
         Returns top-3 CRITICAL/High priority hints as list[str].
-        Each hint is: "Shift {planet} to House {h} [{rank}]: {rationale}. Articles: ..."
+        
+        Enhancements (Phase F):
+          1. Includes Birth Day "Helpful Remedy" if birth_time is present.
+          2. Includes specific Mars remedies if mangal_badh_status is 'Active'.
+          3. Sorts by Kendra priority (1 > 10 > 7 > 4) for equal Goswami scores.
         """
         all_opts: list[tuple[str, ShiftingOption]] = []
         for planet, result in year_options.items():
@@ -549,11 +554,46 @@ class RemedyEngine:
                 if opt.rank in ("CRITICAL", "High"):
                     all_opts.append((planet, opt))
 
-        all_opts.sort(key=lambda x: x[1].score, reverse=True)
-        top3 = all_opts[:3]
+        # Kendra Priority: 1 > 10 > 7 > 4
+        kendra_order = {1: 1, 10: 2, 7: 3, 4: 4}
+
+        def sort_key(item):
+            planet, opt = item
+            # Primary: Goswami Score desc
+            # Secondary: Kendra priority asc (1 is highest)
+            # Tertiary: House number asc
+            k_score = kendra_order.get(opt.house, 99)
+            return (-opt.score, k_score, opt.house)
+
+        all_opts.sort(key=sort_key)
+        top3_raw = all_opts[:3]
 
         hints: list[str] = []
-        for planet, opt in top3:
+        
+        # 1. Add Birth Day helpful hint (Page 164)
+        if chart and "birth_time" in chart:
+            try:
+                from datetime import datetime
+                # ISO format usually or YYYY-MM-DD
+                bt_str = chart["birth_time"]
+                # Try simple ISO first
+                dt = datetime.fromisoformat(bt_str.replace("Z", "+00:00"))
+                weekday = dt.strftime("%w") # 0=Sun, 1=Mon...
+                day_remedies = self._cfg.get("remedy.birth_day_remedies", fallback={})
+                if weekday in day_remedies:
+                    hints.append(f"Helpful Remedy: {day_remedies[weekday]}")
+            except Exception:
+                pass
+
+        # 2. Add Special Mars hints (Pages 158-163)
+        if chart and chart.get("mangal_badh_status") == "Active":
+            mars_hints = self._cfg.get("remedy.mangal_badh_hints", fallback=[])
+            if mars_hints:
+                # Add one prominent Mars hint if not already crowded
+                hints.append(f"Mars Malefic (-): {mars_hints[0]}")
+
+        # 3. Add Planet Shifting hints
+        for planet, opt in top3_raw:
             articles_str = (
                 ", ".join(opt.articles) if opt.articles else "keep related articles nearby"
             )
@@ -563,7 +603,7 @@ class RemedyEngine:
             )
             hints.append(hint)
 
-        return hints
+        return hints[:4] # Allow up to 4 if special hints are added
 
     def get_llm_remedy_summary(
         self,

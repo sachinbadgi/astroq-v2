@@ -40,6 +40,7 @@ class LKPredictionPipeline:
         
         # State
         self._natal_baseline: dict[str, EnrichedPlanet] | None = None
+        self._natal_chart_meta: dict | None = None
         
         # Maps (planet, event_type/rule) to last year's probability for momentum
         self._prediction_history: dict[str, float] = {}
@@ -54,6 +55,7 @@ class LKPredictionPipeline:
         self.grammar_analyser.apply_grammar_rules(chart, enriched)
         
         self._natal_baseline = enriched
+        self._natal_chart_meta = chart
 
     def generate_predictions(
         self, chart: ChartData, focus_domains: list[str] | None = None
@@ -173,7 +175,12 @@ class LKPredictionPipeline:
             classified = filtered
 
         # 9. Translation
-        wrap_natal = {"planets_in_houses": self._natal_baseline} if self._natal_baseline else None
+        if self._natal_chart_meta:
+            wrap_natal = self._natal_chart_meta.copy()
+            wrap_natal["planets_in_houses"] = self._natal_baseline
+        else:
+            wrap_natal = {"planets_in_houses": self._natal_baseline} if self._natal_baseline else None
+            
         wrap_annual = {"planets_in_houses": enriched}
         
         final_predictions = self.translator.translate(
