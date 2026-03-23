@@ -55,7 +55,8 @@ class ChartGenerator:
 
     def _parse_date_time(self, dob_str: str, tob_str: str) -> dict:
         try:
-            parsed_date = dateutil.parser.parse(dob_str, dayfirst=True)
+            # We remove dayfirst=True because dob_str usually comes as YYYY-MM-DD from HTML input.
+            parsed_date = dateutil.parser.parse(dob_str)
             parsed_time = dateutil.parser.parse(tob_str)
         except Exception as exc:
             raise ValueError(f"Could not understand the date/time format. Use YYYY-MM-DD and HH:MM. Error: {exc}")
@@ -114,8 +115,8 @@ class ChartGenerator:
             raise ValueError(f"Unknown chart system '{chart_system}'. Choose from: {self.CHART_SYSTEMS}")
 
         dt = self._parse_date_time(dob_str, tob_str)
-        ayanamsa = "Krishnamurti" if chart_system == "kp" else "Lahiri"
-        house_system = "Placidus" if chart_system == "kp" else "Whole Sign"
+        ayanamsa = "Lahiri" if chart_system == "vedic" else "Krishnamurti"
+        house_system = "Whole Sign" if chart_system == "vedic" else "Placidus"
 
         calculator = VedicHoroscopeData(
             year=dt["year"], month=dt["month"], day=dt["day"],
@@ -128,16 +129,22 @@ class ChartGenerator:
         va_planets_raw = calculator.get_planets_data_from_chart(chart)
         
         # Standard LK planets mapping
-        standard_planets = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn", "Rahu", "Ketu"]
+        standard_planets = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn", "Rahu", "Ketu", "Asc"]
         planets_in_houses = {}
         
         for p_obj in va_planets_raw:
             planet_name = getattr(p_obj, "Object", "N/A")
             if planet_name in standard_planets:
-                house = getattr(p_obj, "HouseNr", 0)
+                # Use the library-computed HouseNr directly
+                house = getattr(p_obj, "HouseNr", 1)
+                
+                # Special constraint: Ascendant MUST be in House 1 for visual grid
+                if planet_name == "Asc":
+                    house = 1
+
                 planets_in_houses[planet_name] = {
                     "house": house,
-                    "house_natal": house,  # Store natal house strictly for Varshaphal base mapping
+                    "house_natal": house,
                 }
 
         birth_datetime_str = f"{dt['year']:04d}-{dt['month']:02d}-{dt['day']:02d}T{dt['hour']:02d}:{dt['minute']:02d}:{dt['second']:02d}"

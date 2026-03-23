@@ -139,6 +139,8 @@ class PlanetInHouse(TypedDict, total=False):
     strength_total: float
     sleeping_status: str
     dharmi_status: str
+    is_masnui: bool             # NEW: true for artificial planets
+    formed_by: list[str]        # NEW: names of parent planets
 ```
 
 ### 3.2 Intermediate: Enriched Planet
@@ -189,6 +191,33 @@ class LKPrediction:
     remedy_applicable: bool = False
     remedy_hints: list[str] = field(default_factory=list)
 ```
+
+### 3.4 Birth Chart Foundation (Lagn-based Teva)
+
+The Lal Kitab "Teva" for birth charts is primarily a **Lagn-based** chart (Ascendant Chart), where the Ascendant sign is mapped to **House 1** in the visual layout. However, the internal "Kalpurush" logic still applies to the house numbers themselves for aspect and grammar rules.
+
+**Key Rules:**
+1. **Ayanamsa**: Sidereal (Lahiri) is the source of truth for all sign calculations.
+2. **House Mapping (Whole Sign)**: 
+   - House 1 = Ascendant Sign
+   - House 2 = (Ascendant Sign + 1) % 12, and so on.
+   - Formula: $House = (\text{PlanetSign} - \text{AscendantSign} + 12) \pmod{12} + 1$
+3. **Ascendant (Lagna)**: Automatically placed in **House 1**.
+4. **Kalpurush Logic**: While signs shift relative to the houses, the **House Numbers (1-12)** maintain their fixed properties for Lal Kitab logic:
+   - House 1 ALWAYS aspects House 7.
+   - House 4 ALWAYS aspects House 10.
+   - Pakka Ghar, Exaltation, and Debilitation rules are typically applied based on these relative houses in some traditions, while others use the Sign. In this model, we follow the **House-based** dignity for the Teva to maintain consistency with the North Indian layout.
+5. **Visual Grid**: In the visual grid (North Indian), House 1 is ALWAYS the top center diamond and contains the Ascendant.
+6. **KP Style Support**: When KP is selected, the engine uses **Placidus House System** to determine planetary house indices (`HouseNr`), while still rendering them in the fixed 1-12 cosmic grid. This allows planets to shift houses based on exact cusps rather than just sign boundaries.
+
+### 3.5 Chart Generation Settings
+
+| System | Ayanamsa | House System | House Selection Logic |
+| :--- | :--- | :--- | :--- |
+| **Vedic** | Lahiri (Sidereal) | Whole Sign | Use `p_obj.HouseNr` (Sign-based) |
+| **KP** | Krishnamurti | Placidus | Use `p_obj.HouseNr` (Cusp-based) |
+
+> **Critical**: For both systems, the **Ascendant** is always forced to **House 1** in the resulting `ChartData` to maintain Lal Kitab's Kalpurush logic.
 
 ---
 
@@ -317,12 +346,13 @@ This module detects ALL Lal Kitab grammar conditions AND feeds them back into `s
 | 6 | **Sathi Graha** | Mutual exchange in exaltation/debilitation/pakka houses | `strength += cfg.sathi_boost_per_companion` (default: 1.00) per companion |
 | 7 | **Bil Mukabil** | Natural friends + significant aspect + enemy in other's foundational house | `strength -= cfg.bilmukabil_penalty_per_hostile` (default: 1.50) per hostile |
 | 8 | **Mangal Badh** | Counter from 10 conditions (Sun-Saturn together, etc.) | `mars_strength -= strength * (1 + counter/cfg.mangal_badh_divisor)` |
-| 9 | **Masnui Graha** | Two planets in same house form artificial third | Masnui gets full aspects+strength; `parent_strength += cfg.masnui_parent_feedback * masnui_strength` |
+| 9 | **Masnui Graha** | Two planets in same house form artificial third (see table below) | Masnui gets full aspects+strength; `parent_strength += cfg.masnui_parent_feedback * masnui_strength` |
 | 10 | **Dhoka Graha** | Planet gives false promises (context-dependent) | `strength *= cfg.dhoka_graha_factor` (default: 0.70) |
 | 11 | **Achanak Chot** | Sudden event trigger conditions met | `strength -= cfg.achanak_chot_penalty` (default: 2.00) |
 | 12 | **Rin (Debt)** | Pitri/Matri/Stri Rin conditions from house occupancy | `strength *= cfg.rin_penalty_factor` (default: 0.85) |
 | 13 | **35Y Ruler** | Current age maps to cycle ruler planet | `ruler_strength *= cfg.cycle_35yr_boost` (default: 1.25) |
 | 14 | **Disposition Rules** | Planet X in house Y spoils/boosts planet Z | `affected_strength ±= abs(causer_strength)` |
+| 15 | **Chart System Selection** | Choose between Vedic (Whole Sign) or KP (Placidus) | Impacts house mapping for all subsequent rules |
 | 15 | **Confrontation** | Planets in houses 1↔7, 2↔8, etc. | Negative aspect strength already in Step 1 |
 
 ### Processing Order
@@ -361,6 +391,26 @@ class GrammarAnalyser:
     def detect_rin(self, chart: ChartData) -> list[dict]: ...
     def detect_achanak_chot(self, chart: ChartData) -> list[dict]: ...
 ```
+
+### Masnui Formation Table (Canonical)
+
+| Combination (Exclusive) | Resulting Masnui Graha | Primary Nature / Notes |
+| :--- | :--- | :--- |
+| Sun + Venus | Masnui Jupiter | Balanced |
+| Mercury + Venus | Masnui Sun | Radiant/Active |
+| Sun + Jupiter | Masnui Moon | Cool/Calm |
+| Rahu + Ketu | Masnui Venus | (Unusual) Volatile |
+| Sun + Mercury | Masnui Mars (Auspicious) | Beneficial |
+| Sun + Saturn | Masnui Mars (Malefic) | Aggressive |
+| Sun + Saturn | Masnui Rahu (Debilitated) | Obscuring |
+| Jupiter + Rahu | Masnui Mercury | Intellectual |
+| Venus + Jupiter | Masnui Saturn (Like Ketu) | Detached |
+| Mars + Mercury | Masnui Saturn (Like Rahu) | Strategic |
+| Saturn + Mars | Masnui Rahu (Exalted) | Ambitious |
+| Venus + Saturn | Masnui Ketu (Exalted) | Spiritual |
+| Moon + Saturn | Masnui Ketu (Debilitated) | Somber |
+
+> **Note**: Formation is strictly **exclusive**. If a 3rd planet enters the house, the Masnui formation is typically cancelled unless specific "Grammar of Conjunctions" rules override it.
 
 ### Tests (Module 3)
 
@@ -905,24 +955,26 @@ mars_new_strength = mars_strength_total - reduction
 > The formula is: `strength * (1 + counter/divisor)` is the **reduction amount**,
 > subtracted from the current strength.
 
-#### Aspect Detection Helper
+### 14.1 House Aspect Map (Canonical)
 
-To check if planet A "aspects" planet B, use the canonical Lal Kitab aspect map:
+The following map defines which houses are aspected from a given house, including the aspect type/category.
 
-```python
-HOUSE_ASPECT_MAP = {
-    1: [7], 2: [6], 3: [9, 11], 4: [10], 5: [9],
-    6: [12], 7: [1], 8: [], 9: [3, 5], 10: [4],
-    11: [3, 5], 12: [6]
-}
+| Source House | Aspected Houses & Types |
+|--------------|-------------------------|
+| **1** | Outside Help: 5, General Condition: 7, Confrontation: 8, Foundation: 9, Deception: 10, Joint Wall: 2, 100%: 7 |
+| **2** | Outside Help: 6, General Condition: 8, Confrontation: 9, Foundation: 10, Deception: 11, Joint Wall: 3, 25%: 6 |
+| **3** | Outside Help: 7, General Condition: 9, Confrontation: 10, Foundation: 11, Deception: 12, Joint Wall: 4, 50%: [9, 11] |
+| **4** | Outside Help: 8, General Condition: 10, Confrontation: 11, Foundation: 12, Deception: 1, Joint Wall: 5, 100%: 10 |
+| **5** | Outside Help: 9, General Condition: 11, Confrontation: 12, Foundation: 1, Deception: 2, Joint Wall: 6, 50%: 9 |
+| **6** | Outside Help: 10, General Condition: 12, Confrontation: 1, Foundation: 2, Deception: 3, Joint Wall: 7 |
+| **7** | Outside Help: 11, General Condition: 1, Confrontation: 2, Foundation: 3, Deception: 4, Joint Wall: 8 |
+| **8** | Outside Help: 12, General Condition: 2, Confrontation: 3, Foundation: 4, Deception: 5, Joint Wall: 9, 25%: 2 |
+| **9** | Outside Help: 1, General Condition: 3, Confrontation: 4, Foundation: 5, Deception: 6, Joint Wall: 10 |
+| **10**| Outside Help: 2, General Condition: 4, Confrontation: 5, Foundation: 6, Deception: 7, Joint Wall: 11 |
+| **11**| Outside Help: 3, General Condition: 5, Confrontation: 6, Foundation: 7, Deception: 8, Joint Wall: 12 |
+| **12**| Outside Help: 4, General Condition: 6, Confrontation: 7, Foundation: 8, Deception: 9, Joint Wall: 1 |
 
-def planet_aspects(planet_a, planet_b, planets_data):
-    h_a = planets_data.get(planet_a, {}).get("house")
-    h_b = planets_data.get(planet_b, {}).get("house")
-    if not h_a or not h_b:
-        return False
-    return h_b in HOUSE_ASPECT_MAP.get(h_a, [])
-```
+**Note**: In the 2D Chart, only "Significant Aspects" (100%, 50%, 25%) are typically rendered as dashed lines with arrows, while all aspects are used for grammar calculation.
 
 ---
 

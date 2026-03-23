@@ -30,14 +30,40 @@ PAKKA_GHAR: dict[str, int] = {
     "Jupiter": 2, "Venus": 7, "Saturn": 10, "Rahu": 12, "Ketu": 6,
 }
 
-# House → list of houses it aspects (Lal Kitab aspect map, p. 118-119)
-HOUSE_ASPECT_MAP: dict[int, list[int]] = {
-    1: [7], 2: [6], 3: [9, 11], 4: [10], 5: [9],
-    6: [12], 7: [1], 8: [], 9: [3, 5], 10: [4],
-    11: [3, 5], 12: [6],
+# The 9 Standard Lal Kitab Planets (exclude Lagna/Asc from aspects)
+STANDARD_PLANETS: frozenset[str] = frozenset([
+    "Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn", "Rahu", "Ketu"
+])
+
+# Complete House Aspect Map (Canonical Lal Kitab)
+# Structure: {source_house: {aspect_type: target_house_or_list}}
+HOUSE_ASPECT_DATA: dict[int, dict[str, Any]] = {
+    1:  {"100 Percent": 7, "Outside Help": 5, "General Condition": 7, "Confrontation": 8, "Foundation": 9, "Deception": 10},
+    2:  {"25 Percent": 6, "Outside Help": 6, "General Condition": 8, "Confrontation": 9, "Foundation": 10, "Deception": 11},
+    3:  {"50 Percent": [9, 11], "Outside Help": 7, "General Condition": 9, "Confrontation": 10, "Foundation": 11, "Deception": 12},
+    4:  {"100 Percent": 10, "Outside Help": 8, "General Condition": 10, "Confrontation": 11, "Foundation": 12, "Deception": 1},
+    5:  {"50 Percent": 9, "Outside Help": 9, "General Condition": 11, "Confrontation": 12, "Foundation": 1, "Deception": 2},
+    6:  {"Outside Help": 10, "General Condition": 12, "Confrontation": 1, "Foundation": 2, "Deception": 3},
+    7:  {"Outside Help": 11, "General Condition": 1, "Confrontation": 2, "Foundation": 3, "Deception": 4},
+    8:  {"25 Percent": 2, "Outside Help": 12, "General Condition": 2, "Confrontation": 3, "Foundation": 4, "Deception": 5},
+    9:  {"Outside Help": 1, "General Condition": 3, "Confrontation": 4, "Foundation": 5, "Deception": 6},
+    10: {"Outside Help": 2, "General Condition": 4, "Confrontation": 5, "Foundation": 6, "Deception": 7},
+    11: {"Outside Help": 3, "General Condition": 5, "Confrontation": 6, "Foundation": 7, "Deception": 8},
+    12: {"Outside Help": 4, "General Condition": 6, "Confrontation": 7, "Foundation": 8, "Deception": 9},
 }
 
+# (Original HOUSE_ASPECT_MAP kept for simple grammar checks if needed, but updated to 100% ones)
+HOUSE_ASPECT_MAP: dict[int, list[int]] = {
+    h: ([v["100 Percent"]] if "100 Percent" in v and isinstance(v["100 Percent"], int) else [])
+    for h, v in HOUSE_ASPECT_DATA.items()
+}
+# Special handling for House 3 and 5 which have 50% aspects but are important for grammar
+HOUSE_ASPECT_MAP[3] = [9, 11]
+HOUSE_ASPECT_MAP[5] = [9]
+HOUSE_ASPECT_MAP[11] = [3, 5]
+
 # Natural planet relationships (p. 71 of Lal Kitab)
+# Same as before, but ensure it's used strictly for STANDARD_PLANETS
 NATURAL_RELATIONSHIPS: dict[str, dict[str, list[str]]] = {
     "Jupiter": {"Friends": ["Sun", "Moon", "Mars"],       "Enemies": ["Venus", "Mercury"],          "Even": ["Rahu", "Ketu", "Saturn"]},
     "Sun":     {"Friends": ["Jupiter", "Mars", "Moon"],   "Enemies": ["Venus", "Saturn", "Rahu"],   "Even": ["Mercury", "Ketu"]},
@@ -211,8 +237,12 @@ class GrammarAnalyser:
 
             # Sathi & BilMukabil
             self._find_companions_and_hostiles(planet, ep, planets_data)
+            
+            # Aspects (for UI rendering)
+            self._find_aspects(planet, ep, planets_data)
 
             # Masnui, Dhoka, Achanak, Rin
+            ep["is_masnui"] = planet.lower().startswith("artificial") or pd.get("is_masnui", False)
             ep["is_masnui_parent"] = planet in masnui_parents
             ep["dhoka_graha"] = planet in dhoka_grahas
             ep["achanak_chot_active"] = planet in achanak_targets
@@ -238,6 +268,9 @@ class GrammarAnalyser:
                 planets_data, causer_strengths
             )
 
+        # ── Phase 5: Masnui Formation & Feedback ───────────────────────
+        self._integrate_masnui(chart, enriched)
+
     # ------------------------------------------------------------------
     # Internal helpers
     # ------------------------------------------------------------------
@@ -248,6 +281,7 @@ class GrammarAnalyser:
         ep.setdefault("dharmi_status", "")
         ep.setdefault("sathi_companions", [])
         ep.setdefault("bilmukabil_hostile_to", [])
+        ep.setdefault("is_masnui", False)
         ep.setdefault("is_masnui_parent", False)
         ep.setdefault("dhoka_graha", False)
         ep.setdefault("achanak_chot_active", False)
@@ -347,6 +381,115 @@ class GrammarAnalyser:
             if self.detect_bilmukabil(planet, other, planets_data):
                 if other not in ep["bilmukabil_hostile_to"]:
                     ep["bilmukabil_hostile_to"].append(other)
+
+    def _find_aspects(self, planet: str, ep: dict[str, Any], planets_data: dict[str, Any]) -> None:
+        """Find all planets aspected by the current planet using HOUSE_ASPECT_DATA."""
+        base_planet = self._normalize_planet_name(planet)
+        if base_planet not in STANDARD_PLANETS:
+            return
+
+        house = ep.get("house")
+        if not house:
+            return
+        
+        aspect_config = HOUSE_ASPECT_DATA.get(house, {})
+        ep["aspects"] = []
+        
+        for aspect_type, target_val in aspect_config.items():
+            # target_val can be int or list[int]
+            target_houses = [target_val] if isinstance(target_val, int) else (target_val if isinstance(target_val, list) else [])
+            
+            for h in target_houses:
+                # Who is in house h?
+                for other, opd in planets_data.items():
+                    if other == planet:
+                        continue
+                        
+                    # Consider both standard and masnui planets as aspect targets
+                    base_other = self._normalize_planet_name(other)
+                    if (base_other in STANDARD_PLANETS or opd.get("is_masnui")) and opd.get("house") == h:
+                        rel = self._get_relationship(planet, other)
+                        ep["aspects"].append({
+                            "target": other,
+                            "target_house": h,
+                            "relationship": rel,
+                            "aspect_type": aspect_type
+                        })
+
+    def _get_relationship(self, p1: str, p2: str) -> str:
+        """Return 'friend', 'enemy', or 'neutral' based on NATURAL_RELATIONSHIPS."""
+        base_p1 = self._normalize_planet_name(p1)
+        base_p2 = self._normalize_planet_name(p2)
+        
+        # Only handle standard planets for relationships
+        if base_p1 not in STANDARD_PLANETS or base_p2 not in STANDARD_PLANETS:
+            return "neutral"
+            
+        rels = NATURAL_RELATIONSHIPS.get(base_p1, {})
+        if base_p2 in rels.get("Friends", []): return "friend"
+        if base_p2 in rels.get("Enemies", []): return "enemy"
+        return "neutral"
+
+    def _normalize_planet_name(self, name: str) -> str:
+        """Map 'Artificial Jupiter' -> 'Jupiter'."""
+        if name in STANDARD_PLANETS:
+            return name
+        for p in STANDARD_PLANETS:
+            if p.lower() in name.lower():
+                return p
+        return name
+
+    def _integrate_masnui(self, chart: dict, enriched: dict) -> None:
+        """Inject Masnui virtual planets into enriched data and compute their aspects."""
+        masnuis = chart.get("masnui_grahas_formed", [])
+        if not masnuis:
+            return
+
+        planets_data = chart.setdefault("planets_in_houses", {})
+        
+        for m in masnuis:
+            name = m["masnui_graha_name"]
+            # Ensure unique name
+            v_name = name.replace("Artificial", "Masnui")
+            if v_name in enriched:
+                v_name = f"{v_name} (Formed)"
+                
+            house = m["formed_in_house"]
+            
+            # 1. Create virtual entry in planets_data for others to see
+            planets_data[v_name] = {
+                "house": house,
+                "is_masnui": True,
+                "formed_by": m.get("components", []),
+            }
+            
+            # 2. Create enriched entry
+            # Base Masnui strength is typically high (like 100% or based on parents)
+            # We use a default of 5.0 (similar to exalted) or sum of parents?
+            # Lal Kitab says masnui is 'active' and 'strong'.
+            ep = {"house": house, "strength_total": 5.0, "is_masnui": True}
+            self._init_grammar_fields(ep)
+            enriched[v_name] = ep
+            
+            # 3. Compute aspects FOR this Masnui
+            self._find_aspects(v_name, ep, planets_data)
+            
+            # 4. Update aspects OF other planets to include this Masnui
+            for other_p, other_ep in enriched.items():
+                if other_p == v_name: continue
+                self._find_aspects(other_p, other_ep, planets_data)
+
+            # 5. Feedback strength back to parents
+            feedback_factor = self._cfg.get("strength.masnui_parent_feedback", fallback=0.30)
+            components = m.get("components", [])
+            for comp in components:
+                if comp in enriched:
+                    # Provide feedback boost to parents
+                    boost = ep["strength_total"] * feedback_factor
+                    enriched[comp]["strength_total"] += boost
+                    # Mark it in states for transparency
+                    if "states" not in enriched[comp]: enriched[comp]["states"] = []
+                    enriched[comp]["states"].append(f"Masnui Feedback (+{boost:.1f})")
 
     def _apply_adjustments(
         self,

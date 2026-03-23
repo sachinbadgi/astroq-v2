@@ -165,7 +165,15 @@ class RulesEngine:
         elif n_type == "placement":
             planet = node.get("planet", "")
             target_h = node.get("houses", [])
+            
+            # Check for exact match or Masnui version
             data = pd.get(planet)
+            if not data:
+                masnui_name = f"Masnui {planet}"
+                data = pd.get(masnui_name)
+                if data:
+                    planet = masnui_name # For target reporting
+            
             if data and data.get("house") in target_h:
                 return True, 1, {planet}, {data.get("house")}
             return False, 0, set(), set()
@@ -174,21 +182,31 @@ class RulesEngine:
             p_a = node.get("planet_a", "")
             p_b = node.get("planet_b", "")
             
-            # Check if p_a aspects p_b or vice versa with "100 Percent"
-            data_a = pd.get(p_a, {})
-            data_b = pd.get(p_b, {})
+            # Helper to find data (handles Masnui)
+            def _find_p_data(name):
+                d = pd.get(name)
+                if d: return name, d
+                m_name = f"Masnui {name}"
+                return (m_name, pd.get(m_name)) if m_name in pd else (name, None)
+
+            real_a_name, data_a = _find_p_data(p_a)
+            real_b_name, data_b = _find_p_data(p_b)
+            
+            if not data_a or not data_b:
+                return False, 0, set(), set()
+                
             house_b = data_b.get("house")
             house_a = data_a.get("house")
 
             # Check if A -> B
             for asp in data_a.get("aspects", []):
-                if asp.get("aspect_type") == "100 Percent" and (asp.get("house") == house_b or asp.get("aspecting_planet") == p_b):
-                    return True, 1, {p_a, p_b}, {house_a, house_b} if house_a and house_b else set()
+                if asp.get("aspect_type") == "100 Percent" and (asp.get("target") == real_b_name or asp.get("target_house") == house_b):
+                    return True, 1, {real_a_name, real_b_name}, {house_a, house_b} if house_a and house_b else set()
 
             # Check if B -> A
             for asp in data_b.get("aspects", []):
-                if asp.get("aspect_type") == "100 Percent" and (asp.get("house") == house_a or asp.get("aspecting_planet") == p_a):
-                    return True, 1, {p_a, p_b}, {house_a, house_b} if house_a and house_b else set()
+                if asp.get("aspect_type") == "100 Percent" and (asp.get("target") == real_a_name or asp.get("target_house") == house_a):
+                    return True, 1, {real_a_name, real_b_name}, {house_a, house_b} if house_a and house_b else set()
 
             return False, 0, set(), set()
 
