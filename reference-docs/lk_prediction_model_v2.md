@@ -915,3 +915,16 @@ Phase 10: Tune      → Adjust config overrides per figure → Re-benchmark
 | LLM-based natural language polishing of prediction text | Low | Future enhancement |
 | Expand deterministic rules beyond 1074 (additional Goswami tables) | Medium | Depends on data extraction |
 | Frontend integration for prediction display | Low | After backend complete |
+
+---
+
+## 14. Health & Miscellaneous (Chapter 19)
+
+**Source**: `backend/scripts/add_gosvami_ch19_rules.py`
+
+| Rule ID | Condition | Domain | Verdict |
+|---------|-----------|--------|---------|
+| LK_GOSW_CH19_HEALTH_ASTHMA_1 | Sun + Saturn in H1 | Health | Risk of chronic respiratory issues/Asthma |
+| LK_GOSW_CH19_HEALTH_EYESIGHT_1 | Sun in H4 + Saturn in H10 | Health | Weak eyesight (Blind Chart / Andha Teva) |
+| LK_GOSW_CH19_HEALTH_SKIN_1 | Mercury + Rahu in H6 | Health | Vulnerability to skin ailments / allergies |
+| LK_GOSW_CH19_HEALTH_BONE_1 | Saturn in H1 + Sun in H10 | Health | Structural issues in bones or joint pain |
