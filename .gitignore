@@ -12,3 +12,12 @@ build/
 *.bak
 *.swp
 *.log
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-error.log*
+frontend/.next/
+
+# Generated DB files
+backend/data/api_config.db
