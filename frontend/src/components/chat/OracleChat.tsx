@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Sparkles, BrainCircuit, Terminal, CheckCircle2, Loader2, Send } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { BrainCircuit, Terminal, CheckCircle2, Loader2, Send } from 'lucide-react';
 import { useSSE } from '../../hooks/useSSE';
 
 export default function OracleChat({ chartData }: { chartData: any }) {
@@ -75,7 +75,7 @@ export default function OracleChat({ chartData }: { chartData: any }) {
           </div>
         ) : (
           <div ref={scrollRef} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <div className="card" style={{ borderStyle: 'dashed', borderOpacity: 0.5, marginBottom: '1rem' }}>
+            <div className="card" style={{ borderStyle: 'dashed', borderColor: 'rgba(255, 255, 255, 0.2)', marginBottom: '1rem' }}>
               <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
                 <span style={{ color: 'var(--text-muted)' }}>Query:</span> {input}
               </p>
@@ -112,7 +112,7 @@ export default function OracleChat({ chartData }: { chartData: any }) {
 
             {error && (
               <div className="card" style={{ color: 'var(--accent-rose)', borderColor: 'var(--accent-rose)', opacity: 0.8 }}>
-                {error}
+                {error instanceof Error ? error.message : String(error)}
               </div>
             )}
             

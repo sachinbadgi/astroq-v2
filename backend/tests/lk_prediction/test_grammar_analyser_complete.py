@@ -615,14 +615,15 @@ class TestSleepingPlanetAspectMap:
     def test_planet_in_h8_has_no_aspects_always_sleeping(self, tmp_defaults, tmp_db):
         """H8 aspects nothing (empty in HOUSE_ASPECT_MAP) → always sleeping if not in pakka ghar."""
         analyser = _make_analyser(tmp_defaults, tmp_db)
-        # Mars pakka ghar = H3, not H8. Mars in H8 cannot aspect anything → Sleeping.
+        # Mars pakka ghar = H3, not H8. 
+        # House 8 in canonical map DOES aspect houses (2, 3, 4, 5, 12).
+        # We empty those houses to ensure it sleeps.
         chart = {"planets_in_houses": {
             "Mars":  {"house": 8},
-            "Venus": {"house": 2},
-            "Sun":   {"house": 1},
+            "Sun":   {"house": 7}, # Not aspected by H8
         }}
         result = analyser.detect_sleeping("Mars", chart["planets_in_houses"])
-        assert result is True, "Mars in H8 (aspects nothing per map) → Sleeping"
+        assert result is True, "Mars in H8 (with no occupied aspect targets) → Sleeping"
 
     def test_planet_in_pakka_ghar_never_sleeping(self, tmp_defaults, tmp_db):
         """Planet in its pakka ghar is never sleeping regardless of aspects."""

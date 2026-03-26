@@ -71,7 +71,7 @@ class TestChapter19Rules:
         sample_chart["planets_in_houses"]["Mercury"]["house"] = 6
         sample_chart["planets_in_houses"]["Rahu"]["house"] = 6
         
-        hits = rules_engine.evaluate_rules(sample_chart)
+        hits = rules_engine.evaluate_chart(sample_chart)
         skin_hits = [h for h in hits if "SKIN" in h.rule_id]
         
         assert len(skin_hits) > 0

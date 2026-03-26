@@ -36,3 +36,11 @@
 ---
 
 *(Append session notes below this line)*
+
+## 2026-03-26 — Phase 8: Batch Benchmark (astroq_gt.db)
+- **What worked**: Integrated `astroq_gt.db` tables (`lk_birth_charts` and `benchmark_ground_truth`) into a new batch processing script `run_lse_benchmark_gt.py`.
+- **Normalization**: Used regex-based name normalization to link figures between tables, handling minor spelling/format variations.
+- **Batching**: Implemented `--batch-size` and `--start-index` for flexible execution and resumability.
+- **Convergence**: Orchestrator correctly handles solve loops for each figure in the batch.
+- **Next session must know**: The script saves `ChartDNA` directly back to `astroq_gt.db` for centralized data management.
+

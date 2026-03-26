@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import ProfileSidebar from './ProfileSidebar';
 import GeneralChat from '../chat/GeneralChat';
 import OracleChat from '../chat/OracleChat';
@@ -83,7 +83,7 @@ export default function AppShell() {
 
         <div className="flex-1 overflow-auto p-6" style={{ height: 'calc(100% - 80px)' }}>
           {!chartData ? (
-            <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyCenter: 'center', opacity: 0.5, fontStyle: 'italic' }}>
+            <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0.5, fontStyle: 'italic' }}>
               Select or generate a chart in the sidebar to begin analysis.
             </div>
           ) : (

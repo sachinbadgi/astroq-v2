@@ -110,12 +110,14 @@ body {
 .text-gradient-violet {
   background: linear-gradient(135deg, var(--accent-violet), var(--accent-indigo));
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .text-gradient-pink {
   background: linear-gradient(135deg, var(--accent-pink), #ec4899);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 

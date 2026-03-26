@@ -211,7 +211,14 @@ FUNCTION solve_chart(birth_chart, life_event_log, max_iterations=20):
   best_hit_rate = 0.0
   
   FOR iteration in 1..max_iterations:
-    hypotheses = researcher.generate_hypotheses(gap_report, rules)
+    # UPDATED: find_rationale() looks for specific LK conditions for each gap
+    hypotheses = []
+    FOR gap in gap_report.entries:
+        IF gap.is_hit: CONTINUE
+        
+        rationale = researcher.find_astrological_rationale(gap, birth_chart)
+        IF rationale:
+            hypotheses.extend(researcher.generate_hypotheses_from_rationale(rationale))
     
     FOR hypothesis in hypotheses:
       config = apply_hypothesis(DEFAULT_CONFIG, hypothesis)
@@ -222,14 +229,29 @@ FUNCTION solve_chart(birth_chart, life_event_log, max_iterations=20):
         best_hit_rate = result.hit_rate
         best_dna = build_chart_dna(hypothesis, result)
       
-      gap_report = result.gap_report  # Feed failures back to researcher
+      gap_report = result.gap_report
     
     IF best_hit_rate >= 0.95:
-      BREAK  # Convergence
+      BREAK
 
   # Phase 4: Future Predictions
   SAVE best_dna as figure config overrides
   RETURN validator.run_pipeline(birth_chart, config=best_dna.config_overrides)
+
+---
+
+## 9. Astrological Rationale Rules
+
+The Researcher doesn't just "guess" delays. It must find a matching Lal Kitab condition:
+
+| Condition | Astrological Logic | Proposed Adjustment |
+|-----------|--------------------|---------------------|
+| **Takrav (Confrontation)** | Sun H1 vs Saturn H7. Mutual aspect delays Sun's peak. | +4.5 years |
+| **Soya Ghar (Sleeping)** | Target house is empty + no lord activation. | +2.0 years (minimum) |
+| **Grah-Yuti (Enmity)** | Jupiter with Rahu/Ketu (Guru-Chandal). | +5.0 years (Cycle reset) |
+| **Mars-H8 (Badh)** | Mars in H8 delays everything by 1/8th cycle. | +2.5 years |
+| **H10-L10 Malefic** | Saturn lord of 10 in 8 or 12. | +6.0 years (Saturn cycle mod) |
+| **Travel (H12)** | H12 activation cancels Soya Ghar early results. | -1.0 year (Acceleration) |
 ```
 
 ---

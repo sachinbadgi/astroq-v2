@@ -11,7 +11,7 @@ describe('RemedyPanel', () => {
   it('renders planet selector tabs', () => {
     render(<RemedyPanel chartData={mockChartData} />);
     expect(screen.getByText('Sun')).toBeInTheDocument();
-    expect(screen.getByText('Moon')).toBeInTheDocument();
+    expect(screen.getByText('Moo')).toBeInTheDocument();
   });
 
   it('renders shifting matrix table', async () => {
@@ -28,7 +28,7 @@ describe('RemedyPanel', () => {
     
     // Switch to a planet to trigger fetch
     fireEvent.click(screen.getByText('Sun'));
-    fireEvent.click(screen.getByText('Shift'));
+    fireEvent.click(screen.getByText('INITIATE SHIFT'));
 
     await waitFor(() => {
       expect(screen.getByText('Wealth')).toBeInTheDocument();
@@ -38,7 +38,7 @@ describe('RemedyPanel', () => {
 
   it('switches sub-mode tabs', () => {
     render(<RemedyPanel chartData={mockChartData} />);
-    expect(screen.getByText('Matrix')).toBeInTheDocument();
-    expect(screen.getByText('Projection')).toBeInTheDocument();
+    expect(screen.getByText('MATRIX')).toBeInTheDocument();
+    expect(screen.getByText('PROJECTION')).toBeInTheDocument();
   });
 });

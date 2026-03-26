@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Moon, Sparkles, Wand2, LogIn, UserPlus, ShieldAlert } from 'lucide-react';
+import { Moon, Sparkles, RefreshCw, LogIn, UserPlus, ShieldAlert } from 'lucide-react';
 import apiClient from '../../api/client';
 
 interface AuthPageProps {

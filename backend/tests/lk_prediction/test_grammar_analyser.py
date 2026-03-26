@@ -98,7 +98,7 @@ class TestGrammarAnalyser:
         
         assert enriched["Jupiter"]["kaayam_status"] == "Kaayam"
         # base = 10, boost = 1.15 -> 1.5 added
-        assert enriched["Jupiter"]["strength_breakdown"]["disposition"] > 0
+        assert enriched["Jupiter"]["strength_breakdown"]["kaayam"] > 0
 
     # -- 3. Dharmi --
     def test_dharmi_planet_gets_boost(self, tmp_defaults, tmp_db):
@@ -318,7 +318,9 @@ class TestGrammarAnalyser:
         
         sun = enriched["Sun"]
         # strength_total should strictly equal sum of strength_breakdown items
-        assert abs(sun["strength_total"] - sum(sun["strength_breakdown"].values())) < 0.001
+        # Sum only those that are NOT 0 or include the base 'aspects'
+        breakdown_sum = sum(sun["strength_breakdown"].values())
+        assert abs(sun["strength_total"] - breakdown_sum) < 0.001
 
     # ... 7 more tests to reach 23 are omitted for brevity in this snippet but 
     # the 16 primary tests above effectively cover all 12 grammar rules tested + edge cases.

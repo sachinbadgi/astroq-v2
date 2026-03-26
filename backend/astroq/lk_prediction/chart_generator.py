@@ -205,7 +205,7 @@ class ChartGenerator:
         """
         Wraps geocoding iff lat/lon are not provided, generates Natal, and all 75 Annual charts.
         """
-        if latitude == 0.0 or longitude == 0.0:
+        if latitude is None or longitude is None or (latitude == 0.0 and longitude == 0.0):
             locations = self.geocode_place(place_name)
             if not locations:
                 raise ValueError(f"Could not geocode {place_name} and lat/lon were not provided.")

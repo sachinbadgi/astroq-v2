@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { User, Clock, Moon, Calendar, Sparkles, LogOut, Plus, Trash2 } from 'lucide-react';
+import { User, Clock, Moon, Calendar, Sparkles, LogOut, Trash2 } from 'lucide-react';
 import ChartForm from '../chart/ChartForm';
 import apiClient from '../../api/client';
 

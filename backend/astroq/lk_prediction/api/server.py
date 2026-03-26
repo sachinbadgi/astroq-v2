@@ -5,7 +5,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
-import google.generativeai as genai
+import litellm
 import os
 
 from astroq.lk_prediction.pipeline import LKPredictionPipeline
@@ -31,22 +31,44 @@ pipeline = LKPredictionPipeline(config)
 
 from astroq.lk_prediction.chart_generator import ChartGenerator
 from astroq.lk_prediction.benchmark_runner import BenchmarkRunner
+from astroq.lk_prediction.api.lse_routes import lse_router
+from astroq.lk_prediction.api.chart_store import ChartStore
+from astroq.lk_prediction.api.tasks import broker, run_benchmark_task, cleanup_expired_charts
 
 # Paths for benchmark data
 BENCH_DIR = "d:/astroq-v2/backend"
 GT_FILE = "d:/astroq-v2/backend/data/public_figures_ground_truth.json"
 
-# Initialize Gemini
-genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
-llm_model = genai.GenerativeModel("gemini-1.5-flash")
+# Initialize LLM via LiteLLM
+GEMINI_KEY = os.environ.get("GEMINI_API_KEY")
+os.environ["GEMINI_API_KEY"] = GEMINI_KEY # Ensure it's in env for litellm
+LLM_MODEL = "gemini/gemini-1.5-flash"
 
-# In-memory store for charts (mock database)
-charts_db = {}
-state = {"next_id": 1}
+# Persistent store for charts
+CHART_DB_PATH = "d:/astroq-v2/backend/data/charts.db"
+chart_store = ChartStore(CHART_DB_PATH)
+
+# App Version for traceability
+APP_VERSION = "2.1.0-NFR"
 
 # Initialize Chart Generator and Benchmark Runner
 chart_generator = ChartGenerator()
 benchmark_runner = BenchmarkRunner(config, BENCH_DIR)
+
+# Task storage (simple in-memory for demo)
+task_results = {}
+
+@app.on_event("startup")
+async def startup_event():
+    await broker.startup()
+    # Trigger cleanup of expired charts on startup
+    await cleanup_expired_charts.kiq(CHART_DB_PATH)
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    await broker.shutdown()
+
+app.include_router(lse_router)
 
 class LoginRequest(BaseModel):
     username: str
@@ -61,6 +83,7 @@ class GenerateChartRequest(BaseModel):
     lon: float
     gender: str
     chart_system: Optional[str] = "kp"
+    chart_type: Optional[str] = "USER"
 
 class AskChartRequest(BaseModel):
     question: str
@@ -100,16 +123,10 @@ async def search_location(req: Dict[str, str]):
 
 @app.get("/lal-kitab/birth-charts")
 async def list_charts():
-    return [
-        {"id": cid, "client_name": cdata["name"], "birth_date": cdata["dob"]}
-        for cid, cdata in charts_db.items()
-    ]
+    return chart_store.list_charts()
 
 @app.post("/lal-kitab/generate-birth-chart")
 async def generate_chart(req: GenerateChartRequest):
-    chart_id = state["next_id"]
-    state["next_id"] += 1
-    
     try:
         payload = chart_generator.build_full_chart_payload(
             dob_str=req.dob,
@@ -119,16 +136,12 @@ async def generate_chart(req: GenerateChartRequest):
             longitude=req.lon,
             chart_system=req.chart_system or "kp"
         )
-        # Enrich all charts in the payload with aspects and grammar
+        # Enrichment logic
         for key in payload:
             if key.startswith("chart_"):
                 chart = payload[key]
-                # We need an enriched dict for GrammarAnalyser
-                # This is a lightweight enrichment just for aspects/grammar
                 enriched = {p: {"house": d["house"]} for p, d in chart["planets_in_houses"].items()}
                 pipeline.grammar_analyser.apply_grammar_rules(chart, enriched)
-                
-                # Merge enriched data back into the payload
                 for p, ep in enriched.items():
                     if p not in chart["planets_in_houses"]:
                         chart["planets_in_houses"][p] = ep
@@ -136,17 +149,16 @@ async def generate_chart(req: GenerateChartRequest):
                         chart["planets_in_houses"][p].update(ep)
 
         natal_chart = payload["chart_0"]
-        
         chart_payload = {
-            "id": chart_id,
             "name": req.name,
             "dob": req.dob,
             "tob": req.tob,
             "pob": req.pob,
             "planets_in_houses": natal_chart["planets_in_houses"],
-            "full_payload": payload # Include full payload for year switching
+            "full_payload": payload
         }
-        charts_db[chart_id] = chart_payload
+        chart_id = chart_store.save_chart(chart_payload, chart_type=req.chart_type or "USER")
+        chart_payload["id"] = chart_id
         return chart_payload
     except Exception as e:
         import traceback
@@ -155,17 +167,16 @@ async def generate_chart(req: GenerateChartRequest):
 
 @app.api_route("/lal-kitab/birth-charts/{chart_id}", methods=["GET", "DELETE"])
 async def handle_chart_item(chart_id: int, request: Request):
-    if chart_id not in charts_db:
-        raise HTTPException(status_code=404, detail="Chart not found")
-
     if request.method == "DELETE":
-        print(f"DEBUG: Deleting chart {chart_id}")
-        del charts_db[chart_id]
-        print(f"DEBUG: Chart {chart_id} deleted. Remaining: {len(charts_db)}")
+        success = chart_store.delete_chart(chart_id)
+        if not success:
+            raise HTTPException(status_code=404, detail="Chart not found")
         return {"message": "Chart deleted successfully"}
 
     # GET logic
-    chart = charts_db[chart_id]
+    chart = chart_store.get_chart(chart_id)
+    if not chart:
+        raise HTTPException(status_code=404, detail="Chart not found")
     pipeline.load_natal_baseline(chart)
     predictions = pipeline.generate_predictions(chart)
     enriched_planets = pipeline._natal_baseline
@@ -186,21 +197,34 @@ async def handle_chart_item(chart_id: int, request: Request):
         }
     }
 
+def _summarize_chart_for_llm(chart: Dict[str, Any]) -> str:
+    """Generate a token-efficient summary of the chart."""
+    planets = chart.get("planets_in_houses", {})
+    summary_parts = []
+    for p, data in planets.items():
+        h = data.get("house")
+        tags = data.get("grammar_tags", [])
+        tag_str = f" ({', '.join(tags)})" if tags else ""
+        summary_parts.append(f"{p} in H{h}{tag_str}")
+    
+    status_parts = []
+    if chart.get("mangal_badh_status") == "Active": status_parts.append("Mangal Badh Active")
+    if chart.get("dharmi_kundli_status") == "Dharmi Teva": status_parts.append("Dharmi Teva")
+    
+    return "Planets: " + "; ".join(summary_parts) + ". Status: " + ", ".join(status_parts)
+
 @app.post("/ask-chart")
 async def ask_chart(req: AskChartRequest):
+    summary = _summarize_chart_for_llm(req.chart_data)
     prompt = f"""
-    You are an expert Lal Kitab Astrologer (Oracle). 
-    A user is asking: "{req.question}"
-    
-    Their chart data (planets in houses):
-    {json.dumps(req.chart_data.get('planets_in_houses', {}), indent=2)}
-    
-    Provide a concise, mystical, and accurate answer based on Lal Kitab principles. 
-    Focus on the specific question.
+    Expert Lal Kitab Oracle. 
+    Question: "{req.question}"
+    Simplified Chart: {summary}
+    Provide a concise, mystical, and accurate answer.
     """
     try:
-        response = llm_model.generate_content(prompt)
-        return {"answer": response.text}
+        response = litellm.completion(model=LLM_MODEL, messages=[{"role": "user", "content": prompt}])
+        return {"answer": response.choices[0].message.content}
     except Exception as e:
         return {"answer": f"The cosmic energies are hazy: {str(e)}"}
 
@@ -216,23 +240,21 @@ async def ask_chart_premium_stream(req: AskChartRequest):
         
         for step_type, content in steps:
             yield f"data: {json.dumps({'step': step_type, 'content': content})}\n\n"
-            await asyncio.sleep(1.5)
+            await asyncio.sleep(1.2)
             
-        # Final conclusion from Gemini
+        summary = _summarize_chart_for_llm(req.chart_data)
         prompt = f"""
-        You are a Premium Lal Kitab Oracle. 
-        User Question: "{req.question}"
-        Current Age: {req.current_age or 'Unknown'}
-        
-        Chart: {json.dumps(req.chart_data.get('planets_in_houses', {}))}
-        
-        Give a deep, insightful synthesis and final conclusion.
+        Premium Lal Kitab Oracle. 
+        Question: "{req.question}"
+        Age: {req.current_age or 'N/A'}
+        Chart Summary: {summary}
+        Deep, insightful synthesis and final conclusion.
         """
         try:
-            response = llm_model.generate_content(prompt)
-            yield f"data: {json.dumps({'step': 'CONCLUDE', 'content': response.text})}\n\n"
+            response = litellm.completion(model=LLM_MODEL, messages=[{"role": "user", "content": prompt}])
+            yield f"data: {json.dumps({'step': 'CONCLUDE', 'content': response.choices[0].message.content})}\n\n"
         except Exception as e:
-            yield f"data: {json.dumps({'step': 'CONCLUDE', 'content': f'Error consulting the stars: {str(e)}'})}\n\n"
+            yield f"data: {json.dumps({'step': 'CONCLUDE', 'content': f'Error: {str(e)}'})}\n\n"
             
     return StreamingResponse(event_generator(), media_type="text/event-stream")
 
@@ -303,36 +325,42 @@ async def simulate_remedies(req: Dict[str, Any]):
     }
 
 @app.get("/metrics/test-runs")
-async def get_test_runs():
+async def trigger_test_runs():
     try:
         with open(GT_FILE, "r", encoding="utf-8") as f:
             figures = json.load(f)
         
-        # Limit to first few for speed if needed, but let's try all
-        metrics = benchmark_runner.run_all(figures[:5]) 
+        # Limit to first few as before
+        subset = figures[:5]
         
-        runs = []
-        for name, res in metrics.results_by_figure.items():
-            for ev in res["events_eval"]:
-                runs.append({
-                    "id": f"{name}_{ev['actual_age']}",
-                    "public_figure": name,
-                    "event": ev["event"],
-                    "actual_age": ev["actual_age"],
-                    "predicted_age": ev["predicted_age"],
-                    "status": "HIT" if ev["hit"] else "MISS" if ev["offset"] > 5 else "PARTIAL"
-                })
+        # Trigger the task with metadata (Phase 7 traceability)
+        task = await run_benchmark_task.kiq(
+            config_params={"db_path": DB_PATH, "defaults_path": DEFAULTS_PATH},
+            bench_dir=BENCH_DIR,
+            figures=subset
+        )
         
-        return {
-            "runs": runs,
-            "metrics": {
-                "hit_rate": f"{round(metrics.get_hit_rate() * 100, 1)}%",
-                "avg_offset": f"+{round(metrics.get_avg_offset(), 1)} yrs",
-                "total_tested": metrics.total_events
-            }
-        }
+        # In a real setup, we would also log the task metadata to a 'benchmarks' table
+        print(f"DEBUG: Triggered benchmark task {task.task_id} with app version {APP_VERSION}")
+        
+        return {"task_id": task.task_id, "message": "Benchmark started in background"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/metrics/task-status/{task_id}")
+async def get_task_status(task_id: str):
+    # Actually, with InMemoryBroker, we can't easily poll from a separate process,
+    # but since everything is in one process here, we can use the result backend 
+    # if we configured one. For now, we'll wait for the task result in a simple way
+    # or just assume the frontend will poll.
+    
+    # Using taskiq's built-in result polling (if backend exists)
+    # Since we used InMemoryBroker without a backend, we'll mock it for now.
+    # In a real Redis setup, this would be: await broker.result_backend.get_result(task_id)
+    
+    # For now, we'll just return a mock "COMPLETED" state with data if it was fast,
+    # or "RUNNING" otherwise. This is a placeholder for the Redis implementation.
+    return {"status": "SUCCESS", "message": "Task result polling requires Redis/RabbitMQ. Currently running in-process."}
 
 if __name__ == "__main__":
     import uvicorn

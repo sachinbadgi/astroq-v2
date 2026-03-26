@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { RefreshCw, ArrowRight, ShieldCheck, Zap, Activity } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { RefreshCw, Zap, Activity } from 'lucide-react';
 import apiClient from '../../api/client';
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
 export interface RemedyPanelProps {
   chartData: any;

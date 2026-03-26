@@ -64,7 +64,17 @@ with `confidence_source = "generic"`.
 
 ---
 
+## DEC-006: Benchmark Database (astroq_gt.db)
+
+**Date**: 2026-03-26  
+**Decision**: The AutoResearch 2.0 (LSE) benchmark now uses `astroq_gt.db` for ground truth validation. This includes `lk_birth_charts` for natal data and `benchmark_ground_truth` for life events.  
+**Reasoning**: Centralizes benchmark data and ensures consistency across the researcher agents. The `run_lse_benchmark_gt.py` script also persists `ChartDNA` back to this database.  
+**Status**: ✅ Closed
+
+---
+
 ## Template for New Decisions
+
 
 ```
 ## DEC-NNN: [Short Title]

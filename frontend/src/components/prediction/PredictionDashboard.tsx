@@ -1,13 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { 
-  TrendingUp, 
   AlertTriangle, 
   Calendar, 
-  MinusCircle, 
-  PlusCircle, 
   Zap, 
-  ShieldCheck, 
-  Info,
   Loader2,
   ChartNoAxesColumnIncreasing
 } from 'lucide-react';
@@ -98,7 +93,7 @@ export default function PredictionDashboard({ activeChartId }: PredictionDashboa
                   </div>
                   <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.2rem' }}>
                     {data.sleeping_status === 'Sleeping' && <span style={{ fontSize: '0.65rem', background: 'var(--bg-elevated)', padding: '1px 6px', borderRadius: '4px', border: '1px solid var(--border-normal)', color: 'var(--text-muted)' }}>Sleeping</span>}
-                    {data.dharmi_status === 'Dharmi' && <span style={{ fontSize: '0.65rem', background: 'var(--accent-emerald)', backgroundOpacity: 0.1, color: 'var(--accent-emerald)', padding: '1px 6px', borderRadius: '4px', border: '1px solid var(--accent-emerald)' }}>Dharmi</span>}
+                    {data.dharmi_status === 'Dharmi' && <span style={{ fontSize: '0.65rem', background: 'rgba(16, 185, 129, 0.1)', color: 'var(--accent-emerald)', padding: '1px 6px', borderRadius: '4px', border: '1px solid var(--accent-emerald)' }}>Dharmi</span>}
                     {data.dhoka_graha && <span style={{ fontSize: '0.65rem', background: 'var(--accent-rose)', color: 'white', padding: '1px 6px', borderRadius: '4px' }}>Dhoka Graha</span>}
                   </div>
                 </div>

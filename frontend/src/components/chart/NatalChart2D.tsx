@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { ChevronDown, ChevronUp, Info, Activity } from 'lucide-react';
 
 interface NatalChart2DProps {

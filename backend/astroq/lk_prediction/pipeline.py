@@ -17,11 +17,7 @@ from astroq.lk_prediction.probability_engine import ProbabilityEngine
 from astroq.lk_prediction.rules_engine import RulesEngine
 from astroq.lk_prediction.strength_engine import StrengthEngine
 from astroq.lk_prediction.remedy_engine import RemedyEngine
-
-class _StubItemsResolver:
-    def get_planet_items(self, planet: str, house: int) -> list[str]:
-        return ["Associated items (see physical Lal Kitab)"]
-
+from astroq.lk_prediction.items_resolver import LKItemsResolver
 
 class LKPredictionPipeline:
     """Main entrypoint for Lal Kitab Prediction Engine."""
@@ -35,7 +31,7 @@ class LKPredictionPipeline:
         self.rules_engine = RulesEngine(config)
         self.prob_engine = ProbabilityEngine(config)
         self.classifier = EventClassifier(config)
-        self.remedy_engine = RemedyEngine(config, _StubItemsResolver())
+        self.remedy_engine = RemedyEngine(config, LKItemsResolver())
         self.translator = PredictionTranslator(config, remedy_engine=self.remedy_engine)
         
         # State

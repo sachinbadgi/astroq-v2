@@ -20,4 +20,17 @@ yarn-error.log*
 frontend/.next/
 
 # Generated DB files
-backend/data/api_config.db
+backend/data/*.db
+*.db
+*.json
+!backend/data/public_figures_ground_truth_v2.json
+
+# Excel and Data
+*.xlsx
+reference-docs/*.xlsx
+!reference-docs/Items of planets.xlsx
+
+# Agent Metadata
+.agent/
+artifacts/
+brain/

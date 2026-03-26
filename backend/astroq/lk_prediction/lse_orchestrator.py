@@ -94,7 +94,7 @@ class LSEOrchestrator:
                     # Look for delay constant for this planet
                     for k, v in current_overrides.items():
                         if k.startswith("delay.") and planet.lower() in k.lower():
-                            p.peak_age += int(v)
+                            p.peak_age += float(v)
                             break
 
             # 2. Validate

@@ -53,14 +53,16 @@ HOUSE_ASPECT_DATA: dict[int, dict[str, Any]] = {
 }
 
 # (Original HOUSE_ASPECT_MAP kept for simple grammar checks if needed, but updated to 100% ones)
-HOUSE_ASPECT_MAP: dict[int, list[int]] = {
-    h: ([v["100 Percent"]] if "100 Percent" in v and isinstance(v["100 Percent"], int) else [])
-    for h, v in HOUSE_ASPECT_DATA.items()
-}
-# Special handling for House 3 and 5 which have 50% aspects but are important for grammar
-HOUSE_ASPECT_MAP[3] = [9, 11]
-HOUSE_ASPECT_MAP[5] = [9]
-HOUSE_ASPECT_MAP[11] = [3, 5]
+# Complete House Aspect Map for Sleeping/Awake checks
+HOUSE_ASPECT_MAP: dict[int, list[int]] = {}
+for h, v in HOUSE_ASPECT_DATA.items():
+    targets = []
+    # Any significant aspect or "Outside Help" (facet/drishti) can wake a planet
+    for a_type in ["100 Percent", "50 Percent", "25 Percent", "Outside Help"]:
+        t = v.get(a_type)
+        if isinstance(t, int): targets.append(t)
+        elif isinstance(t, list): targets.extend(t)
+    HOUSE_ASPECT_MAP[h] = sorted(list(set(targets)))
 
 # Natural planet relationships (p. 71 of Lal Kitab)
 # Same as before, but ensure it's used strictly for STANDARD_PLANETS
@@ -290,8 +292,9 @@ class GrammarAnalyser:
 
         bd = ep.setdefault("strength_breakdown", {})
         for key in [
-            "sleeping", "disposition", "dharmi", "sathi", "bilmukabil",
+            "sleeping", "kaayam", "disposition", "dharmi", "sathi", "bilmukabil",
             "mangal_badh", "masnui_feedback", "dhoka", "achanak_chot", "rin", "cycle_35yr",
+            "spoiler"
         ]:
             bd.setdefault(key, 0.0)
 
@@ -483,10 +486,14 @@ class GrammarAnalyser:
             feedback_factor = self._cfg.get("strength.masnui_parent_feedback", fallback=0.30)
             components = m.get("components", [])
             for comp in components:
-                if comp in enriched:
                     # Provide feedback boost to parents
-                    boost = ep["strength_total"] * feedback_factor
+                    boost = float(ep["strength_total"]) * feedback_factor
                     enriched[comp]["strength_total"] += boost
+                    # Update breakdown for summation consistency
+                    enriched[comp].setdefault("strength_breakdown", {})
+                    enriched[comp]["strength_breakdown"]["masnui_feedback"] = (
+                        enriched[comp]["strength_breakdown"].get("masnui_feedback", 0.0) + boost
+                    )
                     # Mark it in states for transparency
                     if "states" not in enriched[comp]: enriched[comp]["states"] = []
                     enriched[comp]["states"].append(f"Masnui Feedback (+{boost:.1f})")
@@ -507,7 +514,7 @@ class GrammarAnalyser:
         # 1. Kaayam (powerful state — applied first)
         if ep["kaayam_status"] == "Kaayam":
             delta = abs(total) * (self.w_kaayam - 1.0)
-            bd["disposition"] += delta
+            bd["kaayam"] += delta
             total += delta
 
         # 2. Dharmi (powerful state — applied before sleeping)

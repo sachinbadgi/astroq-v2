@@ -184,7 +184,7 @@ class TestRulesEngine:
     # -- 3. Confrontation Evaluation --
     def test_confrontation_rule_fires_based_on_aspects(self, rules_engine):
         chart = _make_minimal_chart({
-            "Sun": {"house": 1, "aspects": [{"aspecting_planet": "Saturn", "aspect_type": "100 Percent"}]},
+            "Sun": {"house": 1, "aspects": [{"target": "Saturn", "aspect_type": "100 Percent"}]},
             "Saturn": {"house": 7}
         })
         hits = rules_engine.evaluate_chart(chart)

@@ -238,6 +238,29 @@ pytest backend/tests/lk_prediction/ -v -k "lse" --tb=short
 
 ---
 
+## 🚀 Benchmark Execution (astroq_gt.db)
+
+To run the LSE back-testing loop against the ground truth dataset in `astroq_gt.db`, use the provided benchmark script. This script processes public figures in batches of 10.
+
+```bash
+# Run benchmark for the first 10 figures
+python backend/scripts/run_lse_benchmark_gt.py --batch-size 10 --limit 10
+
+# Resume from index 10
+python backend/scripts/run_lse_benchmark_gt.py --batch-size 10 --start-index 10 --limit 10
+```
+
+### Data Source
+- **Birth Charts**: `lk_birth_charts` table in `backend/data/astroq_gt.db`.
+- **Life Events**: `benchmark_ground_truth` table in `backend/data/astroq_gt.db`.
+
+### Output
+- Discovered `ChartDNA` (personalised models) are saved back to the `chart_dna` table in `astroq_gt.db`.
+- Check progress in the terminal logs.
+
+
+---
+
 ## Hypothesis Types (Researcher Must Generate These)
 
 The Researcher Agent generates hypotheses from this fixed taxonomy.
