@@ -162,7 +162,7 @@ class LKPredictionPipeline:
             self._prediction_history[f"{p}_prev"] = fpr
             
         # 7. Classification
-        classified = self.classifier.classify_events(prob_results)
+        classified = self.classifier.classify_events(prob_results, age=age)
         
         # 8. Domain Filter
         if focus_domains:

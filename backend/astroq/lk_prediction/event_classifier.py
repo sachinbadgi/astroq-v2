@@ -60,7 +60,7 @@ class EventClassifier:
         self.sent_mixed_max = config.get("classifier.sentiment_mixed_max_mag", fallback=2.0)
         self.sent_mixed_min = config.get("classifier.sentiment_mixed_min_mag", fallback=-2.0)
 
-    def classify_events(self, raw_events: list[dict[str, Any]]) -> list[ClassifiedEvent]:
+    def classify_events(self, raw_events: list[dict[str, Any]], age: int = 0) -> list[ClassifiedEvent]:
         """
         Process a list of enriched events and return ClassifiedEvent instances.
         
@@ -114,7 +114,8 @@ class EventClassifier:
                 is_peak=peak,
                 peak_type="ABSOLUTE" if prob >= self.abs_peak else "MOMENTUM" if peak else "NONE",
                 prediction_text=prediction_text,
-                contributing_rules=[getattr(h, "rule_id", "") for h in ev.get("rule_hits", [])] if "rule_hits" in ev else []
+                contributing_rules=[getattr(h, "rule_id", "") for h in ev.get("rule_hits", [])] if "rule_hits" in ev else [],
+                peak_age=age  # Fix: Set the peak age from current simulation year
             )
             classified.append(ce)
             

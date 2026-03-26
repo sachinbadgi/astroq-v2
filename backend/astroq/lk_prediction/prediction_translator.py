@@ -76,7 +76,7 @@ class PredictionTranslator:
         predictions = []
         for ev in events:
             # Domain string
-            domain = ev.domains[0] if ev.domains else "General"
+            domain = "/".join(ev.domains) if ev.domains else "General"
             
             # Sub-type
             event_type = f"{ev.planet}_{ev.sentiment.lower()}"
@@ -148,8 +148,8 @@ class PredictionTranslator:
     def _generate_remedies(
         self,
         ev: ClassifiedEvent,
-        natal: dict | None,
-        annual: dict | None,
+        natal: dict | None = None,
+        annual: dict | None = None,
     ) -> tuple[bool, list[str]]:
         """If malefic or volatile, generate remedy hints."""
         # Use RemedyEngine if provided
