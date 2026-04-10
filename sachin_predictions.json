@@ -2,17 +2,63 @@
     "client_name": "sachin",
     "dob": "1977-11-28",
     "tob": "18:30",
-    "place": "Mumbai",
-    "chart_system": "kp",
+    "place": "sangli maharashtra",
+    "chart_system": "vedic",
     "natal_chart_data": {
         "chart_type": "Birth",
         "chart_period": 0,
         "birth_time": "1977-11-28T18:30:00",
         "planets_in_houses": {
-            "Sun": {
-                "house": 6,
-                "house_natal": 6,
+            "Asc": {
+                "house": 1,
+                "house_natal": 1,
                 "aspects": [
+                    {
+                        "aspect_strength": 0.0,
+                        "aspect_type": "Outside Help",
+                        "relationship": "equal"
+                    },
+                    {
+                        "aspect_strength": 0.0,
+                        "aspect_type": "General Condition",
+                        "relationship": "equal"
+                    },
+                    {
+                        "aspect_strength": 0.0,
+                        "aspect_type": "Confrontation",
+                        "relationship": "equal"
+                    },
+                    {
+                        "aspect_strength": 0.0,
+                        "aspect_type": "Joint Wall",
+                        "relationship": "equal"
+                    },
+                    {
+                        "aspect_strength": 0.0,
+                        "aspect_type": "Joint Wall",
+                        "relationship": "equal"
+                    },
+                    {
+                        "aspect_strength": 0.0,
+                        "aspect_type": "100 Percent",
+                        "relationship": "equal"
+                    }
+                ]
+            },
+            "Sun": {
+                "house": 7,
+                "house_natal": 7,
+                "aspects": [
+                    {
+                        "aspect_strength": 0.5,
+                        "aspect_type": "Outside Help",
+                        "relationship": "enemy"
+                    },
+                    {
+                        "aspect_strength": 0.0,
+                        "aspect_type": "General Condition",
+                        "relationship": "equal"
+                    },
                     {
                         "aspect_strength": 0.75,
                         "aspect_type": "Confrontation",
@@ -25,7 +71,7 @@
                     },
                     {
                         "aspect_strength": 2,
-                        "aspect_type": "Deception",
+                        "aspect_type": "Foundation",
                         "relationship": "friend"
                     },
                     {
@@ -41,13 +87,13 @@
                 ]
             },
             "Moon": {
-                "house": 1,
-                "house_natal": 1,
+                "house": 2,
+                "house_natal": 2,
                 "aspects": [
                     {
-                        "aspect_strength": 0.5,
+                        "aspect_strength": 2,
                         "aspect_type": "Outside Help",
-                        "relationship": "enemy"
+                        "relationship": "equal"
                     },
                     {
                         "aspect_strength": 2,
@@ -55,21 +101,26 @@
                         "relationship": "friend"
                     },
                     {
+                        "aspect_strength": -5,
+                        "aspect_type": "Deception",
+                        "relationship": "enemy"
+                    },
+                    {
+                        "aspect_strength": 1,
+                        "aspect_type": "Joint Wall",
+                        "relationship": "equal"
+                    },
+                    {
                         "aspect_strength": 2,
-                        "aspect_type": "100 Percent",
-                        "relationship": "friend"
+                        "aspect_type": "25 Percent",
+                        "relationship": "equal"
                     }
                 ]
             },
             "Mercury": {
-                "house": 7,
-                "house_natal": 7,
+                "house": 8,
+                "house_natal": 8,
                 "aspects": [
-                    {
-                        "aspect_strength": 0.25,
-                        "aspect_type": "Outside Help",
-                        "relationship": "equal"
-                    },
                     {
                         "aspect_strength": 0.5,
                         "aspect_type": "General Condition",
@@ -82,12 +133,27 @@
                     },
                     {
                         "aspect_strength": 1,
-                        "aspect_type": "Foundation",
+                        "aspect_type": "Confrontation",
                         "relationship": "equal"
                     },
                     {
                         "aspect_strength": 1.25,
                         "aspect_type": "Foundation",
+                        "relationship": "equal"
+                    },
+                    {
+                        "aspect_strength": 2,
+                        "aspect_type": "Deception",
+                        "relationship": "friend"
+                    },
+                    {
+                        "aspect_strength": 0.5,
+                        "aspect_type": "25 Percent",
+                        "relationship": "enemy"
+                    },
+                    {
+                        "aspect_strength": 0.5,
+                        "aspect_type": "25 Percent",
                         "relationship": "equal"
                     }
                 ]
@@ -97,13 +163,18 @@
                 "house_natal": 6,
                 "aspects": [
                     {
-                        "aspect_strength": 0.5,
+                        "aspect_strength": 0.0,
                         "aspect_type": "Confrontation",
+                        "relationship": "equal"
+                    },
+                    {
+                        "aspect_strength": 0.5,
+                        "aspect_type": "Foundation",
                         "relationship": "enemy"
                     },
                     {
                         "aspect_strength": 0.5,
-                        "aspect_type": "Confrontation",
+                        "aspect_type": "Foundation",
                         "relationship": "equal"
                     },
                     {
@@ -112,14 +183,9 @@
                         "relationship": "equal"
                     },
                     {
-                        "aspect_strength": 0.333333,
-                        "aspect_type": "Deception",
-                        "relationship": "friend"
-                    },
-                    {
-                        "aspect_strength": 1,
+                        "aspect_strength": 0.75,
                         "aspect_type": "Joint Wall",
-                        "relationship": "friend"
+                        "relationship": "enemy"
                     }
                 ]
             },
@@ -130,12 +196,17 @@
                     {
                         "aspect_strength": 2,
                         "aspect_type": "Outside Help",
-                        "relationship": "enemy"
+                        "relationship": "friend"
                     },
                     {
                         "aspect_strength": 0.5,
                         "aspect_type": "Foundation",
                         "relationship": "enemy"
+                    },
+                    {
+                        "aspect_strength": 1.333333,
+                        "aspect_type": "Joint Wall",
+                        "relationship": "equal"
                     },
                     {
                         "aspect_strength": 0.5,
@@ -145,13 +216,13 @@
                 ]
             },
             "Jupiter": {
-                "house": 1,
-                "house_natal": 1,
+                "house": 2,
+                "house_natal": 2,
                 "aspects": [
                     {
-                        "aspect_strength": 2,
+                        "aspect_strength": 3.75,
                         "aspect_type": "Outside Help",
-                        "relationship": "equal"
+                        "relationship": "enemy"
                     },
                     {
                         "aspect_strength": 2,
@@ -159,15 +230,25 @@
                         "relationship": "enemy"
                     },
                     {
+                        "aspect_strength": 0.83333,
+                        "aspect_type": "Deception",
+                        "relationship": "equal"
+                    },
+                    {
                         "aspect_strength": 2,
-                        "aspect_type": "100 Percent",
+                        "aspect_type": "Joint Wall",
+                        "relationship": "friend"
+                    },
+                    {
+                        "aspect_strength": 3.75,
+                        "aspect_type": "25 Percent",
                         "relationship": "enemy"
                     }
                 ]
             },
             "Saturn": {
-                "house": 3,
-                "house_natal": 3,
+                "house": 4,
+                "house_natal": 4,
                 "aspects": [
                     {
                         "aspect_strength": 0.8,
@@ -176,13 +257,18 @@
                     },
                     {
                         "aspect_strength": 0.5,
-                        "aspect_type": "Foundation",
+                        "aspect_type": "Confrontation",
                         "relationship": "equal"
                     },
                     {
-                        "aspect_strength": 0.5,
-                        "aspect_type": "50 Percent",
+                        "aspect_strength": 0.0,
+                        "aspect_type": "Deception",
                         "relationship": "equal"
+                    },
+                    {
+                        "aspect_strength": 2,
+                        "aspect_type": "Joint Wall",
+                        "relationship": "friend"
                     }
                 ]
             },
@@ -196,19 +282,19 @@
                         "relationship": "friend"
                     },
                     {
-                        "aspect_strength": 0.5,
+                        "aspect_strength": 0.0,
                         "aspect_type": "Foundation",
+                        "relationship": "equal"
+                    },
+                    {
+                        "aspect_strength": 0.5,
+                        "aspect_type": "Deception",
                         "relationship": "equal"
                     },
                     {
                         "aspect_strength": 0,
-                        "aspect_type": "Foundation",
+                        "aspect_type": "Deception",
                         "relationship": "equal"
-                    },
-                    {
-                        "aspect_strength": -5,
-                        "aspect_type": "Joint Wall",
-                        "relationship": "enemy"
                     },
                     {
                         "aspect_strength": 0.5,
@@ -227,68 +313,108 @@
                         "relationship": "enemy"
                     },
                     {
-                        "aspect_strength": 2,
-                        "aspect_type": "Outside Help",
-                        "relationship": "equal"
-                    },
-                    {
                         "aspect_strength": 1,
                         "aspect_type": "General Condition",
                         "relationship": "friend"
                     },
                     {
-                        "aspect_strength": 0.5,
-                        "aspect_type": "Confrontation",
-                        "relationship": "equal"
-                    },
-                    {
                         "aspect_strength": 2,
                         "aspect_type": "Confrontation",
                         "relationship": "friend"
                     },
                     {
-                        "aspect_strength": 0.75,
+                        "aspect_strength": 0.5,
                         "aspect_type": "Foundation",
+                        "relationship": "equal"
+                    },
+                    {
+                        "aspect_strength": 0.75,
+                        "aspect_type": "Deception",
                         "relationship": "equal"
                     }
                 ]
             }
         },
-        "masnui_grahas_formed": [
-            {
-                "formed_in_house": 3,
-                "masnui_graha_name": "Artificial Rahu (Exalted Rahu)",
-                "components": [
-                    "Mars",
-                    "Saturn"
-                ]
-            },
-            {
-                "formed_in_house": 6,
-                "masnui_graha_name": "Artificial Jupiter",
-                "components": [
-                    "Venus",
-                    "Sun"
-                ]
-            }
-        ],
+        "masnui_grahas_formed": [],
         "dhoka_graha_triggers": [],
         "achanak_chot_triggers": [],
         "lal_kitab_debts": [
             "Ancestral Debt (Pitra Rin)",
-            "Self Debt (Swayam Rin)"
+            "Self Debt (Swayam Rin)",
+            "Family/Wife/Woman Debt (Stri Rin)",
+            "Relative/Brother Debt (Bhai-Bandhu Rin)"
         ],
         "lal_kitab_dispositions": [],
         "dharmi_kundli_status": "Normal",
         "mangal_badh_status": "Active",
-        "mangal_badh_count": 4
+        "mangal_badh_count": 5
     },
     "predictions_by_age": {
         "age_0": [
             {
-                "domain": "Emotions",
-                "event_type": "Moon_mixed",
-                "prediction_text": "Lal Kitab prediction for Moon in House 1",
+                "domain": "Children",
+                "event_type": "Rahu_mixed",
+                "prediction_text": "With Rahu in the 5th house, the first son is born at age 21, and the second at 42.",
+                "confidence": "HIGHLY_LIKELY",
+                "polarity": "MIXED",
+                "peak_age": 0,
+                "age_window": [
+                    0,
+                    0
+                ],
+                "probability": 0.6730471896312159,
+                "magnitude": 1.39,
+                "affected_people": [
+                    "Children",
+                    "In-laws",
+                    "Paternal Grandfather",
+                    "Strangers"
+                ],
+                "affected_items": [
+                    "Electronics",
+                    "Foreign goods",
+                    "Old currency"
+                ],
+                "source_planets": [
+                    "Rahu",
+                    "Sun",
+                    "Venus",
+                    "Rahu",
+                    "Ketu"
+                ],
+                "source_houses": [
+                    5,
+                    7,
+                    6,
+                    5,
+                    11
+                ],
+                "source_rules": [
+                    "With Sun in H7, a child can only be born in youth and not in old age.",
+                    "Sun in H7 -> Comfort from spouse is little and one has liaisons outside.",
+                    "If a son is born when Venus is in H6, the next son will be born after 12 years.",
+                    "Venus in H6 does not directly affect the individual but their partner.",
+                    "With Rahu in the 5th house, the first son is born at age 21, and the second at 42.",
+                    "If Rahu is in the 5th house, the birth of the second son can lead to the death of the father-in-law or grandfather.",
+                    "Delay in male offspring and potential death of children in conception or after birth, with health problems until age 12.",
+                    "Rahu/Ketu/Saturn in H5 -> Obstruction to child birth.",
+                    "Rahu in H5 -> Extremely malefic for child birth (without Sun/Moon support).",
+                    "Ketu in the 11th house bestows prosperity and progress.",
+                    "During the reign of Ketu, the mother may die, but wealth grows.",
+                    "Ketu in H11 -> Male child.",
+                    "Ketu in H11 -> Order held enroute. Minor movement. Travel 11 times auspicious.",
+                    "Ketu in H11 -> Gives male child."
+                ],
+                "remedy_applicable": true,
+                "remedy_hints": [
+                    "Helpful Remedy: Monday: Donate milk or silver to a temple",
+                    "Mars Malefic (-): Feed sweet tandoori rotis to dogs"
+                ]
+            },
+            {
+                "domain": "Marriage",
+                "event_type": "Sun_mixed",
+                "prediction_text": "With Sun in H7, a child can only be born in youth and not in old age.",
                 "confidence": "POSSIBLE",
                 "polarity": "MIXED",
                 "peak_age": 0,
@@ -296,10 +422,944 @@
                     0,
                     0
                 ],
-                "probability": 0.5718919669501288,
+                "probability": 0.6104812948996363,
+                "magnitude": 0.48999999999999994,
+                "affected_people": [
+                    "Authority Figures",
+                    "Father",
+                    "Partners",
+                    "Self",
+                    "Spouse"
+                ],
+                "affected_items": [
+                    "Gold",
+                    "Government",
+                    "Wheat"
+                ],
+                "source_planets": [
+                    "Sun",
+                    "Sun",
+                    "Venus",
+                    "Rahu",
+                    "Ketu"
+                ],
+                "source_houses": [
+                    7,
+                    7,
+                    6,
+                    5,
+                    11
+                ],
+                "source_rules": [
+                    "With Sun in H7, a child can only be born in youth and not in old age.",
+                    "Sun in H7 -> Comfort from spouse is little and one has liaisons outside.",
+                    "If a son is born when Venus is in H6, the next son will be born after 12 years.",
+                    "Venus in H6 does not directly affect the individual but their partner.",
+                    "With Rahu in the 5th house, the first son is born at age 21, and the second at 42.",
+                    "If Rahu is in the 5th house, the birth of the second son can lead to the death of the father-in-law or grandfather.",
+                    "Delay in male offspring and potential death of children in conception or after birth, with health problems until age 12.",
+                    "Rahu/Ketu/Saturn in H5 -> Obstruction to child birth.",
+                    "Rahu in H5 -> Extremely malefic for child birth (without Sun/Moon support).",
+                    "Ketu in the 11th house bestows prosperity and progress.",
+                    "During the reign of Ketu, the mother may die, but wealth grows.",
+                    "Ketu in H11 -> Male child.",
+                    "Ketu in H11 -> Order held enroute. Minor movement. Travel 11 times auspicious.",
+                    "Ketu in H11 -> Gives male child."
+                ],
+                "remedy_applicable": true,
+                "remedy_hints": [
+                    "Helpful Remedy: Monday: Donate milk or silver to a temple",
+                    "Mars Malefic (-): Feed sweet tandoori rotis to dogs"
+                ]
+            },
+            {
+                "domain": "Partnerships",
+                "event_type": "Sun_mixed",
+                "prediction_text": "With Sun in H7, a child can only be born in youth and not in old age.",
+                "confidence": "POSSIBLE",
+                "polarity": "MIXED",
+                "peak_age": 0,
+                "age_window": [
+                    0,
+                    0
+                ],
+                "probability": 0.6104812948996363,
+                "magnitude": 0.48999999999999994,
+                "affected_people": [
+                    "Authority Figures",
+                    "Father",
+                    "Partners",
+                    "Self",
+                    "Spouse"
+                ],
+                "affected_items": [
+                    "Gold",
+                    "Government",
+                    "Wheat"
+                ],
+                "source_planets": [
+                    "Sun",
+                    "Sun",
+                    "Venus",
+                    "Rahu",
+                    "Ketu"
+                ],
+                "source_houses": [
+                    7,
+                    7,
+                    6,
+                    5,
+                    11
+                ],
+                "source_rules": [
+                    "With Sun in H7, a child can only be born in youth and not in old age.",
+                    "Sun in H7 -> Comfort from spouse is little and one has liaisons outside.",
+                    "If a son is born when Venus is in H6, the next son will be born after 12 years.",
+                    "Venus in H6 does not directly affect the individual but their partner.",
+                    "With Rahu in the 5th house, the first son is born at age 21, and the second at 42.",
+                    "If Rahu is in the 5th house, the birth of the second son can lead to the death of the father-in-law or grandfather.",
+                    "Delay in male offspring and potential death of children in conception or after birth, with health problems until age 12.",
+                    "Rahu/Ketu/Saturn in H5 -> Obstruction to child birth.",
+                    "Rahu in H5 -> Extremely malefic for child birth (without Sun/Moon support).",
+                    "Ketu in the 11th house bestows prosperity and progress.",
+                    "During the reign of Ketu, the mother may die, but wealth grows.",
+                    "Ketu in H11 -> Male child.",
+                    "Ketu in H11 -> Order held enroute. Minor movement. Travel 11 times auspicious.",
+                    "Ketu in H11 -> Gives male child."
+                ],
+                "remedy_applicable": true,
+                "remedy_hints": [
+                    "Helpful Remedy: Monday: Donate milk or silver to a temple",
+                    "Mars Malefic (-): Feed sweet tandoori rotis to dogs"
+                ]
+            },
+            {
+                "domain": "Progeny",
+                "event_type": "Rahu_mixed",
+                "prediction_text": "With Rahu in the 5th house, the first son is born at age 21, and the second at 42.",
+                "confidence": "HIGHLY_LIKELY",
+                "polarity": "MIXED",
+                "peak_age": 0,
+                "age_window": [
+                    0,
+                    0
+                ],
+                "probability": 0.6730471896312159,
+                "magnitude": 1.39,
+                "affected_people": [
+                    "Children",
+                    "In-laws",
+                    "Paternal Grandfather",
+                    "Strangers"
+                ],
+                "affected_items": [
+                    "Electronics",
+                    "Foreign goods",
+                    "Old currency"
+                ],
+                "source_planets": [
+                    "Rahu",
+                    "Sun",
+                    "Venus",
+                    "Rahu",
+                    "Ketu"
+                ],
+                "source_houses": [
+                    5,
+                    7,
+                    6,
+                    5,
+                    11
+                ],
+                "source_rules": [
+                    "With Sun in H7, a child can only be born in youth and not in old age.",
+                    "Sun in H7 -> Comfort from spouse is little and one has liaisons outside.",
+                    "If a son is born when Venus is in H6, the next son will be born after 12 years.",
+                    "Venus in H6 does not directly affect the individual but their partner.",
+                    "With Rahu in the 5th house, the first son is born at age 21, and the second at 42.",
+                    "If Rahu is in the 5th house, the birth of the second son can lead to the death of the father-in-law or grandfather.",
+                    "Delay in male offspring and potential death of children in conception or after birth, with health problems until age 12.",
+                    "Rahu/Ketu/Saturn in H5 -> Obstruction to child birth.",
+                    "Rahu in H5 -> Extremely malefic for child birth (without Sun/Moon support).",
+                    "Ketu in the 11th house bestows prosperity and progress.",
+                    "During the reign of Ketu, the mother may die, but wealth grows.",
+                    "Ketu in H11 -> Male child.",
+                    "Ketu in H11 -> Order held enroute. Minor movement. Travel 11 times auspicious.",
+                    "Ketu in H11 -> Gives male child."
+                ],
+                "remedy_applicable": true,
+                "remedy_hints": [
+                    "Helpful Remedy: Monday: Donate milk or silver to a temple",
+                    "Mars Malefic (-): Feed sweet tandoori rotis to dogs"
+                ]
+            },
+            {
+                "domain": "Gains",
+                "event_type": "Moon_mixed",
+                "prediction_text": "Jupiter-Moon together -> Hidden wealth (20 units)",
+                "confidence": "CERTAIN",
+                "polarity": "MIXED",
+                "peak_age": 0,
+                "age_window": [
+                    0,
+                    0
+                ],
+                "probability": 0.95,
+                "magnitude": 1.03,
                 "affected_people": [
                     "Mother",
                     "Public",
+                    "Women"
+                ],
+                "affected_items": [
+                    "Bank Balance",
+                    "Milk",
+                    "Rice",
+                    "Silver",
+                    "Water",
+                    "Wealth"
+                ],
+                "source_planets": [
+                    "Moon",
+                    "Moon",
+                    "Venus",
+                    "Mars",
+                    "Jupiter",
+                    "Saturn",
+                    "Ketu"
+                ],
+                "source_houses": [
+                    2,
+                    2,
+                    6,
+                    3,
+                    4,
+                    11
+                ],
+                "source_rules": [
+                    "Jupiter-Moon together -> Hidden wealth (20 units)",
+                    "Moon in the 2nd house gives firm wealth related results if Jupiter is also strongly placed.",
+                    "Moon's 25% aspect on the 6th house (Ketu's house) can lead to lunacy or mental health issues.",
+                    "Moon in the 2nd house gives the firm results of Jupiter.",
+                    "Benefic Jupiter supplements the effect of Moon in H2.",
+                    "Life will be troublesome up to the 25th year, or between the 25th and 75th years if longer.",
+                    "The native will have an uncomfortable old age, particularly the 75th year.",
+                    "Old age will be painful, particularly the 90th year.",
+                    "Afflicted health or doubtful longevity of mother in the 9th, 18th, or 36th year.",
+                    "If a son is born when Venus is in H6, the next son will be born after 12 years.",
+                    "Venus in H6 does not directly affect the individual but their partner.",
+                    "Mars in H3 leads to excessive romance/sex, which can be destructive to Jupiter and cause painful old age.",
+                    "A planet in H3 or H12 other than Mars in H3, makes Mercury and Ketu malefic until age 34.",
+                    "A person with Jupiter in H2 may receive lottery winnings, hidden wealth, and support from in-laws and father.",
+                    "Venus in H9, Jupiter in H2, causes all-around happiness if the native is dutiful.",
+                    "When life line starts from the mount of Jupiter, Saturn would be in House No.2.",
+                    "Jupiter in H2 -> Law/Sermons.",
+                    "If Saturn is in H.No.4, it will give property at the age of 36.",
+                    "Saturn in the 4th house gives long life to the father, comfort, and property.",
+                    "Saturn in the fourth house poisons the effects of Sun and Moon.",
+                    "Saturn in H4 aspects houses 2, 8, 10, and 11 with four eyes, influencing planets/items within those houses.",
+                    "Laying the foundation of a house while Saturn is in H4 brings misfortune related to snakes and poison to the mother and maternal uncle.",
+                    "Saturn in H4 will not cause malefic effects, unless the native womanizes, poisoning Venus' effects.",
+                    "Ketu in the 11th house bestows prosperity and progress.",
+                    "During the reign of Ketu, the mother may die, but wealth grows.",
+                    "Ketu in H11 -> Male child.",
+                    "Ketu in H11 -> Order held enroute. Minor movement. Travel 11 times auspicious.",
+                    "Ketu in H11 -> Gives male child."
+                ],
+                "remedy_applicable": true,
+                "remedy_hints": [
+                    "Helpful Remedy: Monday: Donate milk or silver to a temple",
+                    "Mars Malefic (-): Feed sweet tandoori rotis to dogs",
+                    "Shift Moon to House 2 [CRITICAL]: House 2 \u2014 Preferred house H2; Goswami pair Moon+Jupiter \u2192 H2. Articles: Mother milk, Rice, White Horse",
+                    "Shift Moon to House 4 [CRITICAL]: House 4 \u2014 Preferred house H4; Goswami pair Moon+Jupiter \u2192 H4. Articles: Well, pool, Spring, Subsoil water, peace"
+                ]
+            },
+            {
+                "domain": "General",
+                "event_type": "Moon_mixed",
+                "prediction_text": "Jupiter-Moon together -> Hidden wealth (20 units)",
+                "confidence": "CERTAIN",
+                "polarity": "MIXED",
+                "peak_age": 0,
+                "age_window": [
+                    0,
+                    0
+                ],
+                "probability": 0.95,
+                "magnitude": 1.03,
+                "affected_people": [
+                    "Mother",
+                    "Public",
+                    "Women"
+                ],
+                "affected_items": [
+                    "Bank Balance",
+                    "Milk",
+                    "Rice",
+                    "Silver",
+                    "Water",
+                    "Wealth"
+                ],
+                "source_planets": [
+                    "Moon",
+                    "Moon",
+                    "Venus",
+                    "Mars",
+                    "Jupiter",
+                    "Saturn",
+                    "Ketu"
+                ],
+                "source_houses": [
+                    2,
+                    2,
+                    6,
+                    3,
+                    4,
+                    11
+                ],
+                "source_rules": [
+                    "Jupiter-Moon together -> Hidden wealth (20 units)",
+                    "Moon in the 2nd house gives firm wealth related results if Jupiter is also strongly placed.",
+                    "Moon's 25% aspect on the 6th house (Ketu's house) can lead to lunacy or mental health issues.",
+                    "Moon in the 2nd house gives the firm results of Jupiter.",
+                    "Benefic Jupiter supplements the effect of Moon in H2.",
+                    "Life will be troublesome up to the 25th year, or between the 25th and 75th years if longer.",
+                    "The native will have an uncomfortable old age, particularly the 75th year.",
+                    "Old age will be painful, particularly the 90th year.",
+                    "Afflicted health or doubtful longevity of mother in the 9th, 18th, or 36th year.",
+                    "If a son is born when Venus is in H6, the next son will be born after 12 years.",
+                    "Venus in H6 does not directly affect the individual but their partner.",
+                    "Mars in H3 leads to excessive romance/sex, which can be destructive to Jupiter and cause painful old age.",
+                    "A planet in H3 or H12 other than Mars in H3, makes Mercury and Ketu malefic until age 34.",
+                    "A person with Jupiter in H2 may receive lottery winnings, hidden wealth, and support from in-laws and father.",
+                    "Venus in H9, Jupiter in H2, causes all-around happiness if the native is dutiful.",
+                    "When life line starts from the mount of Jupiter, Saturn would be in House No.2.",
+                    "Jupiter in H2 -> Law/Sermons.",
+                    "If Saturn is in H.No.4, it will give property at the age of 36.",
+                    "Saturn in the 4th house gives long life to the father, comfort, and property.",
+                    "Saturn in the fourth house poisons the effects of Sun and Moon.",
+                    "Saturn in H4 aspects houses 2, 8, 10, and 11 with four eyes, influencing planets/items within those houses.",
+                    "Laying the foundation of a house while Saturn is in H4 brings misfortune related to snakes and poison to the mother and maternal uncle.",
+                    "Saturn in H4 will not cause malefic effects, unless the native womanizes, poisoning Venus' effects.",
+                    "Ketu in the 11th house bestows prosperity and progress.",
+                    "During the reign of Ketu, the mother may die, but wealth grows.",
+                    "Ketu in H11 -> Male child.",
+                    "Ketu in H11 -> Order held enroute. Minor movement. Travel 11 times auspicious.",
+                    "Ketu in H11 -> Gives male child."
+                ],
+                "remedy_applicable": true,
+                "remedy_hints": [
+                    "Helpful Remedy: Monday: Donate milk or silver to a temple",
+                    "Mars Malefic (-): Feed sweet tandoori rotis to dogs",
+                    "Shift Moon to House 2 [CRITICAL]: House 2 \u2014 Preferred house H2; Goswami pair Moon+Jupiter \u2192 H2. Articles: Mother milk, Rice, White Horse",
+                    "Shift Moon to House 4 [CRITICAL]: House 4 \u2014 Preferred house H4; Goswami pair Moon+Jupiter \u2192 H4. Articles: Well, pool, Spring, Subsoil water, peace"
+                ]
+            },
+            {
+                "domain": "Health",
+                "event_type": "Moon_mixed",
+                "prediction_text": "Jupiter-Moon together -> Hidden wealth (20 units)",
+                "confidence": "CERTAIN",
+                "polarity": "MIXED",
+                "peak_age": 0,
+                "age_window": [
+                    0,
+                    0
+                ],
+                "probability": 0.95,
+                "magnitude": 1.03,
+                "affected_people": [
+                    "Mother",
+                    "Public",
+                    "Women"
+                ],
+                "affected_items": [
+                    "Bank Balance",
+                    "Milk",
+                    "Rice",
+                    "Silver",
+                    "Water",
+                    "Wealth"
+                ],
+                "source_planets": [
+                    "Moon",
+                    "Moon",
+                    "Venus",
+                    "Mars",
+                    "Jupiter",
+                    "Saturn",
+                    "Ketu"
+                ],
+                "source_houses": [
+                    2,
+                    2,
+                    6,
+                    3,
+                    4,
+                    11
+                ],
+                "source_rules": [
+                    "Jupiter-Moon together -> Hidden wealth (20 units)",
+                    "Moon in the 2nd house gives firm wealth related results if Jupiter is also strongly placed.",
+                    "Moon's 25% aspect on the 6th house (Ketu's house) can lead to lunacy or mental health issues.",
+                    "Moon in the 2nd house gives the firm results of Jupiter.",
+                    "Benefic Jupiter supplements the effect of Moon in H2.",
+                    "Life will be troublesome up to the 25th year, or between the 25th and 75th years if longer.",
+                    "The native will have an uncomfortable old age, particularly the 75th year.",
+                    "Old age will be painful, particularly the 90th year.",
+                    "Afflicted health or doubtful longevity of mother in the 9th, 18th, or 36th year.",
+                    "If a son is born when Venus is in H6, the next son will be born after 12 years.",
+                    "Venus in H6 does not directly affect the individual but their partner.",
+                    "Mars in H3 leads to excessive romance/sex, which can be destructive to Jupiter and cause painful old age.",
+                    "A planet in H3 or H12 other than Mars in H3, makes Mercury and Ketu malefic until age 34.",
+                    "A person with Jupiter in H2 may receive lottery winnings, hidden wealth, and support from in-laws and father.",
+                    "Venus in H9, Jupiter in H2, causes all-around happiness if the native is dutiful.",
+                    "When life line starts from the mount of Jupiter, Saturn would be in House No.2.",
+                    "Jupiter in H2 -> Law/Sermons.",
+                    "If Saturn is in H.No.4, it will give property at the age of 36.",
+                    "Saturn in the 4th house gives long life to the father, comfort, and property.",
+                    "Saturn in the fourth house poisons the effects of Sun and Moon.",
+                    "Saturn in H4 aspects houses 2, 8, 10, and 11 with four eyes, influencing planets/items within those houses.",
+                    "Laying the foundation of a house while Saturn is in H4 brings misfortune related to snakes and poison to the mother and maternal uncle.",
+                    "Saturn in H4 will not cause malefic effects, unless the native womanizes, poisoning Venus' effects.",
+                    "Ketu in the 11th house bestows prosperity and progress.",
+                    "During the reign of Ketu, the mother may die, but wealth grows.",
+                    "Ketu in H11 -> Male child.",
+                    "Ketu in H11 -> Order held enroute. Minor movement. Travel 11 times auspicious.",
+                    "Ketu in H11 -> Gives male child."
+                ],
+                "remedy_applicable": true,
+                "remedy_hints": [
+                    "Helpful Remedy: Monday: Donate milk or silver to a temple",
+                    "Mars Malefic (-): Feed sweet tandoori rotis to dogs",
+                    "Shift Moon to House 2 [CRITICAL]: House 2 \u2014 Preferred house H2; Goswami pair Moon+Jupiter \u2192 H2. Articles: Mother milk, Rice, White Horse",
+                    "Shift Moon to House 4 [CRITICAL]: House 4 \u2014 Preferred house H4; Goswami pair Moon+Jupiter \u2192 H4. Articles: Well, pool, Spring, Subsoil water, peace"
+                ]
+            },
+            {
+                "domain": "Income",
+                "event_type": "Moon_mixed",
+                "prediction_text": "Jupiter-Moon together -> Hidden wealth (20 units)",
+                "confidence": "CERTAIN",
+                "polarity": "MIXED",
+                "peak_age": 0,
+                "age_window": [
+                    0,
+                    0
+                ],
+                "probability": 0.95,
+                "magnitude": 1.03,
+                "affected_people": [
+                    "Mother",
+                    "Public",
+                    "Women"
+                ],
+                "affected_items": [
+                    "Bank Balance",
+                    "Milk",
+                    "Rice",
+                    "Silver",
+                    "Water",
+                    "Wealth"
+                ],
+                "source_planets": [
+                    "Moon",
+                    "Moon",
+                    "Venus",
+                    "Mars",
+                    "Jupiter",
+                    "Saturn",
+                    "Ketu"
+                ],
+                "source_houses": [
+                    2,
+                    2,
+                    6,
+                    3,
+                    4,
+                    11
+                ],
+                "source_rules": [
+                    "Jupiter-Moon together -> Hidden wealth (20 units)",
+                    "Moon in the 2nd house gives firm wealth related results if Jupiter is also strongly placed.",
+                    "Moon's 25% aspect on the 6th house (Ketu's house) can lead to lunacy or mental health issues.",
+                    "Moon in the 2nd house gives the firm results of Jupiter.",
+                    "Benefic Jupiter supplements the effect of Moon in H2.",
+                    "Life will be troublesome up to the 25th year, or between the 25th and 75th years if longer.",
+                    "The native will have an uncomfortable old age, particularly the 75th year.",
+                    "Old age will be painful, particularly the 90th year.",
+                    "Afflicted health or doubtful longevity of mother in the 9th, 18th, or 36th year.",
+                    "If a son is born when Venus is in H6, the next son will be born after 12 years.",
+                    "Venus in H6 does not directly affect the individual but their partner.",
+                    "Mars in H3 leads to excessive romance/sex, which can be destructive to Jupiter and cause painful old age.",
+                    "A planet in H3 or H12 other than Mars in H3, makes Mercury and Ketu malefic until age 34.",
+                    "A person with Jupiter in H2 may receive lottery winnings, hidden wealth, and support from in-laws and father.",
+                    "Venus in H9, Jupiter in H2, causes all-around happiness if the native is dutiful.",
+                    "When life line starts from the mount of Jupiter, Saturn would be in House No.2.",
+                    "Jupiter in H2 -> Law/Sermons.",
+                    "If Saturn is in H.No.4, it will give property at the age of 36.",
+                    "Saturn in the 4th house gives long life to the father, comfort, and property.",
+                    "Saturn in the fourth house poisons the effects of Sun and Moon.",
+                    "Saturn in H4 aspects houses 2, 8, 10, and 11 with four eyes, influencing planets/items within those houses.",
+                    "Laying the foundation of a house while Saturn is in H4 brings misfortune related to snakes and poison to the mother and maternal uncle.",
+                    "Saturn in H4 will not cause malefic effects, unless the native womanizes, poisoning Venus' effects.",
+                    "Ketu in the 11th house bestows prosperity and progress.",
+                    "During the reign of Ketu, the mother may die, but wealth grows.",
+                    "Ketu in H11 -> Male child.",
+                    "Ketu in H11 -> Order held enroute. Minor movement. Travel 11 times auspicious.",
+                    "Ketu in H11 -> Gives male child."
+                ],
+                "remedy_applicable": true,
+                "remedy_hints": [
+                    "Helpful Remedy: Monday: Donate milk or silver to a temple",
+                    "Mars Malefic (-): Feed sweet tandoori rotis to dogs",
+                    "Shift Moon to House 2 [CRITICAL]: House 2 \u2014 Preferred house H2; Goswami pair Moon+Jupiter \u2192 H2. Articles: Mother milk, Rice, White Horse",
+                    "Shift Moon to House 4 [CRITICAL]: House 4 \u2014 Preferred house H4; Goswami pair Moon+Jupiter \u2192 H4. Articles: Well, pool, Spring, Subsoil water, peace"
+                ]
+            },
+            {
+                "domain": "Wealth",
+                "event_type": "Moon_mixed",
+                "prediction_text": "Jupiter-Moon together -> Hidden wealth (20 units)",
+                "confidence": "CERTAIN",
+                "polarity": "MIXED",
+                "peak_age": 0,
+                "age_window": [
+                    0,
+                    0
+                ],
+                "probability": 0.95,
+                "magnitude": 1.03,
+                "affected_people": [
+                    "Mother",
+                    "Public",
+                    "Women"
+                ],
+                "affected_items": [
+                    "Bank Balance",
+                    "Milk",
+                    "Rice",
+                    "Silver",
+                    "Water",
+                    "Wealth"
+                ],
+                "source_planets": [
+                    "Moon",
+                    "Moon",
+                    "Venus",
+                    "Mars",
+                    "Jupiter",
+                    "Saturn",
+                    "Ketu"
+                ],
+                "source_houses": [
+                    2,
+                    2,
+                    6,
+                    3,
+                    4,
+                    11
+                ],
+                "source_rules": [
+                    "Jupiter-Moon together -> Hidden wealth (20 units)",
+                    "Moon in the 2nd house gives firm wealth related results if Jupiter is also strongly placed.",
+                    "Moon's 25% aspect on the 6th house (Ketu's house) can lead to lunacy or mental health issues.",
+                    "Moon in the 2nd house gives the firm results of Jupiter.",
+                    "Benefic Jupiter supplements the effect of Moon in H2.",
+                    "Life will be troublesome up to the 25th year, or between the 25th and 75th years if longer.",
+                    "The native will have an uncomfortable old age, particularly the 75th year.",
+                    "Old age will be painful, particularly the 90th year.",
+                    "Afflicted health or doubtful longevity of mother in the 9th, 18th, or 36th year.",
+                    "If a son is born when Venus is in H6, the next son will be born after 12 years.",
+                    "Venus in H6 does not directly affect the individual but their partner.",
+                    "Mars in H3 leads to excessive romance/sex, which can be destructive to Jupiter and cause painful old age.",
+                    "A planet in H3 or H12 other than Mars in H3, makes Mercury and Ketu malefic until age 34.",
+                    "A person with Jupiter in H2 may receive lottery winnings, hidden wealth, and support from in-laws and father.",
+                    "Venus in H9, Jupiter in H2, causes all-around happiness if the native is dutiful.",
+                    "When life line starts from the mount of Jupiter, Saturn would be in House No.2.",
+                    "Jupiter in H2 -> Law/Sermons.",
+                    "If Saturn is in H.No.4, it will give property at the age of 36.",
+                    "Saturn in the 4th house gives long life to the father, comfort, and property.",
+                    "Saturn in the fourth house poisons the effects of Sun and Moon.",
+                    "Saturn in H4 aspects houses 2, 8, 10, and 11 with four eyes, influencing planets/items within those houses.",
+                    "Laying the foundation of a house while Saturn is in H4 brings misfortune related to snakes and poison to the mother and maternal uncle.",
+                    "Saturn in H4 will not cause malefic effects, unless the native womanizes, poisoning Venus' effects.",
+                    "Ketu in the 11th house bestows prosperity and progress.",
+                    "During the reign of Ketu, the mother may die, but wealth grows.",
+                    "Ketu in H11 -> Male child.",
+                    "Ketu in H11 -> Order held enroute. Minor movement. Travel 11 times auspicious.",
+                    "Ketu in H11 -> Gives male child."
+                ],
+                "remedy_applicable": true,
+                "remedy_hints": [
+                    "Helpful Remedy: Monday: Donate milk or silver to a temple",
+                    "Mars Malefic (-): Feed sweet tandoori rotis to dogs",
+                    "Shift Moon to House 2 [CRITICAL]: House 2 \u2014 Preferred house H2; Goswami pair Moon+Jupiter \u2192 H2. Articles: Mother milk, Rice, White Horse",
+                    "Shift Moon to House 4 [CRITICAL]: House 4 \u2014 Preferred house H4; Goswami pair Moon+Jupiter \u2192 H4. Articles: Well, pool, Spring, Subsoil water, peace"
+                ]
+            },
+            {
+                "domain": "Career",
+                "event_type": "Jupiter_mixed",
+                "prediction_text": "Jupiter-Moon together -> Hidden wealth (20 units)",
+                "confidence": "HIGHLY_LIKELY",
+                "polarity": "MIXED",
+                "peak_age": 0,
+                "age_window": [
+                    0,
+                    0
+                ],
+                "probability": 0.6678353174622953,
+                "magnitude": 0.36000000000000004,
+                "affected_people": [
+                    "Children",
+                    "Elders",
+                    "Father",
+                    "Guru"
+                ],
+                "affected_items": [
+                    "Bank Balance",
+                    "Education",
+                    "Gold",
+                    "Wealth",
+                    "Yellow items"
+                ],
+                "source_planets": [
+                    "Jupiter",
+                    "Jupiter"
+                ],
+                "source_houses": [
+                    2,
+                    2
+                ],
+                "source_rules": [
+                    "Jupiter-Moon together -> Hidden wealth (20 units)",
+                    "A person with Jupiter in H2 may receive lottery winnings, hidden wealth, and support from in-laws and father.",
+                    "Venus in H9, Jupiter in H2, causes all-around happiness if the native is dutiful.",
+                    "When life line starts from the mount of Jupiter, Saturn would be in House No.2.",
+                    "Jupiter in H2 -> Law/Sermons."
+                ],
+                "remedy_applicable": true,
+                "remedy_hints": [
+                    "Helpful Remedy: Monday: Donate milk or silver to a temple",
+                    "Mars Malefic (-): Feed sweet tandoori rotis to dogs",
+                    "Shift Jupiter to House 2 [CRITICAL]: House 2 \u2014 Preferred house H2; Goswami pair Jupiter+Moon \u2192 H2. Articles: Cowshed, hospitality, worship, wealth, grams (pulse), Turmeric",
+                    "Shift Jupiter to House 4 [CRITICAL]: House 4 \u2014 Preferred house H4; Goswami pair Jupiter+Moon \u2192 H4. Articles: Queen, gold, Rain"
+                ]
+            },
+            {
+                "domain": "Profession",
+                "event_type": "Jupiter_mixed",
+                "prediction_text": "Jupiter-Moon together -> Hidden wealth (20 units)",
+                "confidence": "HIGHLY_LIKELY",
+                "polarity": "MIXED",
+                "peak_age": 0,
+                "age_window": [
+                    0,
+                    0
+                ],
+                "probability": 0.6678353174622953,
+                "magnitude": 0.36000000000000004,
+                "affected_people": [
+                    "Children",
+                    "Elders",
+                    "Father",
+                    "Guru"
+                ],
+                "affected_items": [
+                    "Bank Balance",
+                    "Education",
+                    "Gold",
+                    "Wealth",
+                    "Yellow items"
+                ],
+                "source_planets": [
+                    "Jupiter",
+                    "Jupiter"
+                ],
+                "source_houses": [
+                    2,
+                    2
+                ],
+                "source_rules": [
+                    "Jupiter-Moon together -> Hidden wealth (20 units)",
+                    "A person with Jupiter in H2 may receive lottery winnings, hidden wealth, and support from in-laws and father.",
+                    "Venus in H9, Jupiter in H2, causes all-around happiness if the native is dutiful.",
+                    "When life line starts from the mount of Jupiter, Saturn would be in House No.2.",
+                    "Jupiter in H2 -> Law/Sermons."
+                ],
+                "remedy_applicable": true,
+                "remedy_hints": [
+                    "Helpful Remedy: Monday: Donate milk or silver to a temple",
+                    "Mars Malefic (-): Feed sweet tandoori rotis to dogs",
+                    "Shift Jupiter to House 2 [CRITICAL]: House 2 \u2014 Preferred house H2; Goswami pair Jupiter+Moon \u2192 H2. Articles: Cowshed, hospitality, worship, wealth, grams (pulse), Turmeric",
+                    "Shift Jupiter to House 4 [CRITICAL]: House 4 \u2014 Preferred house H4; Goswami pair Jupiter+Moon \u2192 H4. Articles: Queen, gold, Rain"
+                ]
+            },
+            {
+                "domain": "Status",
+                "event_type": "Jupiter_mixed",
+                "prediction_text": "Jupiter-Moon together -> Hidden wealth (20 units)",
+                "confidence": "HIGHLY_LIKELY",
+                "polarity": "MIXED",
+                "peak_age": 0,
+                "age_window": [
+                    0,
+                    0
+                ],
+                "probability": 0.6678353174622953,
+                "magnitude": 0.36000000000000004,
+                "affected_people": [
+                    "Children",
+                    "Elders",
+                    "Father",
+                    "Guru"
+                ],
+                "affected_items": [
+                    "Bank Balance",
+                    "Education",
+                    "Gold",
+                    "Wealth",
+                    "Yellow items"
+                ],
+                "source_planets": [
+                    "Jupiter",
+                    "Jupiter"
+                ],
+                "source_houses": [
+                    2,
+                    2
+                ],
+                "source_rules": [
+                    "Jupiter-Moon together -> Hidden wealth (20 units)",
+                    "A person with Jupiter in H2 may receive lottery winnings, hidden wealth, and support from in-laws and father.",
+                    "Venus in H9, Jupiter in H2, causes all-around happiness if the native is dutiful.",
+                    "When life line starts from the mount of Jupiter, Saturn would be in House No.2.",
+                    "Jupiter in H2 -> Law/Sermons."
+                ],
+                "remedy_applicable": true,
+                "remedy_hints": [
+                    "Helpful Remedy: Monday: Donate milk or silver to a temple",
+                    "Mars Malefic (-): Feed sweet tandoori rotis to dogs",
+                    "Shift Jupiter to House 2 [CRITICAL]: House 2 \u2014 Preferred house H2; Goswami pair Jupiter+Moon \u2192 H2. Articles: Cowshed, hospitality, worship, wealth, grams (pulse), Turmeric",
+                    "Shift Jupiter to House 4 [CRITICAL]: House 4 \u2014 Preferred house H4; Goswami pair Jupiter+Moon \u2192 H4. Articles: Queen, gold, Rain"
+                ]
+            },
+            {
+                "domain": "Death",
+                "event_type": "Rahu_volatile",
+                "prediction_text": "With Rahu in the 5th house, the first son is born at age 21, and the second at 42.",
+                "confidence": "HIGHLY_LIKELY",
+                "polarity": "VOLATILE",
+                "peak_age": 0,
+                "age_window": [
+                    0,
+                    0
+                ],
+                "probability": 0.6730471896312159,
+                "magnitude": 1.39,
+                "affected_people": [
+                    "Children",
+                    "In-laws",
+                    "Paternal Grandfather",
+                    "Strangers"
+                ],
+                "affected_items": [
+                    "Electronics",
+                    "Foreign goods",
+                    "Old currency"
+                ],
+                "source_planets": [
+                    "Rahu",
+                    "Rahu",
+                    "Ketu"
+                ],
+                "source_houses": [
+                    5,
+                    5,
+                    11
+                ],
+                "source_rules": [
+                    "With Rahu in the 5th house, the first son is born at age 21, and the second at 42.",
+                    "If Rahu is in the 5th house, the birth of the second son can lead to the death of the father-in-law or grandfather.",
+                    "Delay in male offspring and potential death of children in conception or after birth, with health problems until age 12.",
+                    "Rahu/Ketu/Saturn in H5 -> Obstruction to child birth.",
+                    "Rahu in H5 -> Extremely malefic for child birth (without Sun/Moon support).",
+                    "Ketu in the 11th house bestows prosperity and progress.",
+                    "During the reign of Ketu, the mother may die, but wealth grows.",
+                    "Ketu in H11 -> Male child.",
+                    "Ketu in H11 -> Order held enroute. Minor movement. Travel 11 times auspicious.",
+                    "Ketu in H11 -> Gives male child."
+                ],
+                "remedy_applicable": true,
+                "remedy_hints": [
+                    "Helpful Remedy: Monday: Donate milk or silver to a temple",
+                    "Mars Malefic (-): Feed sweet tandoori rotis to dogs"
+                ]
+            },
+            {
+                "domain": "Travel",
+                "event_type": "Ketu_volatile",
+                "prediction_text": "Ketu in the 11th house bestows prosperity and progress.",
+                "confidence": "POSSIBLE",
+                "polarity": "VOLATILE",
+                "peak_age": 0,
+                "age_window": [
+                    0,
+                    0
+                ],
+                "probability": 0.5724445186788819,
+                "magnitude": 0.51,
+                "affected_people": [
+                    "Dogs",
+                    "Elder Siblings",
+                    "Maternal Grandfather",
+                    "Sons"
+                ],
+                "affected_items": [
+                    "Black/White blankets",
+                    "Dogs",
+                    "Flags"
+                ],
+                "source_planets": [
+                    "Ketu",
+                    "Ketu"
+                ],
+                "source_houses": [
+                    11,
+                    11
+                ],
+                "source_rules": [
+                    "Ketu in the 11th house bestows prosperity and progress.",
+                    "During the reign of Ketu, the mother may die, but wealth grows.",
+                    "Ketu in H11 -> Male child.",
+                    "Ketu in H11 -> Order held enroute. Minor movement. Travel 11 times auspicious.",
+                    "Ketu in H11 -> Gives male child."
+                ],
+                "remedy_applicable": true,
+                "remedy_hints": [
+                    "Helpful Remedy: Monday: Donate milk or silver to a temple",
+                    "Mars Malefic (-): Feed sweet tandoori rotis to dogs",
+                    "Shift Ketu to House 9 [High]: House 9 \u2014 Preferred house H9. Articles: Two coloured dog"
+                ]
+            }
+        ],
+        "age_48": [
+            {
+                "domain": "Death",
+                "event_type": "Sun_mixed",
+                "prediction_text": "If a male planet (Sun, Mars, or Jupiter) is alone or with other male planets in the 8th house, the 8th house is no longer the house of death.",
+                "confidence": "POSSIBLE",
+                "polarity": "MIXED",
+                "peak_age": 48,
+                "age_window": [
+                    0,
+                    0
+                ],
+                "probability": 0.5036386752197589,
+                "magnitude": 0.15,
+                "affected_people": [
+                    "Authority Figures",
+                    "Father",
+                    "Self"
+                ],
+                "affected_items": [
+                    "Gold",
+                    "Government",
+                    "Hidden Wealth",
+                    "Obstacles",
+                    "Wheat"
+                ],
+                "source_planets": [
+                    "Sun",
+                    "Sun",
+                    "Mercury"
+                ],
+                "source_houses": [
+                    8,
+                    8,
+                    4
+                ],
+                "source_rules": [
+                    "If a male planet (Sun, Mars, or Jupiter) is alone or with other male planets in the 8th house, the 8th house is no longer the house of death.",
+                    "With Mercury in H4, the birth of the native is associated with the mother's demise."
+                ],
+                "remedy_applicable": true,
+                "remedy_hints": [
+                    "Helpful Remedy: Monday: Donate milk or silver to a temple",
+                    "Mars Malefic (-): Feed sweet tandoori rotis to dogs"
+                ]
+            },
+            {
+                "domain": "Gains",
+                "event_type": "Jupiter_mixed",
+                "prediction_text": "Jupiter-Moon together -> Hidden wealth (20 units)",
+                "confidence": "HIGHLY_LIKELY",
+                "polarity": "MIXED",
+                "peak_age": 48,
+                "age_window": [
+                    0,
+                    0
+                ],
+                "probability": 0.821230530962107,
+                "magnitude": 0.8,
+                "affected_people": [
+                    "Children",
+                    "Elders",
+                    "Father",
+                    "Guru",
+                    "Partners",
+                    "Spouse"
+                ],
+                "affected_items": [
+                    "Education",
+                    "Gold",
+                    "Wealth",
+                    "Yellow items"
+                ],
+                "source_planets": [
+                    "Jupiter",
+                    "Moon",
+                    "Jupiter",
+                    "Rahu"
+                ],
+                "source_houses": [
+                    7,
+                    7,
+                    12
+                ],
+                "source_rules": [
+                    "Jupiter-Moon together -> Hidden wealth (20 units)",
+                    "If Moon is in H7, the native will excel in drinking and overeating resulting in a troubled life.",
+                    "Moon determines the condition of wealth and position when Jupiter is in H7 and one's assets would increase because of support of females/sex.",
+                    "Jupiter in H7 -> With Sun-Jupiter or Mars-Jupiter, father and spouse do not survive together.",
+                    "Rahu in H12 gives money, but secret acts, and death by severing of the head."
+                ],
+                "remedy_applicable": true,
+                "remedy_hints": [
+                    "Helpful Remedy: Monday: Donate milk or silver to a temple",
+                    "Mars Malefic (-): Feed sweet tandoori rotis to dogs",
+                    "Shift Jupiter to House 9 [High]: House 9 \u2014 Preferred house H9. Articles: Ancestral house, place of worship, gas, Temple, Mosque, Gurudwara"
+                ]
+            },
+            {
+                "domain": "Health",
+                "event_type": "Moon_mixed",
+                "prediction_text": "Jupiter-Moon together -> Hidden wealth (20 units)",
+                "confidence": "CERTAIN",
+                "polarity": "MIXED",
+                "peak_age": 48,
+                "age_window": [
+                    0,
+                    0
+                ],
+                "probability": 0.95,
+                "magnitude": 0.31,
+                "affected_people": [
+                    "Mother",
+                    "Partners",
+                    "Public",
+                    "Spouse",
                     "Women"
                 ],
                 "affected_items": [
@@ -309,128 +1369,182 @@
                     "Water"
                 ],
                 "source_planets": [
-                    "Moon"
+                    "Moon",
+                    "Moon",
+                    "Jupiter",
+                    "Rahu"
                 ],
                 "source_houses": [
-                    1
+                    7,
+                    7,
+                    12
                 ],
-                "source_rules": [],
+                "source_rules": [
+                    "Jupiter-Moon together -> Hidden wealth (20 units)",
+                    "If Moon is in H7, the native will excel in drinking and overeating resulting in a troubled life.",
+                    "Moon determines the condition of wealth and position when Jupiter is in H7 and one's assets would increase because of support of females/sex.",
+                    "Jupiter in H7 -> With Sun-Jupiter or Mars-Jupiter, father and spouse do not survive together.",
+                    "Rahu in H12 gives money, but secret acts, and death by severing of the head."
+                ],
                 "remedy_applicable": true,
                 "remedy_hints": [
                     "Helpful Remedy: Monday: Donate milk or silver to a temple",
                     "Mars Malefic (-): Feed sweet tandoori rotis to dogs",
-                    "Shift Moon to House 2 [CRITICAL]: House 2 \u2014 Preferred house H2; Goswami pair Moon+Jupiter \u2192 H2. Articles: Associated items (see physical Lal Kitab)",
-                    "Shift Moon to House 4 [CRITICAL]: House 4 \u2014 Preferred house H4; Goswami pair Moon+Jupiter \u2192 H4. Articles: Associated items (see physical Lal Kitab)"
+                    "Shift Moon to House 2 [CRITICAL]: House 2 \u2014 Preferred house H2; Goswami pair Moon+Jupiter \u2192 H2. Articles: Mother milk, Rice, White Horse",
+                    "Shift Moon to House 4 [CRITICAL]: House 4 \u2014 Preferred house H4; Goswami pair Moon+Jupiter \u2192 H4. Articles: Well, pool, Spring, Subsoil water, peace"
                 ]
             },
             {
-                "domain": "Business",
-                "event_type": "Mercury_mixed",
-                "prediction_text": "Lal Kitab prediction for Mercury in House 7",
-                "confidence": "CERTAIN",
+                "domain": "Income",
+                "event_type": "Jupiter_mixed",
+                "prediction_text": "Jupiter-Moon together -> Hidden wealth (20 units)",
+                "confidence": "HIGHLY_LIKELY",
                 "polarity": "MIXED",
-                "peak_age": 0,
+                "peak_age": 48,
                 "age_window": [
                     0,
                     0
                 ],
-                "probability": 0.8610641406037418,
+                "probability": 0.821230530962107,
+                "magnitude": 0.8,
                 "affected_people": [
-                    "Business Partners",
-                    "Daughters",
+                    "Children",
+                    "Elders",
+                    "Father",
+                    "Guru",
                     "Partners",
-                    "Sisters",
                     "Spouse"
                 ],
                 "affected_items": [
-                    "Books",
-                    "Business",
-                    "Green items"
+                    "Education",
+                    "Gold",
+                    "Wealth",
+                    "Yellow items"
                 ],
                 "source_planets": [
-                    "Mercury"
+                    "Jupiter",
+                    "Moon",
+                    "Jupiter",
+                    "Rahu"
                 ],
                 "source_houses": [
-                    7
+                    7,
+                    7,
+                    12
                 ],
-                "source_rules": [],
+                "source_rules": [
+                    "Jupiter-Moon together -> Hidden wealth (20 units)",
+                    "If Moon is in H7, the native will excel in drinking and overeating resulting in a troubled life.",
+                    "Moon determines the condition of wealth and position when Jupiter is in H7 and one's assets would increase because of support of females/sex.",
+                    "Jupiter in H7 -> With Sun-Jupiter or Mars-Jupiter, father and spouse do not survive together.",
+                    "Rahu in H12 gives money, but secret acts, and death by severing of the head."
+                ],
                 "remedy_applicable": true,
                 "remedy_hints": [
                     "Helpful Remedy: Monday: Donate milk or silver to a temple",
-                    "Mars Malefic (-): Feed sweet tandoori rotis to dogs"
+                    "Mars Malefic (-): Feed sweet tandoori rotis to dogs",
+                    "Shift Jupiter to House 9 [High]: House 9 \u2014 Preferred house H9. Articles: Ancestral house, place of worship, gas, Temple, Mosque, Gurudwara"
                 ]
             },
             {
-                "domain": "Daily Work",
-                "event_type": "Venus_mixed",
-                "prediction_text": "Lal Kitab prediction for Venus in House 6",
+                "domain": "Wealth",
+                "event_type": "Jupiter_mixed",
+                "prediction_text": "Jupiter-Moon together -> Hidden wealth (20 units)",
                 "confidence": "HIGHLY_LIKELY",
                 "polarity": "MIXED",
-                "peak_age": 0,
+                "peak_age": 48,
                 "age_window": [
                     0,
                     0
                 ],
-                "probability": 0.7219373756384404,
+                "probability": 0.821230530962107,
+                "magnitude": 0.8,
+                "affected_people": [
+                    "Children",
+                    "Elders",
+                    "Father",
+                    "Guru",
+                    "Partners",
+                    "Spouse"
+                ],
+                "affected_items": [
+                    "Education",
+                    "Gold",
+                    "Wealth",
+                    "Yellow items"
+                ],
+                "source_planets": [
+                    "Jupiter",
+                    "Moon",
+                    "Jupiter",
+                    "Rahu"
+                ],
+                "source_houses": [
+                    7,
+                    7,
+                    12
+                ],
+                "source_rules": [
+                    "Jupiter-Moon together -> Hidden wealth (20 units)",
+                    "If Moon is in H7, the native will excel in drinking and overeating resulting in a troubled life.",
+                    "Moon determines the condition of wealth and position when Jupiter is in H7 and one's assets would increase because of support of females/sex.",
+                    "Jupiter in H7 -> With Sun-Jupiter or Mars-Jupiter, father and spouse do not survive together.",
+                    "Rahu in H12 gives money, but secret acts, and death by severing of the head."
+                ],
+                "remedy_applicable": true,
+                "remedy_hints": [
+                    "Helpful Remedy: Monday: Donate milk or silver to a temple",
+                    "Mars Malefic (-): Feed sweet tandoori rotis to dogs",
+                    "Shift Jupiter to House 9 [High]: House 9 \u2014 Preferred house H9. Articles: Ancestral house, place of worship, gas, Temple, Mosque, Gurudwara"
+                ]
+            },
+            {
+                "domain": "General",
+                "event_type": "Venus_mixed",
+                "prediction_text": "Saturn wherever it is, Venus in H2 will give the benefic results of Saturn's position in H9.",
+                "confidence": "POSSIBLE",
+                "polarity": "MIXED",
+                "peak_age": 48,
+                "age_window": [
+                    0,
+                    0
+                ],
+                "probability": 0.5269881525329855,
+                "magnitude": 0.33999999999999997,
                 "affected_people": [
                     "Spouse",
                     "Wife",
                     "Women"
                 ],
                 "affected_items": [
+                    "Bank Balance",
                     "Clothes",
                     "Cosmetics",
-                    "Debts",
-                    "Diseases",
                     "Luxury",
-                    "Vehicles"
+                    "Vehicles",
+                    "Wealth"
                 ],
                 "source_planets": [
-                    "Venus"
+                    "Venus",
+                    "Venus",
+                    "Jupiter",
+                    "Saturn"
                 ],
                 "source_houses": [
+                    2,
+                    2,
+                    7,
                     6
                 ],
-                "source_rules": [],
-                "remedy_applicable": true,
-                "remedy_hints": [
-                    "Helpful Remedy: Monday: Donate milk or silver to a temple",
-                    "Mars Malefic (-): Feed sweet tandoori rotis to dogs"
-                ]
-            }
-        ],
-        "age_48": [
-            {
-                "domain": "Business",
-                "event_type": "Mercury_mixed",
-                "prediction_text": "Lal Kitab prediction for Mercury in House 7",
-                "confidence": "CERTAIN",
-                "polarity": "MIXED",
-                "peak_age": 0,
-                "age_window": [
-                    0,
-                    0
+                "source_rules": [
+                    "Saturn wherever it is, Venus in H2 will give the benefic results of Saturn's position in H9.",
+                    "If Venus is in the 2nd house for a woman, her husband will be impotent.",
+                    "If Venus is in the 2nd house for a male, his wife will be barren.",
+                    "Jupiter-Moon together -> Hidden wealth (20 units)",
+                    "Moon determines the condition of wealth and position when Jupiter is in H7 and one's assets would increase because of support of females/sex.",
+                    "Jupiter in H7 -> With Sun-Jupiter or Mars-Jupiter, father and spouse do not survive together.",
+                    "Saturn in H6 -> Marriage is inauspicious especially if Venus is in H2 or H12."
                 ],
-                "probability": 0.95,
-                "affected_people": [
-                    "Business Partners",
-                    "Daughters",
-                    "Partners",
-                    "Sisters",
-                    "Spouse"
-                ],
-                "affected_items": [
-                    "Books",
-                    "Business",
-                    "Green items"
-                ],
-                "source_planets": [
-                    "Mercury"
-                ],
-                "source_houses": [
-                    7
-                ],
-                "source_rules": [],
                 "remedy_applicable": true,
                 "remedy_hints": [
                     "Helpful Remedy: Monday: Donate milk or silver to a temple",
@@ -438,43 +1552,193 @@
                 ]
             },
             {
-                "domain": "Longevity",
-                "event_type": "Venus_mixed",
-                "prediction_text": "Lal Kitab prediction for Venus in House 8",
+                "domain": "Marriage",
+                "event_type": "Jupiter_mixed",
+                "prediction_text": "Jupiter-Moon together -> Hidden wealth (20 units)",
                 "confidence": "HIGHLY_LIKELY",
                 "polarity": "MIXED",
-                "peak_age": 0,
+                "peak_age": 48,
                 "age_window": [
                     0,
                     0
                 ],
-                "probability": 0.7656531623399302,
+                "probability": 0.821230530962107,
+                "magnitude": 0.8,
                 "affected_people": [
-                    "Spouse",
-                    "Wife",
-                    "Women"
+                    "Children",
+                    "Elders",
+                    "Father",
+                    "Guru",
+                    "Partners",
+                    "Spouse"
                 ],
                 "affected_items": [
-                    "Clothes",
-                    "Cosmetics",
-                    "Hidden Wealth",
-                    "Luxury",
-                    "Obstacles",
-                    "Vehicles"
+                    "Education",
+                    "Gold",
+                    "Wealth",
+                    "Yellow items"
                 ],
                 "source_planets": [
-                    "Venus"
+                    "Jupiter",
+                    "Venus",
+                    "Jupiter",
+                    "Saturn"
                 ],
                 "source_houses": [
-                    8
+                    7,
+                    2,
+                    7,
+                    6
                 ],
-                "source_rules": [],
+                "source_rules": [
+                    "Saturn wherever it is, Venus in H2 will give the benefic results of Saturn's position in H9.",
+                    "If Venus is in the 2nd house for a woman, her husband will be impotent.",
+                    "If Venus is in the 2nd house for a male, his wife will be barren.",
+                    "Jupiter-Moon together -> Hidden wealth (20 units)",
+                    "Moon determines the condition of wealth and position when Jupiter is in H7 and one's assets would increase because of support of females/sex.",
+                    "Jupiter in H7 -> With Sun-Jupiter or Mars-Jupiter, father and spouse do not survive together.",
+                    "Saturn in H6 -> Marriage is inauspicious especially if Venus is in H2 or H12."
+                ],
                 "remedy_applicable": true,
                 "remedy_hints": [
                     "Helpful Remedy: Monday: Donate milk or silver to a temple",
-                    "Mars Malefic (-): Feed sweet tandoori rotis to dogs"
+                    "Mars Malefic (-): Feed sweet tandoori rotis to dogs",
+                    "Shift Jupiter to House 9 [High]: House 9 \u2014 Preferred house H9. Articles: Ancestral house, place of worship, gas, Temple, Mosque, Gurudwara"
+                ]
+            },
+            {
+                "domain": "Partnerships",
+                "event_type": "Jupiter_mixed",
+                "prediction_text": "Jupiter-Moon together -> Hidden wealth (20 units)",
+                "confidence": "HIGHLY_LIKELY",
+                "polarity": "MIXED",
+                "peak_age": 48,
+                "age_window": [
+                    0,
+                    0
+                ],
+                "probability": 0.821230530962107,
+                "magnitude": 0.8,
+                "affected_people": [
+                    "Children",
+                    "Elders",
+                    "Father",
+                    "Guru",
+                    "Partners",
+                    "Spouse"
+                ],
+                "affected_items": [
+                    "Education",
+                    "Gold",
+                    "Wealth",
+                    "Yellow items"
+                ],
+                "source_planets": [
+                    "Jupiter",
+                    "Venus",
+                    "Jupiter",
+                    "Saturn"
+                ],
+                "source_houses": [
+                    7,
+                    2,
+                    7,
+                    6
+                ],
+                "source_rules": [
+                    "Saturn wherever it is, Venus in H2 will give the benefic results of Saturn's position in H9.",
+                    "If Venus is in the 2nd house for a woman, her husband will be impotent.",
+                    "If Venus is in the 2nd house for a male, his wife will be barren.",
+                    "Jupiter-Moon together -> Hidden wealth (20 units)",
+                    "Moon determines the condition of wealth and position when Jupiter is in H7 and one's assets would increase because of support of females/sex.",
+                    "Jupiter in H7 -> With Sun-Jupiter or Mars-Jupiter, father and spouse do not survive together.",
+                    "Saturn in H6 -> Marriage is inauspicious especially if Venus is in H2 or H12."
+                ],
+                "remedy_applicable": true,
+                "remedy_hints": [
+                    "Helpful Remedy: Monday: Donate milk or silver to a temple",
+                    "Mars Malefic (-): Feed sweet tandoori rotis to dogs",
+                    "Shift Jupiter to House 9 [High]: House 9 \u2014 Preferred house H9. Articles: Ancestral house, place of worship, gas, Temple, Mosque, Gurudwara"
+                ]
+            },
+            {
+                "domain": "Travel",
+                "event_type": "Ketu_volatile",
+                "prediction_text": "Ketu in H3 -> Live alone away from friends/relatives.",
+                "confidence": "HIGHLY_LIKELY",
+                "polarity": "VOLATILE",
+                "peak_age": 48,
+                "age_window": [
+                    0,
+                    0
+                ],
+                "probability": 0.7100839976279908,
+                "magnitude": 0.15,
+                "affected_people": [
+                    "Dogs",
+                    "Maternal Grandfather",
+                    "Sons",
+                    "Younger Siblings"
+                ],
+                "affected_items": [
+                    "Black/White blankets",
+                    "Dogs",
+                    "Flags"
+                ],
+                "source_planets": [
+                    "Ketu",
+                    "Ketu"
+                ],
+                "source_houses": [
+                    3,
+                    3
+                ],
+                "source_rules": [
+                    "Ketu in H3 -> Live alone away from friends/relatives."
+                ],
+                "remedy_applicable": true,
+                "remedy_hints": [
+                    "Helpful Remedy: Monday: Donate milk or silver to a temple",
+                    "Mars Malefic (-): Feed sweet tandoori rotis to dogs",
+                    "Shift Ketu to House 9 [High]: House 9 \u2014 Preferred house H9. Articles: Two coloured dog"
                 ]
             }
         ]
+    },
+    "domain_scores_by_age": {
+        "age_0": {
+            "Career": 0.9999999999999263,
+            "Children": 0.9999999999999263,
+            "Gains": 0.9999999999999263,
+            "General": 0.9999999999999263,
+            "Income": 0.9999999999999263,
+            "Marriage": 0.9999999999999263,
+            "Partnerships": 0.9999999999999263,
+            "Profession": 0.9999999999999263,
+            "Progeny": 0.9999999999999263,
+            "Status": 0.9999999999999263,
+            "Wealth": 0.9999999999999263,
+            "Health": 0.9999999999999263,
+            "Death": 0.9999999999999263,
+            "Travel": 0.6483968940175652,
+            "Education": 0.9999999999999263,
+            "Expenses": 0.9999999999999263,
+            "Family": 0.9999999999999263,
+            "Foreign Travel": 0.9999999999999263,
+            "Losses": 0.9999999999999263
+        },
+        "age_48": {
+            "Gains": 0.6830880948621851,
+            "Health": 0.5919421603995894,
+            "Income": 0.6830880948621851,
+            "Wealth": 0.6830880948621851,
+            "Death": 0.5448788923735801,
+            "Marriage": 0.6830880948621851,
+            "Partnerships": 0.6830880948621851,
+            "Children": 0.5448788923735801,
+            "Progeny": 0.5448788923735801,
+            "General": 0.6006082195512744,
+            "Travel": 0.5448788923735801
+        }
     }
 }

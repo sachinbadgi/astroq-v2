@@ -74,6 +74,16 @@ class PredictionTranslator:
     ) -> list[LKPrediction]:
         """Convert a list of ClassifiedEvents into LKPredictions."""
         predictions = []
+        
+        # Cache year shifting options for this year to avoid redundant calls
+        year_options = None
+        if events and self.remedy_engine and enriched_natal and enriched_annual:
+            year_options = self.remedy_engine.get_year_shifting_options(
+                birth_chart=enriched_natal,
+                annual_chart=enriched_annual,
+                age=events[0].peak_age,
+            )
+
         for ev in events:
             # Domain string
             domain = "/".join(ev.domains) if ev.domains else "General"
@@ -88,7 +98,7 @@ class PredictionTranslator:
             confidence = self._map_confidence(ev.probability)
             people = self._resolve_affected_people(ev)
             items = self._resolve_affected_items(ev)
-            remedy_needed, hints = self._generate_remedies(ev, enriched_natal, enriched_annual)
+            remedy_needed, hints = self._generate_remedies(ev, enriched_natal, enriched_annual, year_options=year_options)
             
             p = LKPrediction(
                 domain=domain,
@@ -99,6 +109,7 @@ class PredictionTranslator:
                 peak_age=ev.peak_age,
                 age_window=ev.age_window,
                 probability=ev.probability,
+                magnitude=ev.magnitude,
                 affected_people=people,
                 affected_items=items,
                 source_planets=[ev.planet] + ev.source_planets,
@@ -150,16 +161,17 @@ class PredictionTranslator:
         ev: ClassifiedEvent,
         natal: dict | None = None,
         annual: dict | None = None,
+        year_options: dict | None = None,
     ) -> tuple[bool, list[str]]:
         """If malefic or volatile, generate remedy hints."""
         # Use RemedyEngine if provided
         if self.remedy_engine and natal and annual:
-            year_options = self.remedy_engine.get_year_shifting_options(
+            options = year_options or self.remedy_engine.get_year_shifting_options(
                 birth_chart=natal,
                 annual_chart=annual,
                 age=ev.peak_age,
             )
-            p_result = year_options.get(ev.planet)
+            p_result = options.get(ev.planet)
             # Use event planet's results if safe matches exist
             target_opts = {ev.planet: p_result} if p_result and p_result.safe_matches else {}
             # Generate hints including birth-day and Mars context

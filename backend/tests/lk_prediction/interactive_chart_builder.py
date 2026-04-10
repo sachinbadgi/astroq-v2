@@ -41,8 +41,13 @@ def main():
         
         target_age_input = input("Enter Target Age (e.g., '34', '30-35') or leave empty for just Natal: ").strip()
         
-        # Defaulting to KP system for the Lal Kitab engine base
-        chart_system = "kp"
+        chart_system = input("Enter Chart System (kp/vedic) [default: kp]: ").strip().lower()
+        if not chart_system:
+            chart_system = "kp"
+            
+        if chart_system not in ["kp", "vedic"]:
+            print(f"\nError: Invalid chart system '{chart_system}'. Use 'kp' or 'vedic'.")
+            sys.exit(1)
         
     except KeyboardInterrupt:
         print("\nExiting...")
@@ -56,11 +61,16 @@ def main():
     
     try:
         generator = ChartGenerator()
+        annual_basis = input("Enter Annual Basis (kp/vedic) [default: vedic]: ").strip().lower()
+        if not annual_basis:
+            annual_basis = "vedic"
+
         full_payload = generator.build_full_chart_payload(
             dob_str=dob,
             tob_str=tob,
             place_name=place,
-            chart_system=chart_system
+            chart_system=chart_system,
+            annual_basis=annual_basis
         )
         
         natal_chart = full_payload.get("chart_0")
@@ -72,21 +82,26 @@ def main():
         print(f"\nError generating chart: {e}")
         sys.exit(1)
         
-    print("[2/3] Initializing Prediction Engine...")
-    
     # Initialize the prediction engine
-    db_path = os.path.join(parent_dir, "data", "test_config.db")
+    # Preference: 1. data/rules.db (Production), 2. data/test_config.db
+    real_db_path = os.path.join(parent_dir, "data", "rules.db")
+    test_db_path = os.path.join(parent_dir, "data", "test_config.db")
+    
+    db_path = real_db_path if os.path.exists(real_db_path) else test_db_path
     defaults_path = os.path.join(parent_dir, "data", "model_defaults.json")
     
-    # Ensure DB exists for Rules Engine
-    import sqlite3
-    os.makedirs(os.path.dirname(db_path), exist_ok=True)
-    con = sqlite3.connect(db_path)
-    con.execute('''CREATE TABLE IF NOT EXISTS deterministic_rules (
-                    id TEXT PRIMARY KEY, condition TEXT, scoring_type TEXT,
-                    scale TEXT, domain TEXT, description TEXT, verdict TEXT,
-                    source_page TEXT, success_weight REAL)''')
-    con.close()
+    # Ensure at least an empty DB exists if none found
+    if not os.path.exists(db_path):
+        import sqlite3
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+        con = sqlite3.connect(db_path)
+        con.execute('''CREATE TABLE IF NOT EXISTS deterministic_rules (
+                        id TEXT PRIMARY KEY, condition TEXT, scoring_type TEXT,
+                        scale TEXT, domain TEXT, description TEXT, verdict TEXT,
+                        source_page TEXT, success_weight REAL)''')
+        con.close()
+    
+    print(f"[2/3] Initializing Prediction Engine (DB: {os.path.basename(db_path)})...")
     
     cfg = ModelConfig(db_path=db_path, defaults_path=defaults_path)
     lk_pipeline = LKPredictionPipeline(cfg)
@@ -125,11 +140,19 @@ def main():
         }
         
         total_predictions = 0
+        domain_audit_results = {} # age -> {domain: score}
+        
         for age, chart in charts_to_process:
             print(f"  -> Predicting for age {age}..." if age > 0 else "  -> Predicting Natal chart...")
+            
+            # 1. Standard Predictions
             predictions = lk_pipeline.generate_predictions(chart)
             predictions = [p for p in predictions if p.confidence != "UNLIKELY"]
             total_predictions += len(predictions)
+            
+            # 2. Domain Audit Scores (New logic)
+            domain_scores = lk_pipeline.generate_domain_scores(chart)
+            domain_audit_results[age] = domain_scores
             
             # Print remedies nicely
             remedied = [p for p in predictions if p.remedy_applicable]
@@ -144,6 +167,39 @@ def main():
             
             # Map predictions to dict
             output_data["predictions_by_age"][f"age_{age}"] = [p.__dict__ for p in predictions]
+            output_data["domain_scores_by_age"] = output_data.get("domain_scores_by_age", {})
+            output_data["domain_scores_by_age"][f"age_{age}"] = domain_scores
+
+        # --- Display Domain Audit Table ---
+        if len(charts_to_process) > 1:
+            print("\n" + "="*60)
+            print("        DOMAIN PERFORMANCE AUDIT (DYNAMIC SIGNALS)        ")
+            print("="*60)
+            
+            # Find all domains present
+            all_domains = set()
+            for age in domain_audit_results:
+                all_domains.update(domain_audit_results[age].keys())
+            
+            sorted_domains = sorted(list(all_domains))
+            
+            # Print Header
+            header = "Age | " + " | ".join([f"{d[:8]:8}" for d in sorted_domains])
+            print(header)
+            print("-" * len(header))
+            
+            for age in sorted(domain_audit_results.keys()):
+                scores = domain_audit_results[age]
+                row = f"{age:3} | "
+                for d in sorted_domains:
+                    score = scores.get(d, 0.0)
+                    # ASCII-friendly indicators for terminal compatibility
+                    bar = "*" if score > 0.7 else "o" if score > 0.4 else " "
+                    row += f"{score:0.2f}{bar} | "
+                print(row)
+            print("="*60)
+            print("Legend: * High (>0.7), o Moderate (>0.4)")
+            print("="*60 + "\n")
             
     except Exception as e:
         print(f"\nError running predictions: {e}")
@@ -152,12 +208,27 @@ def main():
     
     # Save to file
     filename = f"{sanitize_filename(client_name)}_predictions.json"
-    
     with open(filename, "w") as f:
         json.dump(output_data, f, indent=4)
         
-    print(f"\n=> SUCCESS! Fully populated JSON chart and {total_predictions} predictions written to '{filename}'.")
-    print(f"You can open '{filename}' to manually check the accuracy.")
+    # --- Generate Gemini Optimization Payload ---
+    llm_payload_file = f"{sanitize_filename(client_name)}_gemini_payload.json"
+    print(f"\n[4/4] Generating Gemini-optimized correlation payload...")
+    
+    # Bundle natal and annual charts for the pipeline
+    annual_charts_dict = {}
+    for age, chart in charts_to_process:
+        if age > 0:
+            annual_charts_dict[age] = chart
+            
+    llm_payload = lk_pipeline.generate_llm_payload(natal_chart, annual_charts_dict)
+    
+    with open(llm_payload_file, "w") as f:
+        json.dump(llm_payload, f, indent=4)
+        
+    print(f"\n=> SUCCESS! Detailed JSON predictions written to '{filename}'.")
+    print(f"=> SUCCESS! Gemini LLM Payload written to '{llm_payload_file}'.")
+    print(f"You can now feed '{llm_payload_file}' into Gemini to get a narrative summary.")
 
 if __name__ == "__main__":
     main()

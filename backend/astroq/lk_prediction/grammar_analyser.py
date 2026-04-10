@@ -234,6 +234,8 @@ class GrammarAnalyser:
             # Dharmi — Kundli check first, then individual planet check
             if dharmi_kundli:
                 ep["dharmi_status"] = "Dharmi Teva"
+            elif self.detect_dharmi(planet, planets_data):
+                ep["dharmi_status"] = "Dharmi Planet"
             elif pd.get("dharmi_status") == "Dharmi Planet":
                 ep["dharmi_status"] = "Dharmi Planet"
 
@@ -656,6 +658,33 @@ class GrammarAnalyser:
         sat = planets.get("Saturn", {}).get("house")
         jup = planets.get("Jupiter", {}).get("house")
         return bool(sat and jup and sat == jup)
+    def detect_dharmi(self, planet: str, planets: dict[str, Any]) -> bool:
+        """
+        Dharmi (Lucky) Planet detection:
+        - Rahu or Ketu in House 4 (Moon's house) or conjunct Moon.
+        - Saturn in House 11 (Jupiter's house) or conjunct Jupiter.
+        """
+        p_info = planets.get(planet)
+        if not p_info:
+            return False
+            
+        h = p_info.get("house")
+        if not h:
+            return False
+            
+        # Detect Moon/Jupiter for conjunctions
+        h_moon = planets.get("Moon", {}).get("house")
+        h_jup = planets.get("Jupiter", {}).get("house")
+        
+        if planet in ("Rahu", "Ketu"):
+            # H4 or conjunct Moon
+            return h == 4 or (bool(h_moon) and h == h_moon)
+            
+        if planet == "Saturn":
+            # H11 or conjunct Jupiter
+            return h == 11 or (bool(h_jup) and h == h_jup)
+            
+        return False
 
     def detect_sathi(self, p1: str, p2: str, planets: dict) -> bool:
         """Sathi if mutual exchange of houses (Exaltation/Debilitation/Pakka)."""

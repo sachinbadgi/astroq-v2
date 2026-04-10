@@ -1,6 +1,6 @@
 ---
 name: lk-prediction-model
-description: Build the Lal Kitab Prediction Translation Model v2 from scratch using test-driven development. Uses autoresearch to study existing codebase patterns and superpowers for parallel test execution. Implements 7 modules (Config, StrengthEngine, GrammarAnalyser, ProbabilityEngine, RulesEngine, EventClassifier, PredictionTranslator) with 98+ tests.
+description: Build the Lal Kitab Prediction Translation Model v2.1. Implements Unified Grammar (Milestone-based maturation), Rule-Specific Domain Mapping, and Magnitude integration. 1086+ rules, 100+ tests.
 ---
 
 # Lal Kitab Prediction Model — Build Skill

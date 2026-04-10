@@ -4,7 +4,11 @@ import os
 import argparse
 import logging
 import re
+import sys
 from typing import List, Dict, Any
+
+# Ensure backend is in path
+sys.path.append(os.path.join(os.getcwd(), "backend"))
 
 from astroq.lk_prediction.chart_generator import ChartGenerator
 from astroq.lk_prediction.lse_orchestrator import LSEOrchestrator

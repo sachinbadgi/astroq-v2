@@ -91,8 +91,12 @@ class LSEOrchestrator:
             predictions = [replace(p) for p in baseline_predictions]
             for p in predictions:
                 for planet in p.source_planets:
-                    # Look for delay constant for this planet
+                    # Look for alignments or delay constants for this planet
                     for k, v in current_overrides.items():
+                        if k.startswith("align.") and planet.lower() in k.lower():
+                            # Snap to canonical age
+                            p.peak_age = int(v)
+                            break
                         if k.startswith("delay.") and planet.lower() in k.lower():
                             p.peak_age += float(v)
                             break
@@ -109,6 +113,7 @@ class LSEOrchestrator:
                 
                 # Determine current constants from overrides
                 delays = {k: v for k, v in current_overrides.items() if k.startswith("delay.")}
+                aligns = {k: v for k, v in current_overrides.items() if k.startswith("align.")}
                 grammars = {k: v for k, v in current_overrides.items() if k.startswith("grammar.")}
                 
                 best_dna = ChartDNA(
@@ -117,6 +122,7 @@ class LSEOrchestrator:
                     mean_offset_years=self.validator.compute_mean_offset(gap_report),
                     iterations_run=iterations,
                     delay_constants=delays,
+                    milestone_alignments=aligns,
                     grammar_overrides=grammars,
                     config_overrides=copy.deepcopy(current_overrides)
                 )
@@ -127,7 +133,9 @@ class LSEOrchestrator:
                 break
 
             # 4. Generate next hypothesis
-            hypotheses = self.researcher.generate_hypotheses(gap_report, birth_chart)
+            hypotheses = self.researcher.generate_hypotheses(
+                gap_report, birth_chart, life_event_log=life_event_log
+            )
             ranked = self.researcher.rank_hypotheses(hypotheses)
             
             # Choose the next hypothesis that we haven't tried yet
@@ -177,8 +185,10 @@ class LSEOrchestrator:
             chart_dna=best_dna,
             future_predictions=final_preds,
             iterations_run=iterations,
-            converged=converged
+            converged=converged,
+            gap_report=best_gap_report
         )
+
 
     def _run_pipeline(
         self, birth_chart: ChartData, annual_charts: dict[int, ChartData], figure_id: str

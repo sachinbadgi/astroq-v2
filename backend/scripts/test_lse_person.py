@@ -5,7 +5,10 @@ from datetime import datetime
 from pprint import pprint
 
 # Ensure backend is in path
-sys.path.append(os.path.join(os.getcwd(), "backend"))
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+BACKEND_PATH = os.path.normpath(os.path.join(CURRENT_DIR, ".."))
+if BACKEND_PATH not in sys.path:
+    sys.path.append(BACKEND_PATH)
 
 from astroq.lk_prediction.config import ModelConfig
 from astroq.lk_prediction.chart_generator import ChartGenerator
@@ -107,9 +110,12 @@ def test_person_lse():
         events = LIFE_EVENTS
 
     # Initialize ModelConfig with correct paths
+    DB_PATH = os.path.join(BACKEND_PATH, "data", "astroq_gt.db") # Using the main GT DB
+    DEFAULTS_PATH = os.path.join(BACKEND_PATH, "data", "model_defaults.json")
+    
     config = ModelConfig(
-        db_path="backend/data/rules.db",
-        defaults_path="backend/data/model_defaults.json"
+        db_path=DB_PATH,
+        defaults_path=DEFAULTS_PATH
     )
     
     orchestrator = LSEOrchestrator(config)

@@ -110,6 +110,7 @@ class LKPrediction:
     peak_age: int = 0
     age_window: tuple[int, int] = (0, 0)
     probability: float = 0.0
+    magnitude: float = 0.0
     affected_people: list[str] = field(default_factory=list)
     affected_items: list[str] = field(default_factory=list)
     source_planets: list[str] = field(default_factory=list)
@@ -200,7 +201,12 @@ class GapReport(TypedDict, total=False):
     mean_offset: float      # mean abs(offset) across all entries
     total: int
     hits: int
+    domain_scores: dict[str, float]  # per-domain hit rates
+    domain_fp_counts: dict[str, int] # per-domain false positive counts
     contradictions: list[str]  # events with NO matching prediction domain
+    false_positives: list[str] # raw prediction texts that were unused
+
+
 
 
 # ---------------------------------------------------------------------------
@@ -219,6 +225,8 @@ class ChartDNA:
     iterations_run: int
     delay_constants: dict[str, float] = field(default_factory=dict)
     # e.g. {"delay.mars_h8": 2.5, "delay.sun_h1": -1.0}
+    milestone_alignments: dict[str, int] = field(default_factory=dict)
+    # e.g. {"align.saturn_h5": 48, "align.rahu_h9": 42}
     grammar_overrides: dict[str, Any] = field(default_factory=dict)
     # e.g. {"grammar.h10_sleeping_cancelled_by_h12_travel": True}
     config_overrides: dict[str, Any] = field(default_factory=dict)
@@ -325,3 +333,5 @@ class LSESolveResult:
     future_predictions: list[LSEPrediction] = field(default_factory=list)
     iterations_run: int = 0
     converged: bool = False
+    gap_report: Optional[GapReport] = None  # NEW: Final best gap report
+

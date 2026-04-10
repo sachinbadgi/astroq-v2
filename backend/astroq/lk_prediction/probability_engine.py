@@ -160,6 +160,10 @@ class ProbabilityEngine:
         
         return final_prob, breakdown
 
+    def calculate_simple_probability(self, magnitude: float, k: float = 1.2) -> float:
+        """Calculate a simple sigmoid probability P = 1 / (1 + e^(-k * magnitude))."""
+        return self._calculate_raw_sigmoid(magnitude, k)
+
     def batch_evaluate(
         self, events: list[dict[str, Any]], age: int,
         applied_remedies: list[dict] | None = None

@@ -160,6 +160,7 @@ class RemedyEngine:
     def __init__(self, config: ModelConfig, items_resolver: Any) -> None:
         self._cfg = config
         self._resolver = items_resolver
+        self._birth_safe_cache: dict[str, tuple[list[int], dict[int, str]]] = {}
 
     # ------------------------------------------------------------------
     # Internal helpers
@@ -262,7 +263,11 @@ class RemedyEngine:
         annual_pih = self._get_pih(annual_chart)
 
         for planet in STANDARD_PLANETS:
-            birth_safe, b_conflicts = self.get_safe_houses(planet, birth_chart)
+            # Cache birth-safe houses as they never change for a given native
+            if planet not in self._birth_safe_cache:
+                self._birth_safe_cache[planet] = self.get_safe_houses(planet, birth_chart)
+            
+            birth_safe, b_conflicts = self._birth_safe_cache[planet]
             annual_safe, a_conflicts = self.get_safe_houses(planet, annual_chart)
 
             safe_matches_houses = [h for h in birth_safe if h in annual_safe]

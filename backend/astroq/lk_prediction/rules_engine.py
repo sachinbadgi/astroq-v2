@@ -61,11 +61,31 @@ class RulesEngine:
                 con = sqlite3.connect(self.db_path)
                 con.execute("SELECT 1 FROM deterministic_rules LIMIT 1")
             except sqlite3.OperationalError:
-                default_dir = os.path.join(os.path.dirname(__file__), '..', '..', 'data')
+                default_dir = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', '..', 'data'))
                 self.db_path = os.path.abspath(os.path.join(default_dir, "rules.db"))
             finally:
                 if 'con' in locals():
                     con.close()
+        
+        # Cache rules once during init
+        self._rules_cache = self._load_rules()
+
+    def _load_rules(self) -> list[dict]:
+        """Load all rules from SQLite once."""
+        con = sqlite3.connect(self.db_path)
+        try:
+            # We assume the table is deterministic_rules
+            cur = con.execute("SELECT * FROM deterministic_rules")
+            columns = [c[0] for c in cur.description]
+            res = [dict(zip(columns, row)) for row in cur.fetchall()]
+            if res:
+                print(f"  RulesEngine: loaded {len(res)} rules. Columns: {columns}", flush=True)
+            return res
+        except sqlite3.OperationalError:
+            # Table doesn't exist (e.g. empty or uninitialized DB)
+            return []
+        finally:
+            con.close()
 
     def evaluate_chart(self, chart: dict[str, Any]) -> list[RuleHit]:
         """
@@ -79,40 +99,40 @@ class RulesEngine:
         if not planets_data:
             return hits
 
-        # Fetch all rules
-        con = sqlite3.connect(self.db_path)
-        try:
-            # We assume the table is deterministic_rules
-            cur = con.execute("SELECT * FROM deterministic_rules")
-            columns = [c[0] for c in cur.description]
-            rules = [dict(zip(columns, row)) for row in cur.fetchall()]
-        except sqlite3.OperationalError:
-            # Table doesn't exist (e.g. empty or uninitialized DB)
-            return []
-        finally:
-            con.close()
-
-        for rule in rules:
+        for rule in self._rules_cache:
+            # Flexible key mapping for different DB schemas
+            rid = rule.get("rule_id") or rule.get("id", "")
+            cond_str = rule.get("condition_json") or rule.get("condition", "{}")
+            
             try:
-                cond_tree = json.loads(rule.get("condition", "{}"))
+                cond_tree = json.loads(cond_str)
             except json.JSONDecodeError:
                 continue
 
-            match, specificity, targets, target_houses = self._evaluate_node(cond_tree, planets_data)
-
+            match, specificity, targets, target_houses = self._evaluate_node(cond_tree, planets_data, chart)
+            
             if match:
                 scoring_type = rule.get("scoring_type", "neutral")
-                base = self.boost_scaling if scoring_type == "boost" else self.penalty_scaling
-                mag = apply_scale_to_magnitude(rule.get("scale", "minor"), base)
+                # Use magnitude from DB if available, else use scale-based scaling
+                mag = rule.get("magnitude")
+                if mag is None:
+                    base = self.boost_scaling if scoring_type == "boost" else self.penalty_scaling
+                    mag = apply_scale_to_magnitude(rule.get("scale", "minor"), base)
+
+                # Parse targets and houses if they are strings in DB
+                primary_targets = targets
+                if not primary_targets and rule.get("primary_target_planets"):
+                    pt = rule.get("primary_target_planets")
+                    primary_targets = json.loads(pt) if pt.startswith("[") else pt.split(",")
 
                 hit = RuleHit(
-                    rule_id=rule.get("id", ""),
+                    rule_id=rid,
                     domain=rule.get("domain", ""),
                     description=rule.get("description", ""),
                     verdict=rule.get("verdict", ""),
                     magnitude=mag,
                     scoring_type=scoring_type,
-                    primary_target_planets=list(targets),
+                    primary_target_planets=list(primary_targets),
                     target_houses=list(target_houses),
                     source_page=rule.get("source_page", ""),
                     specificity=specificity,
@@ -124,7 +144,7 @@ class RulesEngine:
         hits.sort(key=lambda h: h.specificity, reverse=True)
         return hits
 
-    def _evaluate_node(self, node: dict, pd: dict) -> tuple[bool, int, set[str], set[int]]:
+    def _evaluate_node(self, node: dict, pd: dict, chart: dict) -> tuple[bool, int, set[str], set[int]]:
         """
         Recursive evaluator.
         Returns (is_match, specificity, target_planets, target_houses)
@@ -133,13 +153,15 @@ class RulesEngine:
             return False, 0, set(), set()
             
         n_type = node.get("type", "")
+        # Get global age from chart
+        current_age = chart.get("chart_period", 0)
 
         if n_type == "AND":
             spec_total = 0
             targets = set()
             houses = set()
             for sub in node.get("conditions", []):
-                match, spec, targ, hs = self._evaluate_node(sub, pd)
+                match, spec, targ, hs = self._evaluate_node(sub, pd, chart)
                 if not match:
                     return False, 0, set(), set()
                 spec_total += spec
@@ -149,18 +171,42 @@ class RulesEngine:
 
         elif n_type == "OR":
             for sub in node.get("conditions", []):
-                match, spec, targ, hs = self._evaluate_node(sub, pd)
+                match, spec, targ, hs = self._evaluate_node(sub, pd, chart)
                 if match:
                     # Specificity in OR is just the max of passing
                     return True, spec, targ, hs
             return False, 0, set(), set()
 
         elif n_type == "NOT":
-            match, _, _, _ = self._evaluate_node(node.get("condition", {}), pd)
+            match, _, _, _ = self._evaluate_node(node.get("condition", {}), pd, chart)
             if match:
                 return False, 0, set(), set()
             # If NOT passes, it has a base specificity of 1
             return True, 1, set(), set()
+
+        elif n_type == "current_age":
+            target_age = node.get("age")
+            if current_age == target_age:
+                return True, 1, set(), set()
+            return False, 0, set(), set()
+
+        elif n_type == "house_status":
+            target_h = str(node.get("house", "1"))
+            target_state = node.get("state", "occupied")
+            
+            # Check house_status dict in chart
+            status_map = chart.get("house_status", {})
+            actual_state = status_map.get(target_h, "Empty House").lower()
+            
+            is_match = False
+            if target_state == "occupied" and "Occupied" in actual_state.title():
+                is_match = True
+            elif target_state == "empty" and "Empty" in actual_state.title():
+                is_match = True
+                
+            if is_match:
+                return True, 1, set(), {int(target_h)}
+            return False, 0, set(), set()
 
         elif n_type == "placement":
             planet = node.get("planet", "")
@@ -176,6 +222,7 @@ class RulesEngine:
             
             if data and data.get("house") in target_h:
                 return True, 1, {planet}, {data.get("house")}
+            
             return False, 0, set(), set()
 
         elif n_type == "confrontation":

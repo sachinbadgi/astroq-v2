@@ -8,6 +8,7 @@ momentum peak detection, and domains mapping via astrological house rules.
 
 from __future__ import annotations
 
+import copy
 from typing import Any
 
 from astroq.lk_prediction.config import ModelConfig
@@ -69,17 +70,10 @@ class EventClassifier:
         - prob_t_minus_1 (optional)
         - rule_hits (optional)
         """
-        classified: list[ClassifiedEvent] = []
+        raw_classified: list[ClassifiedEvent] = []
         
         for ev in raw_events:
             prob = ev.get("final_probability", 0.0)
-            
-            # 1. Filter Noise
-            if prob < self.noise_floor:
-                # Optionally, we can still return it but `is_peak=False`.
-                # For safety against clutter, we might skip, but tests expect them
-                # if asked or expect `is_peak=False`. Let's just create it but it won't be a peak.
-                pass
             
             # Extract inputs
             planet = ev.get("planet", "")
@@ -87,23 +81,27 @@ class EventClassifier:
             mag = ev.get("annual_magnitude", 0.0)
             prob_t_minus_1 = ev.get("prob_t_minus_1")
             
-            # 2. Peak Detection
+            # 1. Peak Detection
             peak = self._is_peak(prob, prob_t_minus_1)
             
-            # 3. Sentiment Classification
+            # 2. Sentiment Classification
             sentiment = self._classify_sentiment(mag, planet)
             
-            # 4. Domain Mapping
-            domains = self._map_domains(planet, house)
+            # 3. Domain Mapping
+            rule_hits = ev.get("rule_hits", [])
+            rule_domains = set()
+            for h in rule_hits:
+                rd = getattr(h, "domain", "")
+                if rd:
+                    parts = [p.strip().lower() for p in rd.split(",") if p.strip()]
+                    rule_domains.update(parts)
+            
+            domains = self._map_domains(planet, house, list(rule_domains))
             
             prediction_text = ev.get("prediction_text", f"Lal Kitab prediction for {planet} in House {house}")
-            if not ev.get("prediction_text") and ev.get("rule_hits"):
-                # For simplified implementation, grab top rule description
-                hits = ev["rule_hits"]
-                if hits:
-                    prediction_text = getattr(hits[0], "description", prediction_text)
+            if not ev.get("prediction_text") and rule_hits:
+                prediction_text = getattr(rule_hits[0], "description", prediction_text)
 
-            # Build contract
             ce = ClassifiedEvent(
                 planet=planet,
                 house=house,
@@ -114,12 +112,48 @@ class EventClassifier:
                 is_peak=peak,
                 peak_type="ABSOLUTE" if prob >= self.abs_peak else "MOMENTUM" if peak else "NONE",
                 prediction_text=prediction_text,
-                contributing_rules=[getattr(h, "rule_id", "") for h in ev.get("rule_hits", [])] if "rule_hits" in ev else [],
-                peak_age=age  # Fix: Set the peak age from current simulation year
+                contributing_rules=[getattr(h, "description", h.rule_id) for h in rule_hits],
+                peak_age=age,
+                source_planets=[planet],
+                source_houses=[house]
             )
-            classified.append(ce)
+            raw_classified.append(ce)
             
-        return classified
+        # 4. Domain Collapsing (Reduction of False Positives)
+        # Groups all events for a domain in this year and picks the strongest signal.
+        domain_peaks: dict[str, ClassifiedEvent] = {}
+        
+        for ce in raw_classified:
+            for d in ce.domains:
+                if d not in domain_peaks:
+                    # Deep copy of the CE for this domain bucket
+                    peak_ce = copy.copy(ce)
+                    peak_ce.domains = [d] # Single domain for this bucket
+                    domain_peaks[d] = peak_ce
+                else:
+                    existing = domain_peaks[d]
+                    # Update peak if this signal is stronger
+                    if abs(ce.magnitude) > abs(existing.magnitude):
+                        existing.magnitude = ce.magnitude
+                        existing.probability = ce.probability
+                        existing.is_peak = existing.is_peak or ce.is_peak
+                        existing.peak_type = ce.peak_type if ce.is_peak else existing.peak_type
+                        existing.planet = ce.planet
+                        existing.house = ce.house
+                        existing.prediction_text = ce.prediction_text
+                    
+                    # Merge traceability info
+                    for r in ce.contributing_rules:
+                        if r not in existing.contributing_rules:
+                            existing.contributing_rules.append(r)
+                    for p in ce.source_planets:
+                        if p not in existing.source_planets:
+                            existing.source_planets.append(p)
+                    for h in ce.source_houses:
+                        if h not in existing.source_houses:
+                            existing.source_houses.append(h)
+
+        return list(domain_peaks.values())
 
     def _is_peak(self, prob: float, prob_t_minus_1: float | None) -> bool:
         """Determines if the event is a peak (Absolute OR Momentum)."""
@@ -155,17 +189,44 @@ class EventClassifier:
             
         return "MIXED"
 
-    def _map_domains(self, planet: str, house: int) -> list[str]:
-        """Combine domain tags based on planet and house placements."""
+    def _map_domains(self, planet: str, house: int, rule_domains: list[str] | None = None) -> list[str]:
+        """Combine domain tags based on planet and house placements, prioritizing rule domains.
+        """
+        # 1. If explicit rule domains exist, use them exclusively to reduce noise
+        if rule_domains:
+            mapped = set()
+            for rd in rule_domains:
+                # Standardize common labels to the audit map
+                rd_l = rd.lower()
+                if rd_l == "profession":
+                    mapped.update(["Career", "Profession", "Status"])
+                elif rd_l == "health":
+                    mapped.add("Health")
+                elif rd_l == "marriage":
+                    mapped.update(["Marriage", "Partnerships"])
+                elif rd_l == "progeny":
+                    mapped.update(["Children", "Progeny"])
+                elif rd_l == "wealth":
+                    mapped.update(["Wealth", "Gains", "Income"])
+                elif rd_l == "foreign_travel":
+                    mapped.update(["Foreign Travel", "Expenses", "Losses"])
+                elif rd_l in ["general", "none", ""]:
+                    mapped.add("General")
+                else:
+                    mapped.add(rd.title())
+            return sorted(list(mapped))
+
+        # 2. No explicit rule domains – fall back to planet/house mapping using DOMAIN_MAP
         domains = set()
-        
-        # House primary
+        # Planet based mapping
+        planet_key = planet
+        if planet_key in DOMAIN_MAP:
+            domains.update(DOMAIN_MAP[planet_key])
+        # House based mapping (e.g., "h10")
         house_key = f"h{house}"
         if house_key in DOMAIN_MAP:
             domains.update(DOMAIN_MAP[house_key])
-            
-        # Planet natural domains
-        if planet in DOMAIN_MAP:
-            domains.update(DOMAIN_MAP[planet])
-            
+        # If still empty, default to General
+        if not domains:
+            domains.add("General")
         return sorted(list(domains))

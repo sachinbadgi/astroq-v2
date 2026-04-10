@@ -74,14 +74,15 @@ def test_validator_near_hit(validator):
 # --------------------------------------------------------------------------
 
 def test_validator_miss(validator):
-    predictions = [_make_lk(26, "profession")]
+    """Offset of 3.0 years is a miss (> 2 year window)."""
+    predictions = [_make_lk(27, "profession")]
     life_events = [_make_le(24, "profession")]
     
     report = validator.compare_to_events(predictions, life_events)
     
     assert report["hits"] == 0
     assert report["entries"][0]["is_hit"] is False
-    assert report["entries"][0]["offset"] == 2.0
+    assert report["entries"][0]["offset"] == 3.0
 
 
 # --------------------------------------------------------------------------
@@ -101,10 +102,10 @@ def test_validator_multiple_events(validator):
     report = validator.compare_to_events(predictions, life_events)
     
     assert report["total"] == 2
-    # Profession: age 22 vs 24 = offset -2.0 (miss)
+    # Profession: age 22 vs 24 = offset -2.0 (hit with <=2 window)
     # Health: age 35 vs 35 = offset 0.0 (hit)
-    assert report["hits"] == 1
-    assert report["hit_rate"] == 0.5
+    assert report["hits"] == 2
+    assert report["hit_rate"] == 1.0
     assert report["mean_offset"] == 1.0  # (abs(-2) + abs(0)) / 2
 
 
@@ -120,7 +121,8 @@ def test_validator_contradiction(validator):
     
     assert report["total"] == 1
     assert report["hits"] == 0
-    assert "profession" in report["contradictions"]
+    # 'profession' normalises to 'career'; contradiction key is canonical 'career'
+    assert "career" in report["contradictions"]
     assert report["entries"][0]["predicted_peak_age"] is None
 
 
@@ -155,3 +157,70 @@ def test_validator_nearest_match(validator):
     assert report["entries"][0]["predicted_peak_age"] == 23
     assert report["entries"][0]["offset"] == -1.0
     assert report["entries"][0]["is_hit"] is True
+
+
+# --------------------------------------------------------------------------
+# Test 8: Domain alias — "profession" event matches "career" prediction
+# --------------------------------------------------------------------------
+
+def test_validator_profession_matches_career_alias(validator):
+    """
+    Event domain='profession' normalises to 'career'.
+    Prediction domain='career' also normalises to 'career'.
+    With matching age, result must be a hit.
+    """
+    predictions = [_make_lk(36, "career")]
+    life_events = [_make_le(36, "profession")]
+
+    report = validator.compare_to_events(predictions, life_events)
+
+    assert report["hits"] == 1
+    assert report["hit_rate"] == 1.0
+    assert report["entries"][0]["is_hit"] is True
+    assert report["entries"][0]["offset"] == 0.0
+
+
+# --------------------------------------------------------------------------
+# Test 9: "General" domain prediction does NOT match "career" event
+# --------------------------------------------------------------------------
+
+def test_validator_general_domain_contradiction(validator):
+    """
+    Predictions tagged 'General' must NOT match a typed event domain
+    such as 'career'. The event should appear as a contradiction.
+    """
+    predictions = [_make_lk(36, "General")]
+    life_events = [_make_le(36, "career")]
+
+    report = validator.compare_to_events(predictions, life_events)
+
+    assert report["hits"] == 0
+    assert report["entries"][0]["predicted_peak_age"] is None
+    assert "career" in report["contradictions"]
+
+
+# --------------------------------------------------------------------------
+# Test 10: Hit window is <= 2 years
+# --------------------------------------------------------------------------
+
+def test_validator_hit_window_two_years(validator):
+    """Offset of exactly 2.0 years should still be a hit."""
+    predictions = [_make_lk(26, "career")]
+    life_events = [_make_le(24, "career")]
+
+    report = validator.compare_to_events(predictions, life_events)
+
+    assert report["hits"] == 1
+    assert report["entries"][0]["is_hit"] is True
+    assert report["entries"][0]["offset"] == 2.0
+
+
+def test_validator_miss_beyond_two_years(validator):
+    """Offset of 3 years must be a miss."""
+    predictions = [_make_lk(27, "career")]
+    life_events = [_make_le(24, "career")]
+
+    report = validator.compare_to_events(predictions, life_events)
+
+    assert report["hits"] == 0
+    assert report["entries"][0]["is_hit"] is False

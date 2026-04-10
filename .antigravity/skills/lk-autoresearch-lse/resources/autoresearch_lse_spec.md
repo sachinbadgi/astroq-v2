@@ -164,10 +164,10 @@ ChartDNA = {
     "back_test_hit_rate": float, # 0.0 – 1.0
     "mean_offset_years": float,  # MAE in years
     "iterations_run": int,
-    "delay_constants": {
-        # planet_house: delay in years (can be negative = early)
-        "mars_h8": 2.5,
-        "saturn_h4": -1.0,
+    "alignments": {
+        # planet_house: target milestone age
+        "mars_h8": 28,
+        "saturn_h4": 36,
     },
     "grammar_overrides": {
         # rule_id or grammar_key: override value
@@ -240,19 +240,17 @@ FUNCTION solve_chart(birth_chart, life_event_log, max_iterations=20):
 
 ---
 
-## 9. Astrological Rationale Rules
+### 9. Astrological Rationale Rules (Milestones)
+The Researcher doesn't just "guess" delays. It must find a matching Lal Kitab condition and align to the nearest canonical milestone:
 
-The Researcher doesn't just "guess" delays. It must find a matching Lal Kitab condition:
-
-| Condition | Astrological Logic | Proposed Adjustment |
+| Condition | Astrological Logic | Proposed Alignment |
 |-----------|--------------------|---------------------|
-| **Takrav (Confrontation)** | Sun H1 vs Saturn H7. Mutual aspect delays Sun's peak. | +4.5 years |
-| **Soya Ghar (Sleeping)** | Target house is empty + no lord activation. | +2.0 years (minimum) |
-| **Grah-Yuti (Enmity)** | Jupiter with Rahu/Ketu (Guru-Chandal). | +5.0 years (Cycle reset) |
-| **Mars-H8 (Badh)** | Mars in H8 delays everything by 1/8th cycle. | +2.5 years |
-| **H10-L10 Malefic** | Saturn lord of 10 in 8 or 12. | +6.0 years (Saturn cycle mod) |
-| **Travel (H12)** | H12 activation cancels Soya Ghar early results. | -1.0 year (Acceleration) |
-```
+| **Takrav (Confrontation)** | Sun H1 vs Saturn H7. Mutual aspect. | Age 36 (Saturn Maturity) |
+| **Soya Ghar (Sleeping)** | Target house is empty + no activation. | Age 36 (Saturn Maturity) |
+| **Grah-Yuti (Enmity)** | Jupiter with Rahu/Ketu (Guru-Chandal). | Age 42 (Rahu Maturity) |
+| **Mars-H8 (Badh)** | Mars in H8 triggers delays. | Age 28 (Mars Maturity) |
+| **Saturn H5 (Blind)** | Progeny delay until cycle end. | Age 48 (Ketu/Cycle) |
+| **Cycle Reset** | 35-Year Cycle Completion. | Age 36 (Reset Year) |
 
 ---
 

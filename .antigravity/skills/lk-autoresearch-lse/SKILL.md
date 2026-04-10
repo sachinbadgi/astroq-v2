@@ -1,6 +1,6 @@
 ---
 name: lk-autoresearch-lse
-description: AutoResearch 2.0 (LSE) — a dual-agent Learn/Self-Evolve system that back-tests the prediction engine against a user's real life events, discovers chart-specific delay constants and grammar overrides, and generates high-confidence personalised future predictions. Implements Researcher + Validator agents with iterative hypothesis testing, ChartDNA storage, and LSEPrediction output.
+description: AutoResearch 2.0 (LSE) — a dual-agent system that now uses Canonical Milestone Alignments (36, 42, 48) instead of arbitrary offsets. Integrates with Unified Grammar and Rule-Specific domain mapping.
 ---
 
 # AutoResearch 2.0 (LSE) — Skill

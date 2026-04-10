@@ -18,8 +18,10 @@
 9. [Module 6: Event Classifier](#9-module-6-event-classifier)
 10. [Module 7: Prediction Translator](#10-module-7-prediction-translator)
 11. [Pipeline Orchestrator](#11-pipeline-orchestrator)
-12. [Test Plan (Superpowers TDD)](#12-test-plan-superpowers-tdd)
-13. [Open Items](#13-open-items)
+12. [Module 8: AutoResearch 2.0 (LSE Loop)](#12-module-8-autoresearch-20-lse-loop)
+13. [Test Plan (Superpowers TDD)](#13-test-plan-superpowers-tdd)
+14. [Open Items](#14-open-items)
+15. [Complete Grammar Feature Reference](#15-complete-grammar-feature-reference)
 
 ---
 
@@ -36,6 +38,7 @@ Translate raw natal/annual chart data into human-understandable Lal Kitab predic
 ### Design Principles
 - **Config-Driven**: Every magic number in a single JSON + DB overrides
 - **Test-First**: Every module has unit tests BEFORE implementation
+- **AutoResearch-Capable**: Model supports iterative back-testing and personalization (LSE)
 - **Strength-Complete**: ALL Lal Kitab grammar factors feed into `strength_total`
 - **Deterministic-First**: DB rules fire before any probabilistic computation
 - **Modular**: Each module has a clear contract — input type → output type
@@ -493,13 +496,14 @@ if planet is 35yr_cycle_ruler:             Tvp += Tvp_base * cfg.delivery.throne
 
 # Year lord boost:
 if planet == year_lord:  Tvp += cfg.year_lord.base_boost  # 4.0
-```
 
-### C. Event Affinity (Ea)
+### D. Event Magnitude Integration (Emag)
+The engine now propagates the raw `magnitude` from `rules.db` through to the final prediction.
+- **Rule Magnitude**: Scalar value (e.g., +2.5 for Cycle Reset).
+- **Aggregation**: Sum of magnitudes for all hits in a (Planet, House) cluster.
+- **Probability Impact**: `Ea = σ(Σ magnitudes)`.
+- **Dcorr**: Deterministic boost (e.g. 2.5) that forces a peak regardless of basal strength.
 
-From deterministic rules that fire for this chart-year:
-
-```python
 boost_sum = sum(rule.magnitude for rule in fired_rules if rule.scoring_type == "boost")
 penalty_sum = sum(rule.magnitude for rule in fired_rules if rule.scoring_type == "penalty")
 
@@ -647,9 +651,12 @@ A year is flagged as a **peak event** only if:
 | High boosts AND high penalties | **VOLATILE** |
 | Mixed signals | **MIXED** |
 
-### Domain Classification
+### Domain Classification (Rule-Specific)
+[NEW] Rule-Specific Domain Mapping: The engine now prioritizes the `domain` field attached to the individual `RuleHit` object rather than generic planetary Karakas.
+- **Rule Domain**: Directly from `rules.db` (e.g., "Marriage", "Career").
+- **Fallback**: If rule has no domain, use Planet-Generic Karakas (H1, H10, etc.).
+- **Impact**: Eliminates "Background Hum" from planets that cover multiple life areas but are currently dormant for a specific event.
 
-Map fired rules to life domains:
 ```python
 DOMAIN_WEIGHTS = {
     "profession": [H10, H6, H11],  # Primary houses
@@ -811,7 +818,46 @@ test_pipeline_all_domains_returns_comprehensive_predictions
 
 ---
 
-## 12. Test Plan (Superpowers TDD)
+## 12. Module 8: AutoResearch 2.0 (LSE Loop)
+
+### File: `backend/astroq/lk_prediction/lse_orchestrator.py`, `lse_researcher.py`, `lse_validator.py`
+
+The Life Sequence Events (LSE) loop is a meta-orchestrator that iterates on model configuration to "solve" a figure's chart by matching predictions to historical ground truth.
+
+### Core Architecture
+
+```mermaid
+graph LR
+    P[Pipeline] --> V[Validator]
+    V --> G[Gap Report]
+    G --> R[Researcher]
+    R --> H[Hypotheses]
+    H --> C[Config Override]
+    C --> P
+```
+
+### 12.1 Validator Agent
+Compares `LKPrediction[]` against `LifeEventLog` to produce a `GapReport`.
+- **Hit Detection**: Matches by domain; success if `abs(predicted_age - actual_age) <= 1.0`.
+- **Metrics**: Computes hit rate and mean offset years.
+
+### 12.2 Researcher Agent & Rationale Feature
+The **Rationale Feature** is the astrological intelligence layer that explains "hits" or "misses" using canonical Lal Kitab rules.
+- **Rationale Mapping**: Maps specific chart conditions to suggested timing offsets (e.g., *Mars in H8 vs Sun in H1* delays career peaks).
+- **Hypothesis Generation**: Proposes `delay` constants or `grammar` overrides based on the rationales found.
+
+### 12.3 Chart DNA
+The final set of overrides (`delay_constants`, `grammar_overrides`) is persisted as **Chart DNA**.
+- **Personalization**: Each figure gets a unique DNA that maximizes their back-test hit rate.
+- **Confidence**: DNA also carries a confidence score based on the verified ratio of events.
+
+### 12.4 Processing Strategy
+- **Batched Execution**: The system supports processing large numbers of public figures sequentially or in parallel.
+- **Ground Truth**: Sourced from `astroq_gt.db` (benchmark_ground_truth table).
+
+---
+
+## 13. Test Plan (Superpowers TDD)
 
 ### Test Directory Structure
 
@@ -886,10 +932,12 @@ Phase 10: Tune      → Adjust config overrides per figure → Re-benchmark
 
 ---
 
-## 13. Open Items
+## 14. Open Items
 
 | Item | Priority | Status |
 |------|----------|--------|
+| Expand Rationale Feature for all domains (Progeny, Litigation, Wealth) | High | **In Progress** |
+| Process all 140 public figures for Chart DNA | High | **In Progress** |
 | Consolidate `planet_predictions_consolidated.csv` into DB `prediction_texts` table | Medium | TBD — not in current scope |
 | Auto-tune config via benchmark feedback loop | High | Deferred to Phase 10 |
 | LLM-based natural language polishing of prediction text | Low | Future enhancement |
@@ -898,14 +946,14 @@ Phase 10: Tune      → Adjust config overrides per figure → Re-benchmark
 
 ---
 
-## 14. Complete Grammar Feature Reference
+## 15. Complete Grammar Feature Reference
 
 > **CRITICAL**: This section documents the EXACT rules from the reference codebase that must be
 > implemented in full. No stubs allowed. Every rule below has a corresponding test.
 
 ---
 
-### 14.1 Mangal Badh — Complete 17-Rule System
+### 15.1 Mangal Badh — Complete 17-Rule System
 
 **Source**: `D:\astroq-mar26\backend\astroq\Mars_special_rules.py` → `calculate_mangal_badh()`
 
@@ -978,7 +1026,7 @@ The following map defines which houses are aspected from a given house, includin
 
 ---
 
-### 14.2 Disposition Rules — Complete 16-Rule System
+### 15.3 Disposition Rules (16 Legacy Rules)
 
 **Source**: `D:\astroq-mar26\backend\astroq\global_birth_yearly_strength_additional_checks.py`
 → `lal_kitab_planet_disposition_rules` list
@@ -1020,7 +1068,7 @@ elif disposition == "Bad":
 
 ---
 
-### 14.3 BilMukabil — Correct 3-Step Detection
+### 15.3 BilMukabil — Correct 3-Step Detection
 
 **Source**: `D:\astroq-mar26\backend\astroq\global_birth_yearly_grammer_rules.py`
 → `check_bilmukabil()`
@@ -1099,7 +1147,7 @@ def detect_bilmukabil(p1, p2, planets_data):
 
 ---
 
-### 14.4 Sleeping Planet — Canonical Aspect-Map Detection
+### 15.4 Sleeping Planet — Canonical Aspect-Map Detection
 
 **Source**: `D:\astroq-mar26\backend\astroq\global_birth_yearly_grammer_rules.py`
 → `check_sleeping_planet()`
@@ -1143,7 +1191,7 @@ def detect_sleeping(planet, planets_data):
 
 ---
 
-### 14.5 Processing Order (Updated)
+### 15.5 Processing Order (Updated)
 
 With the complete grammar rules, the processing order in `apply_grammar_rules()` must be:
 
@@ -1182,7 +1230,7 @@ With the complete grammar rules, the processing order in `apply_grammar_rules()`
 
 ---
 
-### 14.6 Config Key Updates
+### 15.6 Config Key Updates
 
 | Config Key | Old Default | Correct Value | Reason |
 |-----------|-------------|---------------|--------|
