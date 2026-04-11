@@ -1,0 +1,13 @@
+fastapi
+PyMuPDF
+geopy
+litellm
+protobuf
+pydantic
+pytest
+python-dateutil
+pytz
+taskiq
+timezonefinder
+uvicorn
+vedicastro

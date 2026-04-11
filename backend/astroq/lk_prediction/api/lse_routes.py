@@ -37,7 +37,7 @@ async def solve_lse(req: LSESolveRequest):
             
     try:
         # Resolve paths relative to project root
-        project_root = "d:/astroq-v2"
+        project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../.."))
         db_path = os.path.join(project_root, "backend/data/api_config.db")
         defaults_path = os.path.join(project_root, "backend/data/model_defaults.json")
         

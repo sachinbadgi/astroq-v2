@@ -24,8 +24,8 @@ app.add_middleware(
 )
 
 # Initialize the pipeline with correct paths
-DB_PATH = "d:/astroq-v2/backend/data/api_config.db"
-DEFAULTS_PATH = "d:/astroq-v2/backend/data/model_defaults.json"
+DB_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../data/api_config.db"))
+DEFAULTS_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../data/model_defaults.json"))
 config = ModelConfig(db_path=DB_PATH, defaults_path=DEFAULTS_PATH)
 pipeline = LKPredictionPipeline(config)
 
@@ -36,16 +36,16 @@ from astroq.lk_prediction.api.chart_store import ChartStore
 from astroq.lk_prediction.api.tasks import broker, run_benchmark_task, cleanup_expired_charts
 
 # Paths for benchmark data
-BENCH_DIR = "d:/astroq-v2/backend"
-GT_FILE = "d:/astroq-v2/backend/data/public_figures_ground_truth.json"
+BENCH_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
+GT_FILE = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../data/public_figures_ground_truth.json"))
 
 # Initialize LLM via LiteLLM
-GEMINI_KEY = os.environ.get("GEMINI_API_KEY")
+GEMINI_KEY = os.environ.get("GEMINI_API_KEY", "dummy_gemini_key")
 os.environ["GEMINI_API_KEY"] = GEMINI_KEY # Ensure it's in env for litellm
 LLM_MODEL = "gemini/gemini-1.5-flash"
 
 # Persistent store for charts
-CHART_DB_PATH = "d:/astroq-v2/backend/data/charts.db"
+CHART_DB_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../data/charts.db"))
 chart_store = ChartStore(CHART_DB_PATH)
 
 # App Version for traceability
