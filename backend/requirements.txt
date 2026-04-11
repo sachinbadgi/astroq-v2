@@ -11,3 +11,4 @@ taskiq
 timezonefinder
 uvicorn
 vedicastro
+gradio
