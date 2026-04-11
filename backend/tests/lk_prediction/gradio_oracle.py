@@ -57,7 +57,7 @@ def chat_logic(message, history, payload_path):
         yield f"LLM Connection Error (Ensure Ollama is running and gemma4 is pulled): {str(e)}"
 
 def build_app():
-    with gr.Blocks(title="Local Oracle UI", theme=gr.themes.Soft()) as demo:
+    with gr.Blocks(title="Local Oracle UI") as demo:
         gr.Markdown("# 🔮 Local Lal Kitab Oracle")
         gr.Markdown("Uses Ollama's `gemma4` local reasoning model to process GEMINI-Payload chart insights.")
         
@@ -70,10 +70,10 @@ def build_app():
         # We pass the dynamic filepath from the textbox straight to the logic wrapper
         chat = gr.ChatInterface(
             fn=lambda msg, hist: chat_logic(msg, hist, json_path.value),
-            chatbot=gr.Chatbot(height=600, bubble_full_width=False)
+            chatbot=gr.Chatbot(height=600)
         )
     return demo
 
 if __name__ == "__main__":
     demo = build_app()
-    demo.launch(server_name="127.0.0.1", server_port=7860, show_api=False)
+    demo.launch(server_name="127.0.0.1", server_port=7860, show_api=False, theme=gr.themes.Soft())
