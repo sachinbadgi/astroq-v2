@@ -19,6 +19,7 @@ from astroq.lk_prediction.rules_engine import RulesEngine
 from astroq.lk_prediction.strength_engine import StrengthEngine
 from astroq.lk_prediction.remedy_engine import RemedyEngine
 from astroq.lk_prediction.items_resolver import LKItemsResolver
+from astroq.lk_prediction.physics_engine import PhysicsEngine
 import math
 
 class DempsterShaferAggregator:
@@ -84,6 +85,7 @@ class LKPredictionPipeline:
         self.classifier = EventClassifier(config)
         self.remedy_engine = RemedyEngine(config, LKItemsResolver())
         self.translator = PredictionTranslator(config, remedy_engine=self.remedy_engine)
+        self.physics_engine = PhysicsEngine()
         
         # State
         self._natal_baseline: dict[str, EnrichedPlanet] | None = None
@@ -279,7 +281,10 @@ class LKPredictionPipeline:
         chart_for_rules = chart.copy()
         chart_for_rules["planets_in_houses"] = planets_data
         rule_hits = self.rules_engine.evaluate_chart(chart_for_rules)
-        
+
+        # Physics Engine: annotate hits with mutability tags + Laplacian scaling
+        rule_hits = self.physics_engine.process(chart, rule_hits, enriched)
+
         # 2. Filter Natal Signatures (for Annual timing focus)
         if is_annual and self._natal_rule_signatures:
             timing_hits = []
@@ -367,11 +372,18 @@ class LKPredictionPipeline:
         natal_rules = []
         planets_data = self._build_rules_context(self._natal_baseline, natal_chart)
         birth_hits = self.rules_engine.evaluate_chart({"planets_in_houses": planets_data})
+        # Run physics engine on natal hits to tag FIXED/SLEEPING/SYNTHETIC for LLM context
+        birth_hits = self.physics_engine.process(
+            natal_chart, birth_hits, self._natal_baseline or {}
+        )
         for h in birth_hits:
             natal_rules.append({
                 "rule": h.description,
                 "planets": h.primary_target_planets,
-                "domain": h.domain
+                "domain": h.domain,
+                "mutability": getattr(h, "mutability", "FLEXIBLE"),
+                "virtual_planet": getattr(h, "virtual_planet", None),
+                "structural_status": getattr(h, "structural_status", None),
             })
 
         # 2. Process annual charts
@@ -402,12 +414,19 @@ class LKPredictionPipeline:
                     if sig not in self._natal_rule_signatures:
                         timing_hits.append(h)
             
+            # Run physics engine on timing hits for mutability tagging in payload
+            timing_hits = self.physics_engine.process(chart, timing_hits, enriched)
+
             for h in timing_hits:
                 annual_rules.append({
                     "rule": h.description,
                     "planets": h.primary_target_planets,
                     "domain": h.domain,
-                    "magnitude": h.magnitude
+                    "magnitude": h.magnitude,
+                    "scoring_type": h.scoring_type,
+                    "mutability": getattr(h, "mutability", "FLEXIBLE"),
+                    "virtual_planet": getattr(h, "virtual_planet", None),
+                    "structural_status": getattr(h, "structural_status", None),
                 })
 
             timeline.append({
