@@ -30,10 +30,16 @@ def chat_logic(message, history, payload_path):
         {"role": "system", "content": f"You are a Premium Lal Kitab Oracle. Analyze the astrological context deeply. Here is the chart details:\n{system_context}"}
     ]
     
-    for human, ai in history:
-        messages.append({"role": "user", "content": human})
-        if ai:
-            messages.append({"role": "assistant", "content": ai})
+    # Gradio 6 passes history as list of dicts: {"role": ..., "content": ...}
+    for entry in history:
+        if isinstance(entry, dict):
+            messages.append({"role": entry["role"], "content": entry["content"]})
+        else:
+            # Fallback for older tuple format
+            human, ai = entry
+            messages.append({"role": "user", "content": human})
+            if ai:
+                messages.append({"role": "assistant", "content": ai})
             
     messages.append({"role": "user", "content": message})
     
@@ -67,10 +73,15 @@ def build_app():
             placeholder="e.g., sachin_gemini_payload.json"
         )
         
-        # We pass the dynamic filepath from the textbox straight to the logic wrapper
+        # In Gradio 6, fn must be a generator function (yield), not return a generator.
+        # We capture json_path via closure in a def that yield-froms chat_logic.
+        def oracle_fn(message, history):
+            yield from chat_logic(message, history, json_path.value)
+
         chat = gr.ChatInterface(
-            fn=lambda msg, hist: chat_logic(msg, hist, json_path.value),
-            chatbot=gr.Chatbot(height=600)
+            fn=oracle_fn,
+            chatbot=gr.Chatbot(height=600),
+            type="messages"
         )
     return demo
 

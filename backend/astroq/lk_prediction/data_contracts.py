@@ -10,7 +10,27 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Any, Optional, TypedDict
+from typing import Any, Optional, TypedDict, Dict
+
+
+def normalize_planets(planets_data: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Ensures that planet data is always in the format {planet: {house: int, ...}}
+    Handles legacy entries that might just be {planet: house_int}.
+    """
+    if not isinstance(planets_data, dict):
+        return {}
+        
+    normalized = {}
+    for planet, data in planets_data.items():
+        if isinstance(data, (int, float)):
+            normalized[planet] = {"house": int(data)}
+        elif isinstance(data, dict):
+            normalized[planet] = data
+        else:
+            normalized[planet] = data
+            
+    return normalized
 
 
 # ---------------------------------------------------------------------------

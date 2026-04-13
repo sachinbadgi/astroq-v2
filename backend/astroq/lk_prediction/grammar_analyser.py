@@ -207,7 +207,13 @@ class GrammarAnalyser:
         per_planet_rin = self._build_per_planet_rin(planets_data, rin_list)
         disposition_list = chart.get("lal_kitab_dispositions", [])
 
-        ruler_35 = self._get_35_year_ruler(chart_period) if chart_type == "Yearly" else None
+        ruler_name = self._get_35_year_ruler(chart_period) if chart_type == "Yearly" else None
+        if ruler_name:
+            chart["35_year_cycle_ruler"] = ruler_name
+            # Note: intermediary_ruler is currently not yielded by this engine method
+            ruler_35 = ruler_name
+        else:
+            ruler_35 = None
 
         # ── Phase 2: Disposition detection only (no strength yet) ──────
         # Strength application happens inside _apply_adjustments AFTER sleeping

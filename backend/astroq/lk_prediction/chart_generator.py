@@ -285,10 +285,10 @@ class ChartGenerator:
             birth_datetime = None
 
         for age in range(1, max_years + 1):
-            # Year of Life: Age 1 = Year 2, Age 0 = Year 1, etc.
-            # In Lal Kitab, the 'Year' in the matrix matches (Age + 1).
-            year_of_life = age + 1
-            mapping = self.YEAR_MATRIX.get(year_of_life, {})
+            # In the 120-year matrix, the key matches the Age (e.g. Age 45 uses index 45)
+            # as validated against the 'Moon Returns to H2 at Age 45' and 'Mercury in H1' reality check.
+            year_key = age
+            mapping = self.YEAR_MATRIX.get(year_key, {})
             
             annual = natal_chart.copy()
             annual["chart_type"] = "Yearly"

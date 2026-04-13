@@ -1,0 +1,12 @@
+services:
+  honcho:
+    image: plasmaorg/honcho:latest
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite:///./honcho.db
+    volumes:
+      - honcho_data:/app/data
+
+volumes:
+  honcho_data:
