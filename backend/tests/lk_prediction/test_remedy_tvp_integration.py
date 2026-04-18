@@ -40,13 +40,13 @@ class TestProbabilityEngineTvpBoost:
         engine = ProbabilityEngine(config=dummy_config)
         # Calculate without remedy
         prob_base, brk_base = engine.calculate_event_probability(
-            planet="Sun", age=30, natal_score=0.0, annual_magnitude=1.0
+            planet="Sun", age=30, natal_score=0.0, annual_magnitude=0.1
         )
         
         # Calculate with safe remedy
         applied = [{"planet": "Sun", "age": 30, "target_house": 2, "is_safe": True}]
         prob_remedy, brk_rem = engine.calculate_event_probability(
-            planet="Sun", age=30, natal_score=0.0, annual_magnitude=1.0, applied_remedies=applied
+            planet="Sun", age=30, natal_score=0.0, annual_magnitude=0.1, applied_remedies=applied
         )
         
         # tvp_mod should be exactly 1.25x larger

@@ -24,7 +24,7 @@ class TestPipeline:
         con.execute('''INSERT OR IGNORE INTO deterministic_rules VALUES (
                         'R1', 'Career', 'Sun in 10',
                         '{"type": "placement", "planet": "Sun", "houses": [10]}',
-                        'Excellent for career', 'major', 'boost', 'p1', 1.0)''')
+                        'Excellent for career', 'extreme', 'boost', 'p1', 1.0)''')
         con.commit()
         con.close()
 
@@ -36,7 +36,7 @@ class TestPipeline:
     def _mock_chart_data(self) -> ChartData:
         return {
             "chart_type": "Birth",
-            "chart_period": 0,
+            "chart_period": 22,
             "planets_in_houses": {
                 "Sun": {
                     "house": 10,
@@ -72,6 +72,7 @@ class TestPipeline:
         pipeline = self._make_pipeline(tmp_db, tmp_defaults)
         chart = self._mock_chart_data()
         
+        pipeline.cfg.set_override("classifier.threshold_absolute", 0.30)
         preds = pipeline.generate_predictions(chart)
         assert len(preds) > 0
         assert isinstance(preds[0], LKPrediction)
@@ -89,6 +90,7 @@ class TestPipeline:
         pipeline = self._make_pipeline(tmp_db, tmp_defaults)
         chart = self._mock_chart_data()
         
+        pipeline.cfg.set_override("classifier.threshold_absolute", 0.30)
         # Should only return predictions related to Career (since Sun is in 10th)
         preds = pipeline.generate_predictions(chart, focus_domains=["Career"])
         

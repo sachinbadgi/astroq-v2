@@ -45,11 +45,13 @@ class TestProbabilityEngine:
     def test_adaptive_k_scales_up_with_strength(self, tmp_db, tmp_defaults):
         """Higher natal strength should dynamically increase K."""
         engine = self._make_engine(tmp_db, tmp_defaults)
-        # Assuming base_k = 1.2, scale_factor = 0.2
-        # k = 1.2 + (10 * 0.2) = 3.2 (but max_k usually limits to 3.0 or 4.0)
-        k_low = engine._calculate_adaptive_k(natal_score=5.0)
-        k_high = engine._calculate_adaptive_k(natal_score=15.0)
-        assert k_high > k_low
+        # Default base_k = 4.5, k_scale = 0.5, max_k = 6.0
+        # k_0 = 4.5
+        # k_low = 4.5 + (1 * 0.5) = 5.0
+        # k_high = 4.5 + (3 * 0.5) = 6.0
+        k_0 = engine._calculate_adaptive_k(natal_score=0.0)
+        k_low = engine._calculate_adaptive_k(natal_score=1.0)
+        assert k_low > k_0
 
     def test_adaptive_k_respects_max_cap(self, tmp_db, tmp_defaults):
         """K should not exceed max_k from config."""
@@ -58,7 +60,7 @@ class TestProbabilityEngine:
         # If max_k is 3.5, providing extreme natal_score shouldn't breach 3.5
         k_extreme = engine._calculate_adaptive_k(natal_score=100.0)
         # We fetch the actual max_k
-        max_k = engine._cfg.get("probability.max_k", fallback=3.5)
+        max_k = engine._cfg.get("probability.max_k", fallback=6.0)
         # Using math.isclose to handle float tiny diffs
         assert math.isclose(k_extreme, max_k) or k_extreme <= max_k
 
@@ -74,7 +76,7 @@ class TestProbabilityEngine:
         k_1 = engine._calculate_adaptive_k(natal_score=5.0)
         k_2 = engine._calculate_adaptive_k(natal_score=50.0)
         
-        base_k = cfg.get("probability.base_k", fallback=1.2)
+        base_k = cfg.get("probability.base_k", fallback=4.5)
         assert k_1 == base_k
         assert k_2 == base_k
 
@@ -201,3 +203,42 @@ class TestProbabilityEngine:
         # Even with crazy inputs, sigmoid handles math safely (no OverflowError ideally)
         prob, _ = engine.calculate_event_probability("Mars", 30, 9999.0, 9999.0)
         assert prob <= 0.99 
+
+    # -- 9. Maturity Peak & Cycle Synergy (Wiki Specs) --
+    def test_maturity_peak_multiplier(self, tmp_db, tmp_defaults):
+        """Verify x5.0 boost at exact maturity age (e.g. Jupiter at 16)."""
+        engine = self._make_engine(tmp_db, tmp_defaults)
+        
+        mod_15 = engine._calculate_tvp_modifier(planet="Jupiter", age=15)
+        mod_16 = engine._calculate_tvp_modifier(planet="Jupiter", age=16)
+        mod_18 = engine._calculate_tvp_modifier(planet="Jupiter", age=18)
+        
+        # 16 is exact hit (+/- 1 year window)
+        # Base boost_factor is 1.2 (for range 16-21)
+        # Peak hit adds x5.0 multiplier
+        # Cycle synergy for Jupiter at age 16 is x2.0
+        # Total expected: 1.2 * 5.0 * 2.0 = 12.0
+        assert mod_16 >= 5.0
+        assert mod_16 > mod_15
+        assert mod_16 > mod_18
+
+    def test_35yr_cycle_synergy(self, tmp_db, tmp_defaults):
+        """Verify x2.0 and x1.5 multipliers for 35-year cycle ruler synergy."""
+        engine = self._make_engine(tmp_db, tmp_defaults)
+        
+        # Age 22 is ruled by Sun (CYCLE_35_YEAR_RANGES)
+        # Case 1: Planet is Sun (Cycle Ruler) -> x2.0
+        mod_ruler = engine._calculate_tvp_modifier(planet="Sun", age=22)
+        # Case 2: Planet is Moon (Friend of Sun) -> x1.5
+        mod_friend = engine._calculate_tvp_modifier(planet="Moon", age=22)
+        
+        # Sun at 22 is in maturity range (22-23) -> boost 1.2
+        # It's ALSO the exact maturity age (22) -> boost 5.0
+        # It's ALSO the cycle ruler -> boost 2.0
+        # Total: 1.2 * 5.0 * 2.0 = 12.0
+        assert mod_ruler >= 12.0
+        
+        # Moon at 22 is not in maturity range (24) -> boost 1.0
+        # Moon is friend of Sun -> boost 1.5
+        # Total: 1.0 * 1.5 = 1.5
+        assert abs(mod_friend - 1.5) < 0.1

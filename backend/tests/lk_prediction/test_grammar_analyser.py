@@ -74,7 +74,7 @@ class TestGrammarAnalyser:
         assert enriched["Sun"]["sleeping_status"] == "Sleeping Planet"
         # Zeroes out or applies factor (factor is 0.0 in defaults)
         assert enriched["Sun"]["strength_breakdown"]["sleeping"] == -5.0
-        assert enriched["Sun"]["strength_total"] == 0.0
+        assert abs(enriched["Sun"]["strength_total"]) < 0.001
 
     def test_sleeping_house_flag_set(self, tmp_defaults, tmp_db):
         """Planet in a sleeping house gets sleeping_status updated."""
@@ -554,7 +554,7 @@ class TestGrammarAnalyser:
             "Sun": {"house": 1}
         })
         res = analyser.detect_rin(chart)
-        assert "Ancestral Debt (Pitra Rin)" in res
+        assert any(d["debt_name"] == "Ancestral Debt (Pitra Rin)" for d in res)
 
     def test_detector_rin_stri(self, tmp_defaults, tmp_db):
         """Stri Rin: Sun/Rahu/Ketu in 2/7."""
@@ -564,7 +564,7 @@ class TestGrammarAnalyser:
             "Jupiter": {"house": 1}
         })
         res = analyser.detect_rin(chart)
-        assert "Family/Wife/Woman Debt (Stri Rin)" in res
+        assert any(d["debt_name"] == "Family/Wife/Woman Debt (Stri Rin)" for d in res)
 
     def test_detector_disposition_sun_saturn(self, tmp_defaults, tmp_db):
         """Sun-Saturn conflict affecting Venus (if aspects exist)."""
