@@ -221,6 +221,8 @@ class StrengthEngine:
                                 rel = "equal"
                                 
                             aspects.append({
+                                "target": p_b_name,
+                                "target_house": target_h,
                                 "aspect_strength": aspect_str,
                                 "aspect_type": aspect_type,
                                 "relationship": rel

@@ -116,6 +116,10 @@ class LKPredictionPipeline:
         
         # 4. Rules Engine Evaluation
         planets_data = self._build_rules_context(enriched, chart)
+        
+        # Inject enriched data back into the chart for persistence/JSON output
+        chart["planets_in_houses"] = planets_data
+        
         rule_hits = self.rules_engine.evaluate_chart({"planets_in_houses": planets_data})
         
         # Filtering: Remove natal promise hits for annual timing
@@ -433,13 +437,28 @@ class LKPredictionPipeline:
     ) -> Dict[str, Any]:
         """Convert EnrichedPlanet -> standard dictionary format for JSON RulesEngine."""
         out = {}
+
+        # Pre-collect all aspects to build Inbound (Received) mapping for human/audit readability
+        inbound_map = {p: [] for p in enriched}
+        for caster, data in chart.get("planets_in_houses", {}).items():
+            caster_h = data.get("house", 0)
+            for asp in data.get("aspects", []):
+                target = asp.get("target")
+                if target in inbound_map:
+                    # Enrich the inbound aspect with source info
+                    inbound_asp = asp.copy()
+                    inbound_asp["source_planet"] = caster
+                    inbound_asp["source_house"] = caster_h
+                    inbound_map[target].append(inbound_asp)
+
         for planet, ep in enriched.items():
             # Original chart stuff
             original_p = chart.get("planets_in_houses", {}).get(planet, {})
             
             p_dict = {
                 "house": ep.get("house", 0),
-                "aspects": original_p.get("aspects", []),
+                "aspects": original_p.get("aspects", []),  # Outbound: required for Rule Engine
+                "received_aspects": inbound_map.get(planet, []), # Inbound: requested for auditing
                 "states": original_p.get("states", []),
                 # Merge enriched states
                 "sleeping_status": ep.get("sleeping_status", "Awake"),

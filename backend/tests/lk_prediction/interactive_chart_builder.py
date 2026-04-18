@@ -168,6 +168,11 @@ def main():
             
             # Map predictions to dict
             output_data["predictions_by_age"][f"age_{age}"] = [p.__dict__ for p in predictions]
+            
+            # 3. Add full annual chart data for researchers
+            output_data["annual_charts_data"] = output_data.get("annual_charts_data", {})
+            output_data["annual_charts_data"][f"age_{age}"] = chart
+            
             output_data["domain_scores_by_age"] = output_data.get("domain_scores_by_age", {})
             output_data["domain_scores_by_age"][f"age_{age}"] = domain_scores
 
