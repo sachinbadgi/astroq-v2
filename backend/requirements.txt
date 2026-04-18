@@ -12,3 +12,4 @@ timezonefinder
 uvicorn
 vedicastro
 gradio
+langgraph

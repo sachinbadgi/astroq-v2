@@ -195,7 +195,7 @@ def orchestrator_worker(state: AgentState):
         from astroq.lk_prediction.pipeline import LKPredictionPipeline
         from astroq.lk_prediction.config import ModelConfig
         
-        # Resolve config paths similarly to api/server.py
+        # Resolve config paths
         _DIR = os.path.dirname(__file__)
         DB_PATH = os.path.abspath(os.path.join(_DIR, "../../../data/api_config.db"))
         DEFAULTS_PATH = os.path.abspath(os.path.join(_DIR, "../../../data/model_defaults.json"))
@@ -204,43 +204,42 @@ def orchestrator_worker(state: AgentState):
         pipeline = LKPredictionPipeline(ModelConfig(db_path=DB_PATH, defaults_path=DEFAULTS_PATH))
         pipeline.load_natal_baseline({"chart_type": "Birth", "planets_in_houses": internal_ctx["natal_chart"]})
         
+        # Batch generate all needed years up to the max requested age
+        natal_data = {"chart_type": "Birth", "planets_in_houses": internal_ctx["natal_chart"]}
+        all_generated = generator.generate_annual_charts(natal_data, max_years=max(end_age, 75))
+        
+        # IMPORTANT: Inject into internal_ctx so downstream tools like _get_predictions can find them
+        if internal_ctx.get("full_payload") is not None:
+            internal_ctx["full_payload"].update(all_generated)
+
         for age in missing_ages:
-            # A. OFFICIAL PIPELINE CALL: Generate the full Varshphal chart for this age
-            # We seed the generator with the natal chart and request only the years we need
-            natal_data = {"chart_type": "Birth", "planets_in_houses": internal_ctx["natal_chart"]}
-            # Note: generate_annual_charts returns a dict like {"chart_1": ..., "chart_60": ...}
-            # We request up to end_age to ensure the target year is included
-            all_generated = generator.generate_annual_charts(natal_data, max_years=age)
             live_chart = all_generated.get(f"chart_{age}")
-            
             if not live_chart:
-                logger.error(f"Failed to generate official annual chart for age {age}")
                 continue
 
-            # B. Run Pipeline for scores & status
+            # B. Run Pipeline for scores
             scores = pipeline.generate_domain_scores(live_chart)
-            # The engine already populates the 35-year cycle ruler in the chart object
             status = live_chart.get("35_year_cycle_ruler", "General")
             
-            # C. Contextual Selection (Entity-Aware)
+            # C. Contextual Selection (Domain-Aware)
             resolver = EntityResolver()
             entities = resolver.resolve(query)
-            target_intent = (state.get("intent") or "General").lower()
+            possible_domains = ["Wealth", "Career", "Marriage", "Health", "Profession", "Travel", "General"]
+            detected_domain = "General"
+            for d in possible_domains:
+                if d.lower() in query.lower():
+                    detected_domain = d
+                    break
             
-            # Filter hits for the LLM to see in this year
-            # We want: General rules + Intent rules + Entity-matched rules
             all_hits = pipeline.rules_engine.evaluate_chart(live_chart)
             discovery_hits = []
             for h in all_hits:
                 is_general = h.domain.lower() == "general"
-                is_intent = h.domain.lower() == target_intent
+                is_intent = h.domain.lower() == detected_domain.lower()
                 
                 # Karaka Match
-                is_entity = False
-                for p in h.primary_target_planets:
-                    if p in entities["planets"]: is_entity = True
-                for house in h.target_houses:
-                    if house in entities["houses"]: is_entity = True
+                is_entity = any(p in entities["planets"] for p in h.primary_target_planets) or \
+                            any(house in entities["houses"] for house in h.target_houses)
                 
                 if is_general or is_intent or is_entity:
                     discovery_hits.append({
@@ -251,7 +250,7 @@ def orchestrator_worker(state: AgentState):
                     })
 
             range_summary[age] = {
-                "scores": scores.get(target_intent.capitalize(), {}),
+                "scores": scores.get(detected_domain, scores), # Fallback to all scores if specific missing
                 "status": status,
                 "discovery_evidence": discovery_hits,
                 "source": "Official Live Gen"
@@ -271,9 +270,22 @@ def orchestrator_worker(state: AgentState):
     if not bottleneck_age:
         preds, remedies, bottleneck_chart = [], [], None
     else:
-        preds = _get_predictions(internal_ctx, {"age": bottleneck_age})
-        remedies = _get_remedies(internal_ctx, {"age": bottleneck_age})
-        bottleneck_chart = internal_ctx.get("annual_charts", {}).get(bottleneck_age)
+        # Pass internal_ctx which now contains the generated 'all_generated' charts
+        preds_str = _get_predictions(internal_ctx, {"age": bottleneck_age})
+        remedies_str = _get_remedies(internal_ctx, {"age": bottleneck_age})
+        
+        # Try to parse JSON from tool strings if possible, otherwise keep as string
+        try:
+            preds = json.loads(preds_str.split(":\n", 1)[1])
+        except:
+            preds = preds_str
+            
+        try:
+            remedies = json.loads(remedies_str.split(":\n", 1)[1])
+        except:
+            remedies = remedies_str
+
+        bottleneck_chart = internal_ctx.get("full_payload", {}).get(f"chart_{bottleneck_age}")
 
     resolved = {
         "analysis_type": "TIMELINE_SCAN",

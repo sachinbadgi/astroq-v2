@@ -575,29 +575,7 @@ class RemedyEngine:
 
         hints: list[str] = []
         
-        # 1. Add Birth Day helpful hint (Page 164)
-        if chart and "birth_time" in chart:
-            try:
-                from datetime import datetime
-                # ISO format usually or YYYY-MM-DD
-                bt_str = chart["birth_time"]
-                # Try simple ISO first
-                dt = datetime.fromisoformat(bt_str.replace("Z", "+00:00"))
-                weekday = dt.strftime("%w") # 0=Sun, 1=Mon...
-                day_remedies = self._cfg.get("remedy.birth_day_remedies", fallback={})
-                if weekday in day_remedies:
-                    hints.append(f"Helpful Remedy: {day_remedies[weekday]}")
-            except Exception:
-                pass
-
-        # 2. Add Special Mars hints (Pages 158-163)
-        if chart and chart.get("mangal_badh_status") == "Active":
-            mars_hints = self._cfg.get("remedy.mangal_badh_hints", fallback=[])
-            if mars_hints:
-                # Add one prominent Mars hint if not already crowded
-                hints.append(f"Mars Malefic (-): {mars_hints[0]}")
-
-        # 3. Add Planet Shifting hints
+        # 1. Add Planet Shifting hints
         for planet, opt in top3_raw:
             articles_str = (
                 ", ".join(opt.articles) if opt.articles else "keep related articles nearby"
@@ -608,7 +586,26 @@ class RemedyEngine:
             )
             hints.append(hint)
 
-        return hints[:4] # Allow up to 4 if special hints are added
+        # 2. Add Birth Day helpful hint (Page 164)
+        if chart and "birth_time" in chart:
+            try:
+                from datetime import datetime
+                bt_str = chart["birth_time"]
+                dt = datetime.fromisoformat(bt_str.replace("Z", "+00:00"))
+                weekday = dt.strftime("%w") # 0=Sun, 1=Mon...
+                day_remedies = self._cfg.get("remedy.birth_day_remedies", fallback={})
+                if weekday in day_remedies:
+                    hints.append(f"Helpful Remedy: {day_remedies[weekday]}")
+            except Exception:
+                pass
+
+        # 3. Add Special Mars hints (Pages 158-163)
+        if chart and chart.get("mangal_badh_status") == "Active":
+            mars_hints = self._cfg.get("remedy.mangal_badh_hints", fallback=[])
+            if mars_hints:
+                hints.append(f"Mars Malefic (-): {mars_hints[0]}")
+
+        return hints[:4]
 
     def get_llm_remedy_summary(
         self,

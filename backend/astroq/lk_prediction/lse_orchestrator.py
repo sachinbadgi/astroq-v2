@@ -137,6 +137,7 @@ class LSEOrchestrator:
                 gap_report, birth_chart, life_event_log=life_event_log
             )
             ranked = self.researcher.rank_hypotheses(hypotheses)
+            print(f"Iterations: {iterations}, Ranked: {ranked}")
             
             # Choose the next hypothesis that we haven't tried yet
             # In this simple loop, we just take the first one

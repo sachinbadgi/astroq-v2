@@ -1,0 +1,524 @@
+commit f5727c707aaad4db9b8e2a4cb717d0f80aa2129e
+Author: Sachin Badgi <sachinbadgi@Sachins-MacBook-Pro.local>
+Date:   Tue Apr 14 00:26:25 2026 +0530
+
+    feat(agent): update MASTER_SYNTHESIS_PROMPT with energetic physics mutability interpretation
+
+M	backend/astroq/lk_prediction/agent/prompts.py
+
+commit 596500ccdcdf1a58c0f96855f1951f530a6a3803
+Author: Sachin Badgi <sachinbadgi@Sachins-MacBook-Pro.local>
+Date:   Tue Apr 14 00:25:17 2026 +0530
+
+    feat(pipeline): wire PhysicsEngine into generate_domain_scores and enrich natal + annual rule activations with mutability fields
+
+M	backend/astroq/lk_prediction/pipeline.py
+
+commit 4f1470b7c3763d1919be58fcc76f68fc74509ed3
+Author: Sachin Badgi <sachinbadgi@Sachins-MacBook-Pro.local>
+Date:   Tue Apr 14 00:24:07 2026 +0530
+
+    feat(physics): add PhysicsEngine with Petri Net, FIXED saturation, Masnui SYNTHETIC, Rin SYSTEMIC_LEAK, Graph Laplacian
+
+A	backend/astroq/lk_prediction/physics_engine.py
+A	backend/tests/test_physics_engine.py
+
+commit 086fb9b008b82910c7fea98a6ed04d15eb631d6e
+Author: Sachin Badgi <sachinbadgi@Sachins-MacBook-Pro.local>
+Date:   Mon Apr 13 23:30:37 2026 +0530
+
+    feat: consolidate Lal Kitab astrological constants and refactor prediction pipeline
+
+A	backend/astroq/lk_prediction/agent/__init__.py
+A	backend/astroq/lk_prediction/agent/agent_graph.py
+A	backend/astroq/lk_prediction/agent/honcho_memory.py
+A	backend/astroq/lk_prediction/agent/intent_router.py
+A	backend/astroq/lk_prediction/agent/lk_agent.py
+A	backend/astroq/lk_prediction/agent/prompts.py
+A	backend/astroq/lk_prediction/agent/task_planner.py
+A	backend/astroq/lk_prediction/agent/tool_registry.py
+M	backend/astroq/lk_prediction/chart_generator.py
+M	backend/astroq/lk_prediction/data_contracts.py
+M	backend/astroq/lk_prediction/grammar_analyser.py
+A	backend/astroq/lk_prediction/lk_constants.py
+M	backend/astroq/lk_prediction/pipeline.py
+A	backend/astroq/lk_prediction/statistical_core.py
+A	backend/docker-compose.yml
+A	backend/docs/plans/2026-04-11-agentic-lal-kitab-workflow.md
+A	backend/docs/plans/2026-04-11-lk-agent-honcho.md
+M	backend/sachin_predictions.json
+A	backend/tests/lk_prediction/ask_oracle.py
+A	backend/tests/lk_prediction/ask_oracle_agent.py
+M	backend/tests/lk_prediction/gradio_oracle.py
+A	backend/tests/lk_prediction/test_agent_graph.py
+A	backend/tests/lk_prediction/test_payload_enrichment.py
+A	backend/tests/lk_prediction/test_statistical_core.py
+A	backend/tests/lk_prediction/test_tool_registry.py
+A	backend/tests/lk_prediction/verify_probabilistic_auditor.py
+
+commit 0a84c4f9d241691768b3fe03944f67c01ca52417
+Author: Sachin Badgi <sachinbadgi@Sachins-MacBook-Pro.local>
+Date:   Sat Apr 11 17:39:22 2026 +0530
+
+    fix: remove show_api from gradio launch params per v6 deprecation
+
+M	backend/tests/lk_prediction/gradio_oracle.py
+
+commit f6e0bd4debbf90c22350e70329dff6368dc7bd15
+Author: Sachin Badgi <sachinbadgi@Sachins-MacBook-Pro.local>
+Date:   Sat Apr 11 17:37:26 2026 +0530
+
+    fix: adjust gradio api parameters for v6 compatibility
+
+M	backend/tests/lk_prediction/gradio_oracle.py
+
+commit 0a54898d0d0dba3f66ea121c9dcb2516f0620625
+Author: Sachin Badgi <sachinbadgi@Sachins-MacBook-Pro.local>
+Date:   Sat Apr 11 17:32:39 2026 +0530
+
+    feat: add gradio testing UI for local ollama gemma4 instance
+
+M	backend/requirements.txt
+A	backend/tests/lk_prediction/gradio_oracle.py
+
+commit 1a538285c373b8925c4fdd74c113c59fd37e1ea7
+Author: Sachin Badgi <sachinbadgi@Sachins-MacBook-Pro.local>
+Date:   Sat Apr 11 17:31:26 2026 +0530
+
+    chore: setup backend paths, predictions, and requirements
+
+M	backend/astroq/lk_prediction/api/lse_routes.py
+M	backend/astroq/lk_prediction/api/server.py
+A	backend/docs/plans/2026-04-11-gradio-oracle-ui.md
+A	backend/requirements.txt
+M	backend/sachin_predictions.json
+
+commit d2abb1b66521877a848c7205b1852cb177abaa8f
+Author: Sachin Badgi <sachin.badgi@gmail.com>
+Date:   Fri Apr 10 19:39:17 2026 +0530
+
+    feat(backend): Lal Kitab engine audit and test fixes
+    
+    - Completed comprehensive backend audit of 7 modules
+    - Fixed test failures in EventClassifier, Pipeline, and MaturityRules
+    - Corrected domain-collapse contract in EventClassifier tests
+    - Fixed hardcoded DB path in test_maturity_rules.py
+    - Hoisted import copy in event_classifier.py for performance
+    - Deleted 4 temporary/dead root-level scripts
+    - Added comprehensive audit report
+
+M	.antigravity/skills/lk-autoresearch-lse/SKILL.md
+M	.antigravity/skills/lk-autoresearch-lse/resources/autoresearch_lse_spec.md
+M	.antigravity/skills/lk-prediction-model/SKILL.md
+M	.antigravity/skills/lk-prediction-model/resources/lk_prediction_model_v2.md
+M	backend/astroq/lk_prediction/chart_generator.py
+A	backend/astroq/lk_prediction/constants.py
+M	backend/astroq/lk_prediction/data_contracts.py
+M	backend/astroq/lk_prediction/event_classifier.py
+A	backend/astroq/lk_prediction/extracted_matrix.py
+M	backend/astroq/lk_prediction/grammar_analyser.py
+M	backend/astroq/lk_prediction/lse_orchestrator.py
+M	backend/astroq/lk_prediction/lse_researcher.py
+M	backend/astroq/lk_prediction/lse_validator.py
+M	backend/astroq/lk_prediction/pipeline.py
+M	backend/astroq/lk_prediction/prediction_translator.py
+M	backend/astroq/lk_prediction/probability_engine.py
+M	backend/astroq/lk_prediction/remedy_engine.py
+M	backend/astroq/lk_prediction/rules_engine.py
+M	backend/astroq/lk_prediction/strength_engine.py
+M	backend/data/api_config.db
+D	backend/generate_test_chart.py
+A	backend/scripts/audit_steve_jobs_20_30.py
+A	backend/scripts/check_false_positives.py
+A	backend/scripts/debug_rules.py
+A	backend/scripts/generate_jobs_audit_db.py
+A	backend/scripts/generate_jobs_domain_audit.py
+A	backend/scripts/run_all_figures_domain_report.py
+M	backend/scripts/run_lse_benchmark_gt.py
+M	backend/scripts/test_lse_person.py
+D	backend/test_chart.py
+D	backend/test_vedic.py
+D	backend/test_vedic_outputs.py
+A	backend/tests/check_pichai_chart.py
+M	backend/tests/lk_prediction/interactive_chart_builder.py
+M	backend/tests/lk_prediction/test_event_classifier.py
+M	backend/tests/lk_prediction/test_lse_researcher.py
+M	backend/tests/lk_prediction/test_lse_validator.py
+A	backend/tests/lk_prediction/test_maturity_rules.py
+A	backend/tests/lk_prediction/test_natal.py
+M	backend/tests/lk_prediction/test_pipeline.py
+A	backend/tests/test_rationales_logic.py
+M	sachin_predictions.json
+A	tmp_input.txt
+
+commit 3a6b4a67c69bbba01766c988b4ec32d808571dfc
+Author: Sachin Badgi <sachin.badgi@gmail.com>
+Date:   Fri Mar 27 00:34:22 2026 +0530
+
+    feat(astroq): implement LSE stabilization, remedies items resolver, and NFR optimizations
+
+M	.antigravity/skills/lk-autoresearch-lse/SKILL.md
+M	.antigravity/skills/lk-autoresearch-lse/memory/decisions.md
+M	.antigravity/skills/lk-autoresearch-lse/memory/learnings.md
+M	.antigravity/skills/lk-autoresearch-lse/memory/progress.md
+M	.antigravity/skills/lk-autoresearch-lse/resources/autoresearch_lse_spec.md
+M	.gitignore
+A	backend/astroq/docs/nfr_optimizations_v1.md
+A	backend/astroq/lk_prediction/api/chart_store.py
+A	backend/astroq/lk_prediction/api/lse_routes.py
+M	backend/astroq/lk_prediction/api/server.py
+A	backend/astroq/lk_prediction/api/tasks.py
+M	backend/astroq/lk_prediction/chart_generator.py
+M	backend/astroq/lk_prediction/data_contracts.py
+M	backend/astroq/lk_prediction/grammar_analyser.py
+A	backend/astroq/lk_prediction/items_resolver.py
+A	backend/astroq/lk_prediction/lse_chart_dna.py
+M	backend/astroq/lk_prediction/lse_orchestrator.py
+M	backend/astroq/lk_prediction/lse_researcher.py
+M	backend/astroq/lk_prediction/pipeline.py
+M	backend/data/api_config.db
+A	backend/data/horoscope_dump.txt
+A	backend/data/public_figures_ground_truth_v2.json
+A	backend/scripts/extract_124_figures.py
+A	backend/scripts/parse_ground_truth_logs.py
+A	backend/scripts/parse_horoscope_dump.py
+A	backend/scripts/run_lse_batch_20.py
+A	backend/scripts/test_lse_person.py
+A	backend/scripts/unify_public_figures.py
+A	backend/tests/lk_prediction/api/test_lse_api.py
+A	backend/tests/lk_prediction/lse_amitabh_bachchan_demo.py
+M	backend/tests/lk_prediction/test_ch19_rules.py
+A	backend/tests/lk_prediction/test_edge_cases.py
+M	backend/tests/lk_prediction/test_grammar_analyser.py
+M	backend/tests/lk_prediction/test_grammar_analyser_complete.py
+A	backend/tests/lk_prediction/test_lse_10_figures_batch.py
+A	backend/tests/lk_prediction/test_lse_chart_dna.py
+A	backend/tests/lk_prediction/test_lse_data_contracts.py
+A	backend/tests/lk_prediction/test_lse_ground_truth_batch.py
+A	backend/tests/lk_prediction/test_lse_integrated_example.py
+A	backend/tests/lk_prediction/test_lse_orchestrator.py
+A	backend/tests/lk_prediction/test_lse_public_figures.py
+A	backend/tests/lk_prediction/test_lse_researcher.py
+A	backend/tests/lk_prediction/test_lse_validator.py
+M	backend/tests/lk_prediction/test_rules_engine.py
+M	frontend/src/__tests__/GeneralChat.test.tsx
+M	frontend/src/__tests__/OracleChat.test.tsx
+M	frontend/src/__tests__/RemedyPanel.test.tsx
+M	frontend/src/components/auth/AuthPage.tsx
+M	frontend/src/components/chart/NatalChart2D.tsx
+M	frontend/src/components/chat/GeneralChat.tsx
+M	frontend/src/components/chat/OracleChat.tsx
+M	frontend/src/components/layout/AppShell.tsx
+M	frontend/src/components/layout/ProfileSidebar.tsx
+M	frontend/src/components/prediction/PredictionDashboard.tsx
+M	frontend/src/components/remedy/RemedyPanel.tsx
+M	frontend/src/index.css
+M	frontend/vite.config.ts
+A	reference-docs/Items of planets.xlsx
+
+commit 65b0eba8a2ad34585e1d16b4065449750300fad3
+Author: Sachin Badgi <sachin.badgi@gmail.com>
+Date:   Thu Mar 26 13:29:33 2026 +0530
+
+    fix(lse): resolve 0% hit rate bugs (domains & age) and optimize orchestrator with 10-figure bench results
+
+M	backend/astroq/lk_prediction/event_classifier.py
+A	backend/astroq/lk_prediction/lse_orchestrator.py
+A	backend/astroq/lk_prediction/lse_researcher.py
+A	backend/astroq/lk_prediction/lse_validator.py
+M	backend/astroq/lk_prediction/pipeline.py
+M	backend/astroq/lk_prediction/prediction_translator.py
+A	backend/scripts/run_lse_benchmark_gt.py
+
+commit 0b79d5b92dab15cc39c9db4e40f0aae0ecf3437d
+Author: Sachin Badgi <sachin.badgi@gmail.com>
+Date:   Tue Mar 24 00:51:59 2026 +0530
+
+    snapshot: pre-autoresearch-lse implementation baseline
+    
+    - Add lk-autoresearch-lse skill (SKILL.md, spec, memory)
+    - Add .gitignore (node_modules excluded going forward)
+    - Add backend/astroq/lk_prediction/api/ layer
+    - Add test files: test_chart_systems, test_masnui_*
+    - Modified: grammar_analyser, rules_engine, chart_generator
+    - Modified: lk_prediction_model_v2.md (ch19 health rules)
+
+M	.gitignore
+
+commit 8bcae17926686356782f6c2d07a3a78c2fe1aa72
+Author: Sachin Badgi <sachin.badgi@gmail.com>
+Date:   Tue Mar 24 00:46:07 2026 +0530
+
+    snapshot: pre-autoresearch-lse implementation baseline
+    
+    - Add lk-autoresearch-lse skill (SKILL.md, spec, memory files)
+    - Add astroq-react-ui skill
+    - Add frontend/ React UI
+    - Add backend API layer (api/)
+    - Add start_servers.bat
+    - Add test files: test_chart_lagn_map, test_chart_systems, test_masnui_*
+    - Modified: grammar_analyser, rules_engine, chart_generator (recent fixes)
+    - Modified: lk_prediction_model_v2.md with ch19 health rules
+
+A	.antigravity/skills/astroq-react-ui/SKILL.md
+A	.antigravity/skills/astroq-react-ui/memory/decisions.md
+A	.antigravity/skills/astroq-react-ui/memory/learnings.md
+A	.antigravity/skills/astroq-react-ui/memory/progress.md
+A	.antigravity/skills/astroq-react-ui/resources/ui_design_model.md
+A	.antigravity/skills/lk-autoresearch-lse/SKILL.md
+A	.antigravity/skills/lk-autoresearch-lse/memory/decisions.md
+A	.antigravity/skills/lk-autoresearch-lse/memory/learnings.md
+A	.antigravity/skills/lk-autoresearch-lse/memory/progress.md
+A	.antigravity/skills/lk-autoresearch-lse/resources/autoresearch_lse_spec.md
+M	.antigravity/skills/lk-prediction-model/memory/learnings.md
+M	.antigravity/skills/lk-prediction-model/resources/lk_prediction_model_v2.md
+A	backend/astroq/lk_prediction/api/__init__.py
+A	backend/astroq/lk_prediction/api/server.py
+M	backend/astroq/lk_prediction/chart_generator.py
+M	backend/astroq/lk_prediction/grammar_analyser.py
+M	backend/astroq/lk_prediction/rules_engine.py
+A	backend/data/api_config.db
+A	backend/test_chart.py
+A	backend/test_vedic.py
+A	backend/test_vedic_outputs.py
+A	backend/tests/lk_prediction/test_chart_lagn_map.py
+A	backend/tests/lk_prediction/test_chart_systems.py
+A	backend/tests/lk_prediction/test_masnui_comprehensive.py
+A	backend/tests/lk_prediction/test_masnui_integration.py
+A	backend/tests/verify_lk_houses.py
+A	frontend/.gitignore
+A	frontend/README.md
+A	frontend/eslint.config.js
+A	frontend/index.html
+A	frontend/package-lock.json
+A	frontend/package.json
+A	frontend/public/favicon.svg
+A	frontend/public/icons.svg
+A	frontend/src/App.css
+A	frontend/src/App.tsx
+A	frontend/src/__tests__/AuthPage.test.tsx
+A	frontend/src/__tests__/BenchmarkDashboard.test.tsx
+A	frontend/src/__tests__/ChartForm.test.tsx
+A	frontend/src/__tests__/GeneralChat.test.tsx
+A	frontend/src/__tests__/NatalChart2D.test.tsx
+A	frontend/src/__tests__/OracleChat.test.tsx
+A	frontend/src/__tests__/PredictionDashboard.test.tsx
+A	frontend/src/__tests__/RemedyPanel.test.tsx
+A	frontend/src/__tests__/setup.ts
+A	frontend/src/api/client.ts
+A	frontend/src/assets/hero.png
+A	frontend/src/assets/react.svg
+A	frontend/src/assets/vite.svg
+A	frontend/src/components/auth/AuthPage.tsx
+A	frontend/src/components/benchmark/BenchmarkDashboard.tsx
+A	frontend/src/components/chart/ChartForm.tsx
+A	frontend/src/components/chart/NatalChart2D.tsx
+A	frontend/src/components/chat/GeneralChat.tsx
+A	frontend/src/components/chat/OracleChat.tsx
+A	frontend/src/components/layout/AppShell.tsx
+A	frontend/src/components/layout/ProfileSidebar.tsx
+A	frontend/src/components/prediction/PredictionDashboard.tsx
+A	frontend/src/components/remedy/RemedyPanel.tsx
+A	frontend/src/hooks/useSSE.ts
+A	frontend/src/index.css
+A	frontend/src/main.tsx
+A	frontend/tsconfig.app.json
+A	frontend/tsconfig.json
+A	frontend/tsconfig.node.json
+A	frontend/vite.config.ts
+A	start_servers.bat
+
+commit fa286dcbbe67109c8ec9dc28bd7bd11bba1b791a
+Author: Sachin Badgi <sachin.badgi@gmail.com>
+Date:   Tue Mar 24 00:27:51 2026 +0530
+
+    feat(lk_prediction): Integrate Lal Kitab Chapter 19 Health Rules and update model docs
+
+M	backend/data/rules.db
+A	backend/scripts/add_gosvami_ch19_rules.py
+A	backend/scripts/debug_pipeline_enrichment.py
+A	backend/scripts/verify_ch19_pipeline.py
+A	backend/tests/lk_prediction/test_ch19_rules.py
+M	reference-docs/lk_prediction_model_v2.md
+
+commit f3de9291d5d7498bdefbfa637d7d7c0af3ce69e0
+Author: Sachin Badgi <sachin.badgi@gmail.com>
+Date:   Sun Mar 22 16:46:41 2026 +0530
+
+    feat: Add comprehensive deterministic rules from Gosvami Chapters 16-19
+
+M	backend/data/rules.db
+A	backend/scripts/add_gosvami_ch16_19_rules.py
+A	backend/scripts/add_gosvami_comprehensive.py
+A	backend/scripts/extract_with_gemini.py
+M	backend/tests/lk_prediction/test_rules_engine.py
+A	lk_ch16_19.txt
+A	reference-docs/implementation_plan5.md
+M	reference-docs/lk_prediction_model_v2.md
+A	temp_ch16_19.pdf
+
+commit e780cc0ecb40dc39e2b1b5f0c0f6b9f2522486cf
+Author: Sachin Badgi <sachin.badgi@gmail.com>
+Date:   Sun Mar 22 15:52:26 2026 +0530
+
+    feat(remedy): implement Chapter 8 (Goswami 1952) alignment, birth-day remedies, Mars-special hints and Kendra priority sorting
+
+M	backend/astroq/lk_prediction/pipeline.py
+M	backend/astroq/lk_prediction/prediction_translator.py
+M	backend/astroq/lk_prediction/remedy_engine.py
+M	backend/data/model_defaults.json
+M	backend/tests/lk_prediction/test_remedy_engine.py
+M	backend/tests/lk_prediction/test_remedy_integration.py
+A	reference-docs/implementation_plan2.md
+A	reference-docs/implementation_plan3.md
+A	reference-docs/implementation_plan4.md
+A	reference-docs/planet_shifting_remedies_analysis.md
+A	sachin_predictions.json
+
+commit dde967b3780c605a745b3a84d1cf03ea6d6508ca
+Author: Sachin Badgi <sachin.badgi@gmail.com>
+Date:   Sun Mar 22 14:49:06 2026 +0530
+
+    feat: implement lk-remedies-module with TDD, pipeline integration, and enhanced interactive chart builder
+
+A	.antigravity/skills/lk-remedies-module/SKILL.md
+A	.antigravity/skills/lk-remedies-module/memory/decisions.md
+A	.antigravity/skills/lk-remedies-module/memory/learnings.md
+A	.antigravity/skills/lk-remedies-module/memory/progress.md
+A	.antigravity/skills/lk-remedies-module/resources/lk_remedies_module_spec.md
+M	backend/astroq/lk_prediction/pipeline.py
+M	backend/astroq/lk_prediction/prediction_translator.py
+M	backend/astroq/lk_prediction/probability_engine.py
+A	backend/astroq/lk_prediction/remedy_engine.py
+M	backend/data/model_defaults.json
+M	backend/tests/lk_prediction/interactive_chart_builder.py
+A	backend/tests/lk_prediction/test_remedy_engine.py
+A	backend/tests/lk_prediction/test_remedy_integration.py
+A	backend/tests/lk_prediction/test_remedy_tvp_integration.py
+
+commit 4ca156495dd5ec6105dd442731fabd1c9699548c
+Author: Sachin Badgi <sachin.badgi@gmail.com>
+Date:   Sun Mar 22 12:32:27 2026 +0530
+
+    chore(docs): sync model spec and benchmark learnings with current implementation
+
+M	.antigravity/skills/lk-benchmark-tuning/memory/learnings.md
+M	.antigravity/skills/lk-prediction-model/resources/lk_prediction_model_v2.md
+
+commit ccf5040db2d964c68d1f3df04013e500f371d990
+Author: Sachin Badgi <sachin.badgi@gmail.com>
+Date:   Sun Mar 22 12:30:32 2026 +0530
+
+    chore(docs): Update Lal Kitab Prediction Model v2 specification and Interactive Chart Builder output filters
+
+M	backend/astroq/lk_prediction/config_tuner.py
+M	backend/astroq/lk_prediction/rules_engine.py
+M	backend/data/model_defaults_tuned.json
+A	backend/data/rules.db
+A	backend/data/temp_tuner.db
+M	backend/sachin_chart.json
+A	backend/sachin_predictions.json
+A	backend/scripts/check_old_db.py
+A	backend/scripts/migrate_rules.py
+A	backend/scripts/migrate_sqlite_rules.py
+M	backend/tests/lk_prediction/interactive_chart_builder.py
+
+commit fcd6fc595005209848a1bcc536533be17644bf89
+Author: Sachin Badgi <sachin.badgi@gmail.com>
+Date:   Sun Mar 22 03:55:04 2026 +0530
+
+    Add benchmark & tuning skill with 10 core public figures data
+
+A	.antigravity/skills/lk-benchmark-tuning/SKILL.md
+A	.antigravity/skills/lk-benchmark-tuning/memory/decisions.md
+A	.antigravity/skills/lk-benchmark-tuning/memory/learnings.md
+A	.antigravity/skills/lk-benchmark-tuning/memory/progress.md
+A	.antigravity/skills/lk-benchmark-tuning/resources/benchmark_spec.md
+A	backend/astroq/lk_prediction/benchmark_runner.py
+A	backend/astroq/lk_prediction/config_tuner.py
+A	backend/data/model_defaults_tuned.json
+A	backend/data/public_figures_ground_truth.json
+A	backend/tests/data/public_figures/amitabh_bachchan_enriched_chart.json
+A	backend/tests/data/public_figures/bill_gates_enriched_chart.json
+A	backend/tests/data/public_figures/elon_musk_enriched_chart.json
+A	backend/tests/data/public_figures/indira_gandhi_enriched_chart.json
+A	backend/tests/data/public_figures/michael_jackson_enriched_chart.json
+A	backend/tests/data/public_figures/narendra_modi_enriched_chart.json
+A	backend/tests/data/public_figures/princess_diana_enriched_chart.json
+A	backend/tests/data/public_figures/sachin_tendulkar_enriched_chart.json
+A	backend/tests/data/public_figures/shah_rukh_khan_enriched_chart.json
+A	backend/tests/data/public_figures/steve_jobs_enriched_chart.json
+A	backend/tests/lk_prediction/test_benchmark.py
+
+commit 3bd76aa4e36d00753fa45cc7c0ed390807d32080
+Author: Sachin Badgi <sachin.badgi@gmail.com>
+Date:   Sun Mar 22 03:13:41 2026 +0530
+
+    feat(lk): implement complete grammar features with TDD
+    
+    - Mangal Badh: complete 17-rule system (13 increments + 4 decrements)
+      from Mars_special_rules.py reference
+    - Disposition rules: 16+ rules applied to strength_total after sleeping
+      step (Good rules still contribute to sleeping planets)
+    - BilMukabil: correct 3-step detection — natural friends + significant
+      aspect (100/50/25%) + enemy in foundational house of the other
+    - Sleeping planet: uses canonical HOUSE_ASPECT_MAP instead of
+      len(aspects) > 0 check
+    - Mangal Badh divisor: corrected from 5.0 to 16.0 per reference formula
+    - Adjustment order: Kaayam/Dharmi before sleeping; dispositions after
+    - Per-planet Rin debts: each debt tracks to its triggering planet only
+    - _build_per_planet_rin helper method added
+    
+    Tests: 72/72 pass (13 new TDD tests in test_grammar_analyser_complete.py,
+    6 existing tests corrected to match new correct semantics)
+
+M	.antigravity/skills/lk-prediction-model/resources/lk_prediction_model_v2.md
+M	backend/astroq/lk_prediction/grammar_analyser.py
+M	backend/tests/lk_prediction/test_grammar_analyser.py
+A	backend/tests/lk_prediction/test_grammar_analyser_complete.py
+
+commit 7e115514a9249feb3d16bca76a7c8b9ea10a0ed1
+Author: Sachin Badgi <sachin.badgi@gmail.com>
+Date:   Sun Mar 22 02:30:11 2026 +0530
+
+    Initialize astroq-v2 with completed LK Prediction Model v2 modules and grammar detectors
+
+A	.antigravity/skills/lk-prediction-model/SKILL.md
+A	.antigravity/skills/lk-prediction-model/memory/decisions.md
+A	.antigravity/skills/lk-prediction-model/memory/learnings.md
+A	.antigravity/skills/lk-prediction-model/memory/progress.md
+A	.antigravity/skills/lk-prediction-model/resources/lk_prediction_model_v2.md
+A	.gitignore
+A	backend/astroq/__init__.py
+A	backend/astroq/lk_prediction/__init__.py
+A	backend/astroq/lk_prediction/chart_generator.py
+A	backend/astroq/lk_prediction/config.py
+A	backend/astroq/lk_prediction/data_contracts.py
+A	backend/astroq/lk_prediction/event_classifier.py
+A	backend/astroq/lk_prediction/grammar_analyser.py
+A	backend/astroq/lk_prediction/pipeline.py
+A	backend/astroq/lk_prediction/prediction_translator.py
+A	backend/astroq/lk_prediction/probability_engine.py
+A	backend/astroq/lk_prediction/rules_engine.py
+A	backend/astroq/lk_prediction/strength_engine.py
+A	backend/data/model_defaults.json
+A	backend/data/test_config.db
+A	backend/generate_test_chart.py
+A	backend/sachin_chart.json
+A	backend/test_output.json
+A	backend/tests/__init__.py
+A	backend/tests/lk_prediction/__init__.py
+A	backend/tests/lk_prediction/conftest.py
+A	backend/tests/lk_prediction/interactive_chart_builder.py
+A	backend/tests/lk_prediction/test_chart_generator.py
+A	backend/tests/lk_prediction/test_config.py
+A	backend/tests/lk_prediction/test_event_classifier.py
+A	backend/tests/lk_prediction/test_grammar_analyser.py
+A	backend/tests/lk_prediction/test_pipeline.py
+A	backend/tests/lk_prediction/test_prediction_translator.py
+A	backend/tests/lk_prediction/test_probability_engine.py
+A	backend/tests/lk_prediction/test_rules_engine.py
+A	backend/tests/lk_prediction/test_strength_engine.py
+A	reference-docs/Jyotish_Lal Kitab_B.M. Gosvami 1952.pdf
+A	reference-docs/implementation_plan.md
+A	reference-docs/lk_prediction_model_v2.md

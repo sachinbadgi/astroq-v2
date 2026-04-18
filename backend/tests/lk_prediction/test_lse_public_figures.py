@@ -119,7 +119,7 @@ def test_lse_albert_einstein_authentic(mock_cfg_and_engine):
     result = orchestrator.solve_chart(birth_chart, annual_charts, life_events, figure_id="einstein")
     assert result.converged
     assert result.chart_dna.delay_constants.get("delay.sun_h1") == 20.0
-    assert result.chart_dna.delay_constants.get("delay.venus_h10") == 10.0
+    assert result.chart_dna.milestone_alignments.get("align.venus_h10") == 36
 
 
 def test_lse_gandhi_authentic(mock_cfg_and_engine):
@@ -155,7 +155,7 @@ def test_lse_gandhi_authentic(mock_cfg_and_engine):
 
     result = orchestrator.solve_chart(birth_chart, annual_charts, life_events, figure_id="gandhi")
     assert result.converged
-    assert result.chart_dna.delay_constants.get("delay.jupiter_h2") == 24.0
+    assert result.chart_dna.milestone_alignments.get("align.jupiter_h2") == 42
     assert result.chart_dna.delay_constants.get("delay.saturn_h4") == 43.0
 
 

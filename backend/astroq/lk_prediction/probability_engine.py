@@ -10,9 +10,11 @@ and distance correction (Dcorr).
 from __future__ import annotations
 
 import math
-from typing import Any
+from typing import Any, Dict, List, Optional
 
 from astroq.lk_prediction.config import ModelConfig
+from astroq.lk_prediction.data_contracts import ClassifiedEvent
+from astroq.lk_prediction.lk_constants import PLANET_EFFECTIVE_AGES, get_35_year_ruler, FRIENDS
 
 
 class ProbabilityEngine:
@@ -28,13 +30,13 @@ class ProbabilityEngine:
         c = self._cfg
         # Adaptive K
         self.adaptive_k = c.get("probability.adaptive_k_active", fallback=True)
-        self.base_k = c.get("probability.base_k", fallback=1.2)
-        self.max_k = c.get("probability.max_k", fallback=3.0)
-        self.k_scale = c.get("probability.k_scale_factor", fallback=0.2)
+        self.base_k = c.get("probability.base_k", fallback=4.5) # Sharp sigmoid slope
+        self.max_k = c.get("probability.max_k", fallback=6.0)
+        self.k_scale = c.get("probability.k_scale_factor", fallback=0.5)
         
         # Ea Propensity
-        self.ea_base = c.get("probability.ea_base", fallback=0.5)
-        self.ea_weight = c.get("probability.ea_weighting", fallback=0.05)
+        self.ea_base = c.get("probability.ea_base", fallback=0.25) # Lowered from 0.5
+        self.ea_weight = c.get("probability.ea_weighting", fallback=0.08) # Increased sensitivity
         self.ea_max = c.get("probability.ea_max", fallback=0.95)
         self.ea_min = c.get("probability.ea_min", fallback=0.05)
         
@@ -69,10 +71,6 @@ class ProbabilityEngine:
 
     def _calculate_tvp_modifier(self, planet: str, age: int) -> float:
         """Calculate Tvp (Timing Delivery Rule) multiplier based on planet maturity age."""
-        # LK standard delivering ages mapping:
-        # Jupiter: 16-21, Sun: 22-23, Moon: 24, Venus: 25-27, Mars: 28-33, Mercury: 34-35
-        # Saturn: 36-39, Rahu: 42-47, Ketu: 48-54
-        
         active_ranges = {
             "Jupiter": (16, 21),
             "Sun": (22, 23),
@@ -85,16 +83,35 @@ class ProbabilityEngine:
             "Ketu": (48, 54)
         }
         
-        if planet not in active_ranges:
-            return 1.0
+        planet_key = planet.capitalize()
+        modifier = 1.0
+        
+        # 1. Standard Lal Kitab Maturity Window
+        if planet_key in active_ranges:
+            start, end = active_ranges[planet_key]
+            if start <= age <= end:
+                modifier *= self.tvp_boost
+            elif abs(age - start) > 10:
+                modifier *= self.tvp_penalty
+
+        # 2. Competitive Tie-breaker (Targeted Maturity Peak)
+        # Apply an aggressive boost if the age matches the planet's exact maturity age
+        maturity_age = PLANET_EFFECTIVE_AGES.get(planet_key, 0)
+        if maturity_age > 0 and abs(age - maturity_age) <= 1:
+            # An aggressive boost to resolve tie-breaking issues in Top-3 ranking
+            modifier *= 5.0
             
-        start, end = active_ranges[planet]
-        if start <= age <= end:
-            return self.tvp_boost
-        else:
-            # For testing, we just return neutral or penalty if completely outside.
-            # Many models use 1.0 unless specific penalty conditions are met. 
-            return self.tvp_penalty if (abs(age - start) > 10) else 1.0
+        # 3. 35-Year Cycle Ruler Synergy (Core Timing Sharpener)
+        # Fetch the ruling planet for this specific year of life
+        cycle_ruler = get_35_year_ruler(age)
+        if cycle_ruler:
+            # If the cycle ruler is the planet itself, or a best friend, boost it!
+            if cycle_ruler == planet_key:
+                modifier *= 2.0  # Double magnitude for the cycle owner
+            elif cycle_ruler in FRIENDS.get(planet_key, []):
+                modifier *= 1.5  # 50% boost for friendly cycles
+            
+        return round(modifier, 4)
 
     def _calculate_dcorr(self, age: int) -> float:
         """Distance correction: Late in the 75-year life cycle, events damp down."""

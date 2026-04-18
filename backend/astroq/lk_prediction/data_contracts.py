@@ -225,6 +225,8 @@ class GapReport(TypedDict, total=False):
     domain_fp_counts: dict[str, int] # per-domain false positive counts
     contradictions: list[str]  # events with NO matching prediction domain
     false_positives: list[str] # raw prediction texts that were unused
+    top_3_hit_rate: float      # Competitive Hit Rate (Actual age in Top 3 highest peaks)
+    domain_top_3_scores: dict[str, float]
 
 
 

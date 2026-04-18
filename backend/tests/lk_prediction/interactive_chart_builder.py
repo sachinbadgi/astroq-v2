@@ -159,11 +159,12 @@ def main():
             if remedied:
                 print(f"    [Remedies Generated for {len(remedied)} malefic events!]")
                 for i, p in enumerate(remedied[:2]): 
-                    msg = p.remedy_hints[0] if p.remedy_hints else "(No high-priority shifting recommended this year)"
                     planet_name = p.source_planets[0] if p.source_planets else "Unknown"
-                    print(f"      * {planet_name}: {msg}")
+                    print(f"      * {planet_name}:")
+                    for hint in p.remedy_hints:
+                        print(f"        - {hint}")
                 if len(remedied) > 2:
-                    print(f"      * ...and {len(remedied)-2} more.")
+                    print(f"      * ...and {len(remedied)-2} more planet events.")
             
             # Map predictions to dict
             output_data["predictions_by_age"][f"age_{age}"] = [p.__dict__ for p in predictions]
@@ -192,7 +193,10 @@ def main():
                 scores = domain_audit_results[age]
                 row = f"{age:3} | "
                 for d in sorted_domains:
-                    score = scores.get(d, 0.0)
+                    domain_result = scores.get(d, {})
+                    # Handle both legacy flat scores and new detailed dicts
+                    score = domain_result.get("score", 0.0) if isinstance(domain_result, dict) else float(domain_result or 0.0)
+                    
                     # ASCII-friendly indicators for terminal compatibility
                     bar = "*" if score > 0.7 else "o" if score > 0.4 else " "
                     row += f"{score:0.2f}{bar} | "

@@ -191,6 +191,30 @@ class ResearcherAgent:
                     "target_house": 9
                 }
 
+        # 8. Mercury in H8 (Disease/Debt)
+        if mer.get("house") == 8:
+            if domain in ["health", "career"] and ("Mercury" in source_planets or not source_planets):
+                return {
+                    "condition_name": "Mercury in H8 (Disease)",
+                    "logic": "Mercury in 8th acts maliciously, bringing sudden long-term diseases or debts around its maturity age (34).",
+                    "suggested_offset": 0.0,
+                    "suggested_alignment": 34,
+                    "target_planet": "Mercury",
+                    "target_house": 8
+                }
+
+        # 8b. Saturn in H8 (Longevity/Injury)
+        if sat.get("house") == 8:
+            if domain in ["health", "death", "longevity"] and ("Saturn" in source_planets or not source_planets):
+                return {
+                    "condition_name": "Saturn in H8 (Longevity/Injury)",
+                    "logic": "Saturn in H8 governs the span of life and physical crises, maturing at age 36.",
+                    "suggested_offset": 0.0,
+                    "suggested_alignment": 36,
+                    "target_planet": "Saturn",
+                    "target_house": 8
+                }
+
         # 6. Saturn in H4 (Snake in Water)
         # Rule: Property at age 36. Impact on family sickness.
         if sat.get("house") == 4:
@@ -405,21 +429,24 @@ class ResearcherAgent:
                     planet = rationale.get("target_planet") or "Generic"
                     house = rationale.get("target_house") or 0
                     
-                    if rationale.get("suggested_alignment"):
+                    target_alignment = rationale.get("suggested_alignment")
+                    actual_event_age = entry["life_event"]["age"]
+                    
+                    if target_alignment is not None and abs(actual_event_age - target_alignment) <= 2.0:
                         key = f"align.{planet.lower()}_h{house}"
                         hypotheses.append({
                             "type": "Alignment",
                             "key": key,
-                            "value": int(rationale["suggested_alignment"]),
+                            "value": int(target_alignment),
                             "rationale": f"{rationale['condition_name']}: {rationale['logic']}",
-                            "target_age": int(rationale["suggested_alignment"])
+                            "target_age": int(target_alignment)
                         })
                     else:
                         key = f"delay.{planet.lower()}_h{house}"
                         hypotheses.append({
                             "type": "Delay",
                             "key": key,
-                            "value": float(rationale["suggested_offset"]),
+                            "value": float(actual_event_age - entry["predicted_peak_age"]),
                             "rationale": f"{rationale['condition_name']}: {rationale['logic']}",
                             "target_age": None
                         })

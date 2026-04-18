@@ -67,7 +67,7 @@
         "age_4_5": 0.50
     },
 
-    "classifier.threshold_absolute": 0.70,
+    "classifier.threshold_absolute": 0.85,
     "classifier.threshold_delta": 0.25,
 
     "translator.confidence_thresholds": {

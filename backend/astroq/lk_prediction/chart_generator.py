@@ -348,6 +348,155 @@ class ChartGenerator:
             
         return states
 
+    # ------------------------------------------------------------------
+    # Sub-Year Chart Generation (Goswami 1952, pp. 234-235)
+    # ------------------------------------------------------------------
+    # Rule: Each finer-resolution chart is derived from its parent by
+    # rotating the parent chart so that a specific "clock planet" defines
+    # the new House 1, shifting all other planets proportionally.
+    #
+    # Clock planets by resolution:
+    #   Monthly  → Sun      (Sun's house becomes H1)
+    #   Weekly   → Venus    (Venus's house becomes H1)
+    #   Daily    → Mars     (count days-elapsed from Mars's house)
+    #   Hourly   → Jupiter  (count hours from Jupiter's house)
+    #   Night    → Rahu     (rotate so Rahu lands on H2/its HQ)
+    #   Day      → Ketu     (rotate so Ketu lands on H2)
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _rotate_chart(parent_chart: dict, rotation: int, chart_type: str, chart_label: str) -> dict:
+        """
+        Rotate all planet houses in parent_chart by `rotation` positions.
+
+        rotation = (clock_planet_house - 1), making clock planet's house → H1.
+        new_house = ((old_house - 1 - rotation) % 12) + 1
+
+        Args:
+            parent_chart: The parent ChartData dict to rotate from.
+            rotation: Number of house positions to shift left (0-indexed offset).
+            chart_type: The chart_type string for the new chart.
+            chart_label: Human-readable label stored in the returned dict.
+
+        Returns:
+            A new ChartData dict with rotated planet positions and recomputed states.
+        """
+        import copy
+        child = copy.deepcopy(parent_chart)
+        child["chart_type"] = chart_type
+        child["chart_label"] = chart_label
+
+        new_planets: dict = {}
+        for planet, p_data in parent_chart.get("planets_in_houses", {}).items():
+            p_copy = p_data.copy()
+            if planet == "Asc":
+                p_copy["house"] = 1
+            else:
+                old_house = p_data.get("house", 1)
+                p_copy["house"] = ((old_house - 1 - rotation) % 12) + 1
+                # Recompute dignity states for new house position
+                p_copy["states"] = ChartGenerator._detect_states_static(planet, p_copy["house"])
+            new_planets[planet] = p_copy
+
+        child["planets_in_houses"] = new_planets
+        return child
+
+    @staticmethod
+    def _detect_states_static(planet: str, house: int) -> list:
+        """Static version of state detection for use inside rotation helpers."""
+        from astroq.lk_prediction.constants import (
+            PLANET_EXALTATION, PLANET_DEBILITATION, FIXED_HOUSE_LORDS
+        )
+        states = []
+        if planet in PLANET_EXALTATION and house in PLANET_EXALTATION[planet]:
+            states.append("Exalted")
+        if planet in PLANET_DEBILITATION and house in PLANET_DEBILITATION[planet]:
+            states.append("Debilitated")
+        if house in FIXED_HOUSE_LORDS and planet in FIXED_HOUSE_LORDS[house]:
+            states.append("Fixed House Lord")
+        return states
+
+    def generate_monthly_chart(self, annual_chart: dict, month_number: int = 1) -> dict:
+        """
+        Derive the Monthly chart from an Annual chart.
+
+        Source: Goswami 1952 p.234 — "for monthly chart move the chart as per the Sun"
+
+        The house where Sun sits in the Annual chart becomes the new House 1.
+        All planets rotate accordingly.
+
+        Args:
+            annual_chart: A Yearly ChartData dict (output of generate_annual_charts).
+            month_number: Month index within the annual year (1-12, for metadata only).
+
+        Returns:
+            A new ChartData dict with chart_type = "Monthly".
+        """
+        sun_house = annual_chart.get("planets_in_houses", {}).get("Sun", {}).get("house", 1)
+        rotation = sun_house - 1  # shift so Sun's house → H1
+
+        child = self._rotate_chart(annual_chart, rotation, "Monthly", f"Month {month_number}")
+        child["chart_period_month"] = month_number
+        child["chart_period"] = annual_chart.get("chart_period", 0)
+        child["monthly_rotation"] = rotation
+        child["monthly_sun_natal_house"] = sun_house
+        return child
+
+    def generate_daily_chart(self, monthly_chart: dict, days_elapsed: int) -> dict:
+        """
+        Derive the Daily chart from a Monthly chart.
+
+        Source: Goswami 1952 p.235 — "for daily chart move Mars"
+        "If 17 houses are counted from the house where Mars is posited, it comes to H.No.6"
+
+        Algorithm:
+            daily_mars_house = ((mars_house - 1 + days_elapsed) % 12) + 1
+            rotation = daily_mars_house - 1  (so Mars's new house becomes H1)
+
+        Args:
+            monthly_chart: A Monthly ChartData dict (output of generate_monthly_chart).
+            days_elapsed: Number of days elapsed in the current month (1-31).
+
+        Returns:
+            A new ChartData dict with chart_type = "Daily".
+        """
+        mars_house = monthly_chart.get("planets_in_houses", {}).get("Mars", {}).get("house", 1)
+        # Count (days_elapsed - 1) positions from Mars's house (0-indexed, verified vs book example)
+        # Book: Mars H2, 17 days elapsed → H6: ((2-1+16) % 12)+1 = 6 ✓
+        daily_mars_house = ((mars_house - 1 + days_elapsed - 1) % 12) + 1
+        rotation = daily_mars_house - 1  # Mars's computed house → H1
+
+        child = self._rotate_chart(monthly_chart, rotation, "Daily", f"Day {days_elapsed}")
+        child["chart_period_day"] = days_elapsed
+        child["chart_period"] = monthly_chart.get("chart_period", 0)
+        child["daily_rotation"] = rotation
+        child["daily_mars_house"] = daily_mars_house
+        return child
+
+    def generate_hourly_chart(self, daily_chart: dict, hour: int) -> dict:
+        """
+        Derive the Hourly chart from a Daily chart.
+
+        Source: Goswami 1952 p.235 — "for hourly chart move Jupiter"
+        "considering Jupiter as house No.1 then Jupiter goes to H.No.6 for hourly chart"
+
+        Args:
+            daily_chart: A Daily ChartData dict (output of generate_daily_chart).
+            hour: The hour of day (0-23).
+
+        Returns:
+            A new ChartData dict with chart_type = "Hourly".
+        """
+        jupiter_house = daily_chart.get("planets_in_houses", {}).get("Jupiter", {}).get("house", 1)
+        # Count (hour - 1) positions from Jupiter's house (0-indexed; hour=1 means no shift)
+        hourly_jupiter_house = ((jupiter_house - 1 + max(0, hour - 1)) % 12) + 1
+        rotation = hourly_jupiter_house - 1
+
+        child = self._rotate_chart(daily_chart, rotation, "Hourly", f"Hour {hour}")
+        child["chart_period_hour"] = hour
+        child["chart_period"] = daily_chart.get("chart_period", 0)
+        return child
+
     def build_full_chart_payload(self, dob_str: str, tob_str: str, place_name: str,
                                  latitude: float = 0.0, longitude: float = 0.0,
                                  utc_string: str = "+05:30", chart_system: str = "kp",

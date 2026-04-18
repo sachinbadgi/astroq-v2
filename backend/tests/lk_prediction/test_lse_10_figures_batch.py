@@ -22,7 +22,7 @@ def mock_cfg_and_engine(tmp_path):
     return cfg, engine
 
 
-def run_lse_batch_test(orchestrator, birth_chart, life_events, figure_id, expected_delays, benchmarks):
+def run_lse_batch_test(orchestrator, birth_chart, life_events, figure_id, expected_delays, benchmarks, expected_aligns=None):
     def mock_run_pipeline(birth, annual, fig):
         preds = []
         for domain, bench, planet in benchmarks:
@@ -39,6 +39,9 @@ def run_lse_batch_test(orchestrator, birth_chart, life_events, figure_id, expect
     assert result.converged
     for key, val in expected_delays.items():
         assert result.chart_dna.delay_constants.get(key) == val
+    if expected_aligns:
+        for key, val in expected_aligns.items():
+            assert result.chart_dna.milestone_alignments.get(key) == val
 
 
 # --- ORIGINAL 5 ---
@@ -55,16 +58,18 @@ def test_lse_batch_einstein(mock_cfg_and_engine):
     run_lse_batch_test(LSEOrchestrator(mock_cfg_and_engine[0]),
         {"planets_in_houses": {"Sun": {"house": 1}, "Mars": {"house": 8}, "Venus": {"house": 10}}},
         [{"age": 42.0, "domain": "Career", "description": "Nobel"}, {"age": 35.0, "domain": "marriage", "description": "M2"}],
-        "einstein", {"delay.sun_h1": 20.0, "delay.venus_h10": 10.0},
-        [("Career", 22, "Sun"), ("marriage", 25, "Venus")]
+        "einstein", {"delay.sun_h1": 20.0},
+        [("Career", 22, "Sun"), ("marriage", 25, "Venus")],
+        expected_aligns={"align.venus_h10": 36}
     )
 
 def test_lse_batch_gandhi(mock_cfg_and_engine):
     run_lse_batch_test(LSEOrchestrator(mock_cfg_and_engine[0]),
         {"planets_in_houses": {"Jupiter": {"house": 2}, "Rahu": {"house": 2}, "Saturn": {"house": 4}}},
         [{"age": 40.0, "domain": "Career", "description": "Peak"}, {"age": 79.0, "domain": "health", "description": "Death"}],
-        "gandhi", {"delay.jupiter_h2": 24.0, "delay.saturn_h4": 43.0},
-        [("Career", 16, "Jupiter"), ("health", 36, "Saturn")]
+        "gandhi", {"delay.saturn_h4": 43.0},
+        [("Career", 16, "Jupiter"), ("health", 36, "Saturn")],
+        expected_aligns={"align.jupiter_h2": 42}
     )
 
 def test_lse_batch_indira(mock_cfg_and_engine):

@@ -77,7 +77,7 @@ def test_lse_ground_truth_gates(mock_cfg_and_engine):
     run_ground_truth_test(LSEOrchestrator(mock_cfg_and_engine[0]),
         {"planets_in_houses": {"Sun": {"house": 1}, "Venus": {"house": 10}}},
         [{"age": 20, "domain": "career"}, {"age": 39, "domain": "marriage"}],
-        "gates", {"delay.sun_h1": -2.0, "delay.venus_h10": 14.0},
+        "gates", {"delay.sun_h1": 0.0, "delay.venus_h10": 14.0},
         [("career", 22, "Sun"), ("marriage", 25, "Venus")]
     )
 

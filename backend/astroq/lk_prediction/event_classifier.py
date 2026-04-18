@@ -42,6 +42,15 @@ DOMAIN_MAP = {
     "Rahu": ["Foreign", "Sudden Events", "Obsession"],
     "Ketu": ["Spirituality", "Detachment", "Sudden Endings"]
 }
+ 
+# Historical windows to suppress biological/social impossibility noise
+DOMAIN_AGE_GATES = {
+    "Marriage": (15, 60),
+    "Profession": (16, 75),
+    "Career": (16, 75),
+    "Children": (18, 55),
+    "Progeny": (18, 55),
+}
 
 
 class EventClassifier:
@@ -117,6 +126,17 @@ class EventClassifier:
                 source_planets=[planet],
                 source_houses=[house]
             )
+            
+            # 3.1 Age Gating Suppression
+            for d in ce.domains:
+                if d in DOMAIN_AGE_GATES:
+                    min_age, max_age = DOMAIN_AGE_GATES[d]
+                    if age < min_age or age > max_age:
+                        # Apply a 90% penalty to unlikely ages. 
+                        # This keeps them in the system but pushes them out of the Top-3.
+                        ce.probability *= 0.1
+                        ce.magnitude *= 0.1
+            
             raw_classified.append(ce)
             
         # 4. Domain Collapsing (Reduction of False Positives)

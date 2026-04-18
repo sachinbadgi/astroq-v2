@@ -22,55 +22,8 @@ from astroq.lk_prediction.items_resolver import LKItemsResolver
 from astroq.lk_prediction.physics_engine import PhysicsEngine
 import math
 
-class DempsterShaferAggregator:
-    """
-    Implements Dempster-Shafer Theory (DST) for combining conflicting evidence.
-    Refines scores from 'Simple Addition' to 'Weight of Evidence'.
-    """
+from astroq.lk_prediction.statistical_core import DempsterShaferAggregator
 
-    def __init__(self, uncertainty_base: float = 0.5):
-        # Frame of Discernment: {Positive, Negative}
-        # m(Positive), m(Negative), m(Uncertainty)
-        self.m_pos = 0.0
-        self.m_neg = 0.0
-        self.m_unc = 1.0  # Initial state is total uncertainty
-
-    def add_evidence(self, magnitude: float, scoring_type: str):
-        """
-        magnitude (0 to 1): The strength of the rule hit.
-        scoring_type: 'boost' (pos) or 'penalty' (neg).
-        """
-        # Cap magnitude to avoid total certainty from a single rule
-        mag = min(0.9, magnitude)
-        
-        # New mass functions
-        if scoring_type == "boost":
-            m_p, m_n, m_u = mag, 0.0, 1.0 - mag
-        else:
-            m_p, m_n, m_u = 0.0, mag, 1.0 - mag
-            
-        # Combine using Dempster's Rule
-        k = self.m_pos * m_n + self.m_neg * m_p
-        if k >= 1.0: # Total conflict
-            return
-            
-        denom = 1.0 - k
-        new_pos = (self.m_pos * m_p + self.m_pos * m_u + self.m_unc * m_p) / denom
-        new_neg = (self.m_neg * m_n + self.m_neg * m_u + self.m_unc * m_n) / denom
-        
-        self.m_pos = min(0.99, new_pos)
-        self.m_neg = min(0.99, new_neg)
-        self.m_unc = 1.0 - (self.m_pos + self.m_neg)
-
-    def get_metrics(self) -> dict:
-        """Returns Belief, Plausibility and Uncertainty."""
-        belief = self.m_pos
-        plausibility = 1.0 - self.m_neg
-        return {
-            "belief": round(belief, 3),
-            "plausibility": round(plausibility, 3),
-            "uncertainty": round(plausibility - belief, 3)
-        }
 class LKPredictionPipeline:
     """Main entrypoint for Lal Kitab Prediction Engine."""
 
@@ -91,6 +44,7 @@ class LKPredictionPipeline:
         self._natal_baseline: dict[str, EnrichedPlanet] | None = None
         self._natal_chart_meta: dict | None = None
         self._natal_rule_signatures: set[tuple] = set()
+        self._natal_domain_scores: dict | None = None  # cached to avoid recursive recomputation
         
         # Maps (planet, event_type/rule) to last year's probability for momentum
         self._prediction_history: dict[str, float] = {}
@@ -116,6 +70,8 @@ class LKPredictionPipeline:
 
         self._natal_baseline = enriched
         self._natal_chart_meta = chart
+        # Cache natal domain scores here once — avoids recursive recomputation later
+        self._natal_domain_scores = None  # reset; will be populated on first generate_domain_scores call
 
     def generate_predictions(
         self, chart: ChartData, focus_domains: list[str] | None = None
@@ -158,10 +114,6 @@ class LKPredictionPipeline:
         enriched = dict(raw_strengths)
         self.grammar_analyser.apply_grammar_rules(chart, enriched)
         
-        # Format for Rules Engine: Rules require dict with `house`, `aspects`, `states` etc.
-        # But RulesEngine looks for planets_data. We can map `enriched` to a dict format.
-        planets_data = self._build_rules_context(enriched, chart)
-        
         # 4. Rules Engine Evaluation
         planets_data = self._build_rules_context(enriched, chart)
         rule_hits = self.rules_engine.evaluate_chart({"planets_in_houses": planets_data})
@@ -191,13 +143,15 @@ class LKPredictionPipeline:
             
             # If no rules fired and config implies ignore empty -> skip
             # Or we let base strength define magnitude.
+            # Suppression Logic for False Positives:
+            # If no rules fired, we set magnitude to 0.0 to prevent 'noise' activations
+            # unless the planet's strength is extremely high (Kaayam/Exalted).
             annual_mag = sum(h.magnitude for h in p_hits)
             if not p_hits and annual_mag == 0.0:
-                 # Minimal fallback if we want base strength to cause events?
-                 # Lal Kitab relies heavily on deterministic rules to trigger events.
-                 if abs(ep.get("strength_total", 0.0)) < 2.0:
+                 # Only trigger on raw strength if it's exceptionally high (> 20.0)
+                 if abs(ep.get("strength_total", 0.0)) < 20.0:
                      continue
-                 annual_mag = ep.get("strength_total", 0.0) / 10.0 # Small base
+                 annual_mag = ep.get("strength_total", 0.0) / 15.0
             
             natal_score = 0.0
             if self._natal_baseline and planet in self._natal_baseline:
@@ -231,6 +185,15 @@ class LKPredictionPipeline:
             
         # 7. Classification
         classified = self.classifier.classify_events(prob_results, age=age)
+        
+        # 7.5. Noise Suppression Filter
+        # Suppress noise by keeping only events where probability >= threshold OR is_peak is True
+        noise_floor = self.cfg.get("classifier.threshold_absolute", fallback=0.70)
+        filtered_classified = []
+        for ce in classified:
+            if ce.probability >= noise_floor or getattr(ce, "is_peak", False):
+                filtered_classified.append(ce)
+        classified = filtered_classified
         
         # 8. Domain Filter
         if focus_domains:
@@ -327,11 +290,10 @@ class LKPredictionPipeline:
             
             # 4. BAYESIAN UPDATE: If annual, weight against Natal Prior
             if is_annual and self._natal_baseline:
-                # Retrieve Natal Prior for this domain
-                # We lazily re-run natal scores if not cached, 
-                # but better to use the already calculated ones.
-                natal_scores = self.generate_domain_scores(self._natal_chart_meta)
-                prior = natal_scores.get(d, {}).get("belief", 0.5)
+                # Use cached natal prior — computed once to avoid 75x redundant recalculations
+                if self._natal_domain_scores is None:
+                    self._natal_domain_scores = self.generate_domain_scores(self._natal_chart_meta)
+                prior = self._natal_domain_scores.get(d, {}).get("belief", 0.5)
                 evidence = metrics["belief"]
                 
                 # Bayesian Posterior Combination: 

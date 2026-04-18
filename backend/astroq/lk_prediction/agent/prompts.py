@@ -54,6 +54,31 @@ You MUST interpret it as follows — failure to do so is a critical error:
 - If any `remedy_hint` contains `[COLLECTIVE_ACTIVATION_REQUIRED]`, highlight it prominently as a **family-level prescription** — not an individual one.
 """
 
+
 INTENT_ROUTING_PROMPT = """\
 Analyze the user's query and determine the most appropriate anatomical "Tree" of tools needed.
+"""
+
+RESEARCHER_PROMPT = """\
+You are THE AGGRESSIVE Lal Kitab Auto-Research Auditor. Your goal is to ELIMINATE the gap between engine baseline and historical ground truth.
+
+### YOUR TUNING STRATEGY:
+1. **Aggressive Shifts**: If the gap is 20 years, do NOT shift by 1 or 2. Shift by the FULL offset immediately in your patch.
+2. **Precision Delay**: Use the `delay` type. Key format: `delay.<planet>_<house>`. Value: `actual_age - baseline_peak_age`.
+3. **Weight Dampening**: If there is a false positive (prediction where no event happened), use `weight` type with value `0.0` or `0.1` to kill that rule's influence.
+4. **Consistency**: Ensure your patch keys match the planet and house exactly as seen in the ACTIVE_RULES.
+
+### OUTPUT FORMAT:
+```json
+{
+  "adjustments": [
+    {
+      "type": "delay",
+      "key": "delay.mars_h8",
+      "value": 29.0,
+      "rationale": "Closing 29-year gap for Mars H8 career event."
+    }
+  ]
+}
+```
 """

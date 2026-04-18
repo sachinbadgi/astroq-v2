@@ -1,7 +1,7 @@
 import pytest
 from astroq.lk_prediction.chart_generator import ChartGenerator
 
-def test_chart_lagn_mapping_sachin():
+def test_chart_lagn_mapping_sachin(tmp_path):
     """
     TDD for Lagn-based Teva Mapping.
     Profile: Sachin (28-11-1977, 18:30, Sangli)
@@ -34,9 +34,11 @@ def test_chart_lagn_mapping_sachin():
     from astroq.lk_prediction.grammar_analyser import GrammarAnalyser
     from astroq.lk_prediction.config import ModelConfig
     
-    # Use real defaults path from conftest if possible, otherwise hardcode for test
-    db_path = "d:/astroq-v2/backend/data/api_config.db"
-    defaults_path = "d:/astroq-v2/backend/data/model_defaults.json"
+    db_path = str(tmp_path / "api_config.db")
+    defaults_path = str(tmp_path / "model_defaults.json")
+    with open(defaults_path, "w") as f:
+        import json
+        json.dump({}, f)
     config = ModelConfig(db_path=db_path, defaults_path=defaults_path)
     analyser = GrammarAnalyser(config)
     

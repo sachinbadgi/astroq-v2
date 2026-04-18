@@ -1,6 +1,49 @@
 import numpy as np
 from typing import List, Dict, Any
 
+
+class DempsterShaferAggregator:
+    """
+    Implements Dempster-Shafer Theory (DST) for combining conflicting evidence.
+    Refines scores from 'Simple Addition' to 'Weight of Evidence'.
+    Moved here from pipeline.py — this is a standalone statistical component.
+    """
+
+    def __init__(self, uncertainty_base: float = 0.5):
+        self.m_pos = 0.0
+        self.m_neg = 0.0
+        self.m_unc = 1.0  # Initial state is total uncertainty
+
+    def add_evidence(self, magnitude: float, scoring_type: str) -> None:
+        """
+        magnitude (0 to 1): The strength of the rule hit.
+        scoring_type: 'boost' (positive) or 'penalty' (negative).
+        """
+        mag = min(0.9, magnitude)  # Cap to avoid total certainty from a single rule
+        if scoring_type == "boost":
+            m_p, m_n, m_u = mag, 0.0, 1.0 - mag
+        else:
+            m_p, m_n, m_u = 0.0, mag, 1.0 - mag
+
+        k = self.m_pos * m_n + self.m_neg * m_p
+        if k >= 1.0:  # Total conflict — abort combination
+            return
+
+        denom = 1.0 - k
+        self.m_pos = min(0.99, (self.m_pos * m_p + self.m_pos * m_u + self.m_unc * m_p) / denom)
+        self.m_neg = min(0.99, (self.m_neg * m_n + self.m_neg * m_u + self.m_unc * m_n) / denom)
+        self.m_unc = 1.0 - (self.m_pos + self.m_neg)
+
+    def get_metrics(self) -> dict:
+        """Returns Belief, Plausibility and Uncertainty."""
+        belief = self.m_pos
+        plausibility = 1.0 - self.m_neg
+        return {
+            "belief": round(belief, 3),
+            "plausibility": round(plausibility, 3),
+            "uncertainty": round(plausibility - belief, 3),
+        }
+
 def fuse_beliefs(beliefs: List[Dict[str, float]]) -> Dict[str, float]:
     """
     Dempster-Shafer Combination Rule to fuse multiple belief states.

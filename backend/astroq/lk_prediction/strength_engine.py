@@ -14,7 +14,8 @@ All weights are loaded from :class:`ModelConfig`.
 
 from __future__ import annotations
 
-from typing import Any
+import copy
+from typing import Any, Optional
 
 from astroq.lk_prediction.config import ModelConfig
 from astroq.lk_prediction.constants import (
@@ -99,7 +100,6 @@ class StrengthEngine:
         """
         Additive merge: ``annual_strength += natal_strength`` for each planet.
         """
-        import copy
         merged = copy.deepcopy(annual)
 
         for planet in merged:

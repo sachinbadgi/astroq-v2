@@ -125,16 +125,100 @@ class ValidatorAgent:
                 domain_fp_counts[d] = domain_fp_counts.get(d, 0) + 1
 
 
+        # Compute Top-3 Competitive Hit Rate
+        top3_hits = 0
+        domain_top3_stats: dict[str, dict[str, int]] = {}
+        
+        for event in life_event_log:
+            d = normalize_domain(event.get("domain", ""))
+            actual_age = event.get("age", 0)
+            
+            p_list = preds_by_domain.get(d, [])
+            if not p_list:
+                # Check for messy containment
+                for dn, pl in preds_by_domain.items():
+                    if d in dn or dn in d:
+                        p_list = pl
+                        break
+            
+            # NEW: Domain Karaka & Purity Logic
+            DOMAIN_KARAKAS = {
+                "marriage": ["Venus", "Jupiter", "Moon"],
+                "career": ["Sun", "Saturn", "Mars", "Mercury"],
+                "profession": ["Sun", "Saturn", "Mars", "Mercury"],
+                "wealth": ["Jupiter", "Venus", "Moon"],
+                "health": ["Sun", "Mars", "Saturn"]
+            }
+
+            def get_rank_tuple(p):
+                purity_bonus = 1.0
+                domain_lower = d.lower()
+                
+                # 1. Primary Domain check
+                p_domain_lower = p.domain.lower()
+                target_domain_lower = d.lower()
+                if target_domain_lower in p_domain_lower:
+                    if p_domain_lower.startswith(target_domain_lower):
+                        purity_bonus *= 1.0 # Primary hit
+                    else:
+                        purity_bonus *= 0.5 # Secondary hit (50% penalty)
+                else:
+                    purity_bonus *= 0.1 # Not in domain at all
+                
+                # 2. Karaka Synergy check
+                karakas = DOMAIN_KARAKAS.get(domain_lower, [])
+                planet_name = p.source_planets[0] if p.source_planets else ""
+                if karakas and planet_name.capitalize() in karakas:
+                    purity_bonus *= 1.2 # 20% boost for domain-appropriate planets
+                
+                # We sort by (Weighted Probability, Weighted Magnitude)
+                # To ensure Rank 1 is truly distinct
+                return (round(p.probability * purity_bonus, 4), round(p.magnitude * purity_bonus, 4))
+
+            ranked = sorted(p_list, key=get_rank_tuple, reverse=True)
+            
+            # Select Top 3 UNIQUE ages
+            top_ages = []
+            for r in ranked:
+                if r.peak_age not in top_ages:
+                    top_ages.append(r.peak_age)
+                if len(top_ages) >= 3:
+                    break
+            
+            # Hit if actual age matches any top age within +/- 1 (stricter window)
+            is_top3_hit = False
+            for tage in top_ages:
+                if abs(tage - actual_age) <= 1:
+                    is_top3_hit = True
+                    break
+            
+            if is_top3_hit:
+                top3_hits += 1
+                
+            if d not in domain_top3_stats:
+                domain_top3_stats[d] = {"hits": 0, "total": 0}
+            domain_top3_stats[d]["total"] += 1
+            if is_top3_hit:
+                domain_top3_stats[d]["hits"] += 1
+
+        top3_hit_rate = (top3_hits / count) if count > 0 else 0.0
+        domain_top_3_scores = {
+            d: round(s["hits"] / s["total"], 4) if s["total"] > 0 else 0.0
+            for d, s in domain_top3_stats.items()
+        }
+
         return {
             "entries": entries,
             "hit_rate": round(hit_rate, 4),
+            "top_3_hit_rate": round(top3_hit_rate, 4),
             "mean_offset": round(mean_offset, 4),
             "total": count,
             "hits": hits,
             "domain_scores": domain_scores,
+            "domain_top_3_scores": domain_top_3_scores,
             "domain_fp_counts": domain_fp_counts,
             "contradictions": sorted(list(contradictions)),
-            "false_positives": [p.prediction_text for p in unused_preds]
+            "false_positives": [f"{p.prediction_text} [{' '.join(p.source_rules) if p.source_rules else 'NO_ID'}]" for p in unused_preds]
         }
 
 

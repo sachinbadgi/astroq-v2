@@ -22,112 +22,22 @@ from astroq.lk_prediction.config import ModelConfig
 
 
 # ---------------------------------------------------------------------------
-# Canonical Lal Kitab constants (shared by multiple detectors)
+# Canonical Lal Kitab constants — imported from single source of truth
 # ---------------------------------------------------------------------------
+from astroq.lk_prediction.lk_constants import (
+    PLANET_PAKKA_GHAR as PAKKA_GHAR,
+    STANDARD_PLANETS_SET as STANDARD_PLANETS,
+    HOUSE_ASPECT_DATA,
+    HOUSE_ASPECT_TARGETS as HOUSE_ASPECT_MAP,
+    NATURAL_RELATIONSHIPS,
+    FOUNDATIONAL_HOUSES,
+    PLANET_EXALTATION as EXALTATION_HOUSES,
+    PLANET_DEBILITATION as DEBILITATION_HOUSES,
+    DISPOSITION_RULES as _DISPOSITION_RULES,
+)
 
-PAKKA_GHAR: dict[str, int] = {
-    "Sun": 1, "Moon": 4, "Mars": 3, "Mercury": 7,
-    "Jupiter": 2, "Venus": 7, "Saturn": 10, "Rahu": 12, "Ketu": 6,
-}
-
-# The 9 Standard Lal Kitab Planets (exclude Lagna/Asc from aspects)
-STANDARD_PLANETS: frozenset[str] = frozenset([
-    "Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn", "Rahu", "Ketu"
-])
-
-# Complete House Aspect Map (Canonical Lal Kitab)
-# Structure: {source_house: {aspect_type: target_house_or_list}}
-HOUSE_ASPECT_DATA: dict[int, dict[str, Any]] = {
-    1:  {"100 Percent": 7, "Outside Help": 5, "General Condition": 7, "Confrontation": 8, "Foundation": 9, "Deception": 10},
-    2:  {"25 Percent": 6, "Outside Help": 6, "General Condition": 8, "Confrontation": 9, "Foundation": 10, "Deception": 11},
-    3:  {"50 Percent": [9, 11], "Outside Help": 7, "General Condition": 9, "Confrontation": 10, "Foundation": 11, "Deception": 12},
-    4:  {"100 Percent": 10, "Outside Help": 8, "General Condition": 10, "Confrontation": 11, "Foundation": 12, "Deception": 1},
-    5:  {"50 Percent": 9, "Outside Help": 9, "General Condition": 11, "Confrontation": 12, "Foundation": 1, "Deception": 2},
-    6:  {"Outside Help": 10, "General Condition": 12, "Confrontation": 1, "Foundation": 2, "Deception": 3},
-    7:  {"Outside Help": 11, "General Condition": 1, "Confrontation": 2, "Foundation": 3, "Deception": 4},
-    8:  {"25 Percent": 2, "Outside Help": 12, "General Condition": 2, "Confrontation": 3, "Foundation": 4, "Deception": 5},
-    9:  {"Outside Help": 1, "General Condition": 3, "Confrontation": 4, "Foundation": 5, "Deception": 6},
-    10: {"Outside Help": 2, "General Condition": 4, "Confrontation": 5, "Foundation": 6, "Deception": 7},
-    11: {"Outside Help": 3, "General Condition": 5, "Confrontation": 6, "Foundation": 7, "Deception": 8},
-    12: {"Outside Help": 4, "General Condition": 6, "Confrontation": 7, "Foundation": 8, "Deception": 9},
-}
-
-# (Original HOUSE_ASPECT_MAP kept for simple grammar checks if needed, but updated to 100% ones)
-# Complete House Aspect Map for Sleeping/Awake checks
-HOUSE_ASPECT_MAP: dict[int, list[int]] = {}
-for h, v in HOUSE_ASPECT_DATA.items():
-    targets = []
-    # Any significant aspect or "Outside Help" (facet/drishti) can wake a planet
-    for a_type in ["100 Percent", "50 Percent", "25 Percent", "Outside Help"]:
-        t = v.get(a_type)
-        if isinstance(t, int): targets.append(t)
-        elif isinstance(t, list): targets.extend(t)
-    HOUSE_ASPECT_MAP[h] = sorted(list(set(targets)))
-
-# Natural planet relationships (p. 71 of Lal Kitab)
-# Same as before, but ensure it's used strictly for STANDARD_PLANETS
-NATURAL_RELATIONSHIPS: dict[str, dict[str, list[str]]] = {
-    "Jupiter": {"Friends": ["Sun", "Moon", "Mars"],       "Enemies": ["Venus", "Mercury"],          "Even": ["Rahu", "Ketu", "Saturn"]},
-    "Sun":     {"Friends": ["Jupiter", "Mars", "Moon"],   "Enemies": ["Venus", "Saturn", "Rahu"],   "Even": ["Mercury", "Ketu"]},
-    "Moon":    {"Friends": ["Sun", "Mercury"],             "Enemies": ["Ketu"],                      "Even": ["Venus", "Saturn", "Mars", "Jupiter", "Rahu"]},
-    "Venus":   {"Friends": ["Saturn", "Mercury", "Ketu"], "Enemies": ["Sun", "Moon", "Rahu"],        "Even": ["Mars", "Jupiter"]},
-    "Mars":    {"Friends": ["Sun", "Moon", "Jupiter"],    "Enemies": ["Mercury", "Ketu"],            "Even": ["Venus", "Saturn", "Rahu"]},
-    "Mercury": {"Friends": ["Sun", "Venus", "Rahu"],      "Enemies": ["Moon"],                       "Even": ["Saturn", "Ketu", "Mars", "Jupiter"]},
-    "Saturn":  {"Friends": ["Mercury", "Venus", "Rahu"],  "Enemies": ["Sun", "Moon", "Mars"],        "Even": ["Ketu", "Jupiter"]},
-    "Rahu":    {"Friends": ["Mercury", "Saturn", "Ketu"], "Enemies": ["Sun", "Venus", "Mars"],       "Even": ["Jupiter", "Moon"]},
-    "Ketu":    {"Friends": ["Venus", "Rahu"],              "Enemies": ["Moon", "Mars"],               "Even": ["Jupiter", "Saturn", "Mercury", "Sun"]},
-}
-
-# Foundational / associated houses per planet (for BilMukabil check)
-FOUNDATIONAL_HOUSES: dict[str, list[int]] = {
-    "Sun":     [1, 5],
-    "Moon":    [4],
-    "Mars":    [1, 3, 8],
-    "Mercury": [3, 6, 7],
-    "Jupiter": [2, 5, 9, 11, 12],
-    "Venus":   [2, 7],
-    "Saturn":  [8, 10, 11],
-    "Rahu":    [11, 12],
-    "Ketu":    [6],
-}
-
-EXALTATION_HOUSES: dict[str, Any] = {
-    "Sun": 1, "Moon": 2, "Mars": 10, "Mercury": 6, "Jupiter": 4,
-    "Venus": 12, "Saturn": 7, "Rahu": [3, 6], "Ketu": [9, 12],
-}
-DEBILITATION_HOUSES: dict[str, Any] = {
-    "Sun": 7, "Moon": 8, "Mars": 4, "Mercury": 12, "Jupiter": 10,
-    "Venus": 6, "Saturn": 1, "Rahu": [9, 12], "Ketu": [3, 6],
-}
-
-# Aspect types considered "significant" in BilMukabil
+# Aspect types considered "significant" in BilMukabil (local-only, not in lk_constants)
 SIGNIFICANT_ASPECT_TYPES: frozenset[str] = frozenset({"100 Percent", "50 Percent", "25 Percent"})
-
-# All 16 Lal Kitab planet disposition rules
-# Format: (causer_planet, causer_houses, affected_planet, effect)
-# where causer_houses is a list; if list has one item, it's a "planet_in_house" rule,
-# otherwise it's "any_of_houses" rule. effect is "Good" or "Bad".
-_DISPOSITION_RULES: list[tuple[str, list[int], str, str]] = [
-    ("Jupiter", [7],           "Venus",   "Bad"),
-    ("Rahu",    [11],          "Jupiter", "Bad"),
-    ("Rahu",    [12],          "Jupiter", "Bad"),
-    ("Sun",     [6],           "Saturn",  "Bad"),
-    ("Sun",     [10],          "Mars",    "Bad"),
-    ("Sun",     [10],          "Ketu",    "Bad"),
-    ("Sun",     [11],          "Mars",    "Bad"),
-    ("Moon",    [1, 3, 8],     "Mars",    "Good"),
-    ("Venus",   [9],           "Mars",    "Bad"),
-    ("Venus",   [2, 5, 12],    "Jupiter", "Bad"),
-    ("Mercury", [3, 6, 8, 12], "Moon",    "Bad"),
-    ("Mercury", [2, 5, 9],     "Jupiter", "Bad"),
-    ("Saturn",  [4, 6, 10],    "Moon",    "Bad"),
-    ("Rahu",    [2, 5, 6, 9],  "Jupiter", "Bad"),
-    ("Ketu",    [11, 12],      "Jupiter", "Bad"),
-    ("Ketu",    [11, 12],      "Mars",    "Bad"),
-    ("Ketu",    [11, 12],      "Venus",   "Good"),
-    ("Moon",    [6],           "Mars",    "Bad"),
-    ("Moon",    [6],           "Venus",   "Good"),
-]
 
 
 class GrammarAnalyser:
@@ -307,19 +217,18 @@ class GrammarAnalyser:
             bd.setdefault(key, 0.0)
 
     def _build_per_planet_rin(
-        self, planets_data: dict[str, Any], rin_list: list[str]
+        self, planets_data: dict[str, Any], rin_list: list[dict[str, Any]]
     ) -> dict[str, list[str]]:
         """
         Distribute rin debts to the specific planet(s) that triggered the rule.
-        Each debt type maps back to the triggering planet-house pairs in detect_rin().
         Returns {planet_name: [debt_name, ...]} mapping.
         """
         per_planet: dict[str, list[str]] = {}
+        active_names = {d["debt_name"] for d in rin_list if d.get("active")}
 
         def h(p: str) -> int | None:
             return planets_data.get(p, {}).get("house")
 
-        # Replicate the triggering logic per-planet
         rin_rules = [
             ("Ancestral Debt (Pitra Rin)",             ["Venus", "Mercury", "Rahu"], [2, 5, 9, 12]),
             ("Self Debt (Swayam Rin)",                  ["Venus", "Rahu"],            [5]),
@@ -332,7 +241,7 @@ class GrammarAnalyser:
             ("Negative Speech Debt (Manda Bol Rin)",    ["Moon", "Mars", "Ketu"],     [6]),
         ]
         for name, plist, hlist in rin_rules:
-            if name not in rin_list:
+            if name not in active_names:
                 continue
             for p in plist:
                 if h(p) in hlist:
@@ -972,18 +881,20 @@ class GrammarAnalyser:
 
         return res
 
-    def detect_rin(self, chart: dict) -> list[str]:
+    def detect_rin(self, chart: dict) -> list[dict[str, Any]]:
         """Detect 9 standard Lal Kitab Debts (Rin) based on planet-house occupancy."""
         res = []
         planets = chart.get("planets_in_houses", {})
         if not planets:
             return res
 
-        def check(plist: list[str], hlist: list[int]) -> bool:
+        def get_triggering_houses(plist: list[str], hlist: list[int]) -> list[int]:
+            triggers = []
             for p in plist:
-                if planets.get(p, {}).get("house") in hlist:
-                    return True
-            return False
+                house = planets.get(p, {}).get("house")
+                if house in hlist:
+                    triggers.append(house)
+            return sorted(list(set(triggers)))
 
         rin_rules = [
             ("Ancestral Debt (Pitra Rin)",            ["Venus", "Mercury", "Rahu"], [2, 5, 9, 12]),
@@ -998,8 +909,13 @@ class GrammarAnalyser:
         ]
 
         for name, plist, hlist in rin_rules:
-            if check(plist, hlist):
-                res.append(name)
+            triggers = get_triggering_houses(plist, hlist)
+            if triggers:
+                res.append({
+                    "debt_name": name,
+                    "active": True,
+                    "trigger_houses": triggers
+                })
         return res
 
     def detect_dispositions(self, chart: dict) -> list[dict]:

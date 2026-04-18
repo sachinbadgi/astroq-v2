@@ -17,14 +17,16 @@ def _make_lk(age: int, domain: str, source_planets: list[str] = None) -> LKPredi
         source_planets=source_planets or ["Sun"]
     )
 
-def test_worked_example_integration():
+def test_worked_example_integration(tmp_path):
     """
     End-to-end test for the LSE loop using real components but mocked pipeline outcome.
     Verifies Orchestration -> Research -> Validation -> Persistence.
     """
-    project_root = "d:/astroq-v2"
-    db_path = os.path.join(project_root, "backend/data/api_config.db")
-    defaults_path = os.path.join(project_root, "backend/data/model_defaults.json")
+    db_path = str(tmp_path / "api_config.db")
+    defaults_path = str(tmp_path / "model_defaults.json")
+    with open(defaults_path, "w") as f:
+        import json
+        json.dump({}, f)
     
     config = ModelConfig(db_path=db_path, defaults_path=defaults_path)
     orchestrator = LSEOrchestrator(config)
@@ -40,9 +42,9 @@ def test_worked_example_integration():
     
     # MOCK PIPELINE
     mock_pipeline = MagicMock()
-    # Iteration 0: predict at 22. Iteration 1: predict at 24.5 (Hit)
+    # Iteration 0: predict at 21. Iteration 1: predict at 24.5 (Hit)
     mock_pipeline.generate_predictions.side_effect = [
-        [_make_lk(22, "profession", source_planets=["Sun"])],
+        [_make_lk(21, "profession", source_planets=["Sun"])],
         [_make_lk(24.5, "profession", source_planets=["Sun"])]
     ]
     

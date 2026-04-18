@@ -16,6 +16,8 @@ import os
 import json
 from typing import Dict, Any, List, Optional, Union
 
+from astroq.lk_prediction.lk_constants import get_35_year_ruler
+
 # Add backend to path for imports
 import sys
 _BACKEND = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
@@ -294,15 +296,14 @@ def _get_domain_scores(context: Dict, params: Dict) -> str:
         scholarly_view[domain] = dignity
     
     context[f"domain_scores_age_{age}"] = resolved_scores
-    
-    # Enrich with Cycle Ruler
-    period = (age - 1) % 35 + 1
-    ruler = "Saturn" if 1<=period<=6 else "Rahu" if 7<=period<=12 else "Ketu" if 13<=period<=15 else "Jupiter" if 16<=period<=21 else "Sun" if 22<=period<=23 else "Venus"
-    
+
+    # Enrich with Cycle Ruler — sourced from lk_constants, not reimplemented inline
+    ruler = get_35_year_ruler(age)
+
     view = {
         "age": age,
         "cycle_ruler": ruler,
-        "status": scholarly_view
+        "status": scholarly_view,
     }
     return f"Domain status for age {age}:\n" + json.dumps(view, indent=2)
 
@@ -442,7 +443,7 @@ def _get_lifecycle_status(context: Dict, params: Dict) -> str:
         "cycle_period": period,
         "current_cycle_ruler": ruler,
         "maturity_status": status,
-        "IMPORTANT_INSTRUCTION_FOR_AGENT": f"The period is currently ruled by {ruler}. You MUST now call get_predictions(age=0) and look at specifically how {ruler} is performing in the NATAL chart to give accurate lifecycle advice."
+        "cycle_ruler_note": f"Period ruled by {ruler}. Cross-reference {ruler}'s natal placement for accurate lifecycle advice.",
     }, indent=2)
 
 
@@ -492,6 +493,95 @@ def _get_karaka_comparison(context: Dict, params: Dict) -> str:
         "verdict": winner,
         "recommendation": f"Based on planetary favorability, {winner} is the stronger path."
     }, indent=2)
+
+
+def _get_monthly_chart(context: Dict, params: Dict) -> str:
+    """
+    Derive the Monthly Lal Kitab chart from an Annual chart.
+    Source: Goswami 1952 p.234 — Sun is the clock planet.
+    """
+    if "full_payload" not in context:
+        return "No chart loaded. Use get_natal_chart first."
+    age = int(params.get("age", 1))
+    month_number = int(params.get("month_number", 1))
+    payload = context["full_payload"]
+    annual = _get_chart_object(payload, age, context.get("natal_chart"))
+    if not annual:
+        return f"Annual chart for age {age} not found in payload."
+    monthly = _chart_gen.generate_monthly_chart(annual, month_number)
+    context["monthly_chart"] = monthly
+    planets = {p: d["house"] for p, d in monthly["planets_in_houses"].items()}
+    return f"Monthly chart (Age {age}, Month {month_number}):\n" + json.dumps(
+        {"planets_in_houses": planets, "rotation": monthly.get("monthly_rotation")}, indent=2
+    )
+
+
+def _get_daily_chart(context: Dict, params: Dict) -> str:
+    """
+    Derive the Daily Lal Kitab chart from a Monthly chart.
+    Source: Goswami 1952 p.235 — Mars is the clock planet.
+    Monthly chart must have been loaded first via get_monthly_chart.
+    """
+    if "monthly_chart" not in context:
+        return "No monthly chart in context. Call get_monthly_chart first."
+    day = int(params.get("day", 1))
+    daily = _chart_gen.generate_daily_chart(context["monthly_chart"], days_elapsed=day)
+    context["daily_chart"] = daily
+    planets = {p: d["house"] for p, d in daily["planets_in_houses"].items()}
+    return f"Daily chart (Day {day}):\n" + json.dumps(
+        {"planets_in_houses": planets, "mars_computed_house": daily.get("daily_mars_house")}, indent=2
+    )
+
+
+def _simulate_remedies(context: Dict, params: Dict) -> str:
+    """
+    Simulate the lifetime impact of proposed planetary remedies.
+    Accepts proposed_shifts as {planet: target_house} to evaluate.
+    """
+    if "full_payload" not in context or "natal_chart" not in context:
+        return "No chart loaded. Use get_natal_chart first."
+    proposed_shifts = params.get("proposed_shifts", {})
+    current_age = int(params.get("current_age", 1))
+    payload = context["full_payload"]
+    birth_chart = context["natal_chart"]
+
+    annual_charts = {
+        int(k.split("_")[1]): v
+        for k, v in payload.items()
+        if isinstance(k, str) and k.startswith("chart_") and k != "chart_0"
+    }
+
+    applied = []
+    for planet, val in proposed_shifts.items():
+        for age, ann_chart in annual_charts.items():
+            if age < current_age:
+                continue
+            if val == -1:
+                options = _pipeline.remedy_engine.get_year_shifting_options(birth_chart, ann_chart, age)
+                res = options.get(planet)
+                if res and res.safe_matches:
+                    applied.append({"planet": planet, "age": age, "is_safe": True})
+            else:
+                applied.append({"planet": planet, "age": age, "is_safe": True})
+
+    summaries = _pipeline.remedy_engine.analyze_life_area_potential(
+        birth_chart, annual_charts, applied, current_age=current_age
+    )
+    matrix = []
+    for area, s in summaries.items():
+        baseline = min(100, int(s.fixed_fate / max(1, len(annual_charts)) * 10))
+        simulated = min(100, int((s.fixed_fate + s.current_remediation) / max(1, len(annual_charts)) * 10))
+        matrix.append({"aspect": area, "baseline_health": baseline, "simulated_health": simulated,
+                        "delta": f"+{round(s.remediation_efficiency, 1)}%"})
+
+    projection = _pipeline.remedy_engine.simulate_lifetime_strength(birth_chart, annual_charts, applied)
+    timeline = []
+    for i, age in enumerate(projection.ages):
+        total = sum(p_data["remedy"][i] for p_data in projection.planets.values())
+        avg = total / max(1, len(projection.planets))
+        timeline.append({"age": age, "probability": min(100, int(avg * 10))})
+
+    return json.dumps({"simulation_matrix": matrix, "lifetime_timeline": timeline}, indent=2)
 
 
 def _finish_tool(context: Dict, params: Dict) -> str:
@@ -651,6 +741,47 @@ TOOLS = [
         "fn": _get_karaka_comparison
     },
     {
+        "name": "get_monthly_chart",
+        "description": "Derive the Monthly Lal Kitab chart from an Annual chart using the Sun as clock planet (Goswami 1952 p.234). Must call get_natal_chart first.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "age": {"type": "integer", "description": "Annual chart year (age of native)"},
+                "month_number": {"type": "integer", "minimum": 1, "maximum": 12, "description": "Month index within the annual year (1=first month of that year)"}
+            },
+            "required": ["age"]
+        },
+        "fn": _get_monthly_chart
+    },
+    {
+        "name": "get_daily_chart",
+        "description": "Derive the Daily Lal Kitab chart from the current Monthly chart using Mars as clock planet (Goswami 1952 p.235). Must call get_monthly_chart first.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "day": {"type": "integer", "minimum": 1, "maximum": 31, "description": "Day of the month (1-31)"}
+            },
+            "required": ["day"]
+        },
+        "fn": _get_daily_chart
+    },
+    {
+        "name": "simulate_remedies",
+        "description": "Simulate the lifetime impact of proposed Lal Kitab planetary remedies (Upayas) and return a health matrix and projection timeline.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "proposed_shifts": {
+                    "type": "object",
+                    "description": "Dict of planet -> target_house (or -1 for auto-select). e.g. {\"Saturn\": -1, \"Mars\": 3}"
+                },
+                "current_age": {"type": "integer", "description": "Current age of the native."}
+            },
+            "required": ["proposed_shifts", "current_age"]
+        },
+        "fn": _simulate_remedies
+    },
+    {
         "name": "finish",
         "description": "Signal that the analysis is complete and provide the final synthesis to the user.",
         "parameters": {
@@ -660,11 +791,138 @@ TOOLS = [
             },
             "required": ["answer"]
         },
-        "fn": _finish_tool # Special tool handled by the agent loop
+        "fn": _finish_tool
     }
 ]
 
 TOOL_MAP = {t["name"]: t for t in TOOLS}
+
+# ---------------------------------------------------------------------------
+# StatelessToolAdapter — MCP-compatible, context-free wrappers
+# ---------------------------------------------------------------------------
+# The internal agent loop uses fn(context, params) with shared mutable state.
+# MCP requires stateless tools: each call is independent and receives all
+# inputs via arguments. StatelessToolAdapter bridges this gap by building
+# a fresh per-call context from the chart_id argument and delegating to
+# the same underlying tool functions — so the agent loop is untouched.
+# ---------------------------------------------------------------------------
+
+class StatelessToolAdapter:
+    """
+    Wraps all tool_registry functions with a stateless interface suitable
+    for MCP (Model Context Protocol) tool calls.
+
+    Each method accepts a chart_id to resolve the native's chart, then
+    delegates to the corresponding stateful `_fn(context, params)` function
+    using a fresh per-call context dict.
+    """
+
+    # ── context bootstrap ─────────────────────────────────────────────────
+
+    @staticmethod
+    def _make_context(chart_id: Optional[int] = None) -> Dict:
+        """Build a fresh context dict pre-loaded with chart data."""
+        ctx: Dict = {}
+        if chart_id is not None:
+            _get_natal_chart(ctx, {"chart_id": chart_id})
+        return ctx
+
+    # ── chart lifecycle ───────────────────────────────────────────────────
+
+    def list_charts(self) -> str:
+        return _list_charts({}, {})
+
+    def generate_natal_chart(
+        self, name: str, dob: str, tob: str, place: str,
+        chart_system: str = "vedic", annual_basis: str = "vedic",
+    ) -> str:
+        return _generate_natal_chart(
+            {}, {"name": name, "dob": dob, "tob": tob, "place": place,
+                 "chart_system": chart_system, "annual_basis": annual_basis}
+        )
+
+    def get_natal_chart(self, chart_id: int) -> str:
+        return _get_natal_chart({}, {"chart_id": chart_id})
+
+    # ── annual charts ─────────────────────────────────────────────────────
+
+    def get_annual_charts(self, chart_id: int, age_from: int, age_to: int) -> str:
+        ctx = self._make_context(chart_id)
+        return _get_annual_charts(ctx, {"age_from": age_from, "age_to": age_to})
+
+    # ── sub-year charts (Goswami 1952 pp.234-235) ─────────────────────────
+
+    def get_monthly_chart(self, chart_id: int, age: int, month_number: int = 1) -> str:
+        ctx = self._make_context(chart_id)
+        return _get_monthly_chart(ctx, {"age": age, "month_number": month_number})
+
+    def get_daily_chart(self, chart_id: int, age: int, month_number: int, day: int) -> str:
+        """Derives monthly chart then daily chart in a single call."""
+        ctx = self._make_context(chart_id)
+        _get_monthly_chart(ctx, {"age": age, "month_number": month_number})
+        return _get_daily_chart(ctx, {"day": day})
+
+    # ── predictions & scores ──────────────────────────────────────────────
+
+    def get_predictions(self, chart_id: int, age: int = 0) -> str:
+        ctx = self._make_context(chart_id)
+        return _get_predictions(ctx, {"age": age})
+
+    def get_domain_scores(self, chart_id: int, age: int = 0) -> str:
+        ctx = self._make_context(chart_id)
+        return _get_domain_scores(ctx, {"age": age})
+
+    def get_highest_probability_ages(
+        self, chart_id: int, domain: str, start_age: int = 20, end_age: int = 45
+    ) -> str:
+        ctx = self._make_context(chart_id)
+        return _get_highest_probability_ages(
+            ctx, {"domain": domain, "start_age": start_age, "end_age": end_age}
+        )
+
+    def get_domain_comparison(
+        self, chart_id: int, age: int,
+        domains: Optional[List[str]] = None,
+    ) -> str:
+        ctx = self._make_context(chart_id)
+        return _get_domain_comparison(
+            ctx, {"age": age, "domains": domains or ["Marriage", "Career", "Income", "Wealth", "Health"]}
+        )
+
+    def get_karaka_comparison(
+        self, chart_id: int, age: int,
+        set_a: List[str], set_b: List[str],
+        label_a: str = "Option A", label_b: str = "Option B",
+    ) -> str:
+        ctx = self._make_context(chart_id)
+        return _get_karaka_comparison(
+            ctx, {"age": age, "set_a": set_a, "set_b": set_b, "label_a": label_a, "label_b": label_b}
+        )
+
+    def get_lifecycle_status(self, chart_id: int, age: int) -> str:
+        ctx = self._make_context(chart_id)
+        return _get_lifecycle_status(ctx, {"age": age})
+
+    # ── remedies ──────────────────────────────────────────────────────────
+
+    def get_remedies(self, chart_id: int, age: int) -> str:
+        """Loads predictions then extracts remedies in one call."""
+        ctx = self._make_context(chart_id)
+        _get_predictions(ctx, {"age": age})  # prime context
+        return _get_remedies(ctx, {"age": age})
+
+    def simulate_remedies(
+        self, chart_id: int, proposed_shifts: Dict[str, Any], current_age: int
+    ) -> str:
+        ctx = self._make_context(chart_id)
+        return _simulate_remedies(
+            ctx, {"proposed_shifts": proposed_shifts, "current_age": current_age}
+        )
+
+
+# Singleton adapter instance for import by mcp_server.py
+adapter = StatelessToolAdapter()
+
 
 TOOL_TREES = {
     "Onboarding_Tree": {

@@ -45,10 +45,12 @@ class RulesEngine:
     def __init__(self, cfg_or_db_path: ModelConfig | str) -> None:
         if isinstance(cfg_or_db_path, str):
             self.db_path = cfg_or_db_path
+            self.config = None
             # For testing without full config
             self.boost_scaling = 0.04
             self.penalty_scaling = 0.15
         else:
+            self.config = cfg_or_db_path
             self.db_path = cfg_or_db_path._db_path
             self.boost_scaling = cfg_or_db_path.get("rules.boost_scaling", fallback=0.04)
             self.penalty_scaling = cfg_or_db_path.get("rules.penalty_scaling", fallback=0.15)
@@ -115,6 +117,16 @@ class RulesEngine:
                 scoring_type = rule.get("scoring_type", "neutral")
                 # Use magnitude from DB if available, else use scale-based scaling
                 mag = rule.get("magnitude")
+                
+                # CHECK OVERRIDES: If researcher has muted this rule, skip or adjust
+                if hasattr(self, 'config') and self.config:
+                    override_key = f"weight.{rid}"
+                    w = self.config.get(override_key)
+                    if w is not None:
+                        if float(w) <= 0.01:
+                            continue # Muted False Positive
+                        mag = (mag if mag is not None else 1.0) * float(w)
+
                 if mag is None:
                     base = self.boost_scaling if scoring_type == "boost" else self.penalty_scaling
                     mag = apply_scale_to_magnitude(rule.get("scale", "minor"), base)

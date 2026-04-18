@@ -67,7 +67,7 @@ def test_orchestrator_converges_on_delay(orchestrator, mock_config):
     # Mock Pipeline
     mock_pipeline = MagicMock()
     mock_pipeline.generate_predictions.side_effect = [
-        [_make_lk(22, "profession")], # Iteration 0 (Initial)
+        [_make_lk(21, "profession")], # Iteration 0 (Initial)
         [_make_lk(24, "profession")]  # Iteration 1 (After Delay hypothesis)
     ]
     
@@ -103,8 +103,8 @@ def test_orchestrator_iteration_cap(orchestrator, mock_config):
     life_events = [_make_le(24, "profession")]
 
     mock_pipeline = MagicMock()
-    # Return a prediction that will NEVER match the life event (24) even with delay (22+2=24... wait, let's use 20)
-    mock_pipeline.generate_predictions.return_value = [_make_lk(20, "profession", source_planets=["Sun"])]
+    # Return a prediction that will NEVER match the life event (24) even with delay (18+2=20 -> abs=4)
+    mock_pipeline.generate_predictions.return_value = [_make_lk(18, "profession", source_planets=["Sun"])]
     
     mock_researcher = MagicMock()
     mock_researcher.generate_hypotheses.return_value = [
@@ -161,7 +161,7 @@ def test_orchestrator_worked_example_path(orchestrator, mock_config):
 
     mock_pipeline = MagicMock()
     mock_pipeline.generate_predictions.side_effect = [
-        [_make_lk(22, "profession", source_planets=["Mars"])],   # Baseline
+        [_make_lk(21, "profession", source_planets=["Mars"])],   # Baseline
         [_make_lk(24.5, "profession", source_planets=["Mars"])]  # After Mars H8 delay
     ]
     
