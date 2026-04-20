@@ -14,6 +14,14 @@ from typing import Any
 
 from astroq.lk_prediction.config import ModelConfig
 from astroq.lk_prediction.data_contracts import RuleHit
+from astroq.lk_prediction.lk_constants import (
+    PLANET_PAKKA_GHAR,
+    PLANET_EXALTATION,
+    PLANET_DEBILITATION,
+    VARSHPHAL_YEAR_MATRIX,
+    ENEMIES,
+    get_35_year_ruler,
+)
 
 
 def apply_scale_to_magnitude(scale: str, base_scaling: float) -> float:
@@ -89,6 +97,61 @@ class RulesEngine:
         finally:
             con.close()
 
+    # ------------------------------------------------------------------
+    # Dignity Modifier
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _compute_dignity_modifier(
+        planet: str,
+        natal_house: int,
+        age: int,
+    ) -> float:
+        """
+        Compute an annual dignity multiplier for a planet based on where it
+        lands in the Varshphal rotation at a given age.
+
+        The annual house is derived from:
+            VARSHPHAL_YEAR_MATRIX[age][natal_house]
+
+        Then compared against:
+            PLANET_PAKKA_GHAR   → 1.25  (home, fully empowered)
+            PLANET_EXALTATION   → 1.15  (peak form)
+            PLANET_DEBILITATION → 0.75  (weakened, struggling)
+            ENEMIES houses      → 0.85  (enemy territory, friction)
+            Otherwise           → 1.0   (neutral)
+
+        Returns 1.0 if any input is missing or planet is not in the matrix.
+        """
+        year_map = VARSHPHAL_YEAR_MATRIX.get(age)
+        if not year_map or not natal_house:
+            return 1.0
+
+        annual_house = year_map.get(natal_house)
+        if not annual_house:
+            return 1.0
+
+        # Pakka Ghar — strongest positive signal
+        if PLANET_PAKKA_GHAR.get(planet) == annual_house:
+            return 1.25
+
+        # Exaltation — peak performance
+        if annual_house in PLANET_EXALTATION.get(planet, []):
+            return 1.15
+
+        # Debilitation — planet struggling
+        if annual_house in PLANET_DEBILITATION.get(planet, []):
+            return 0.75
+
+        # Enemy territory — identify which planet owns that house (Fixed House Lords)
+        # and check if they are an enemy of this planet.
+        # Approximate: check if the annual house is in an enemy's Pakka Ghar territory.
+        for enemy in ENEMIES.get(planet, []):
+            if PLANET_PAKKA_GHAR.get(enemy) == annual_house:
+                return 0.85
+
+        return 1.0
+
     def evaluate_chart(self, chart: dict[str, Any]) -> list[RuleHit]:
         """
         Evaluate all rules in the database against *chart*.
@@ -130,6 +193,45 @@ class RulesEngine:
                 if mag is None:
                     base = self.boost_scaling if scoring_type == "boost" else self.penalty_scaling
                     mag = apply_scale_to_magnitude(rule.get("scale", "minor"), base)
+
+                # ── ANNUAL DIGNITY MODIFIER ──────────────────────────────────
+                # For Yearly charts, scale magnitude by how well each triggering
+                # planet is dignified in that specific annual position.
+                # Natal (Birth) charts always get modifier=1.0 (no change).
+                age = chart.get("chart_period", 0)
+                natal_positions = chart.get("_natal_positions", {})
+                if natal_positions and age and targets:
+                    # Average modifier across all planets that triggered this rule
+                    planet_modifiers = []
+                    for p in targets:
+                        # Strip "Masnui " prefix if present — use base planet name for lookup
+                        base_name = p.replace("Masnui ", "") if p.startswith("Masnui ") else p
+                        natal_h = natal_positions.get(base_name)
+                        if natal_h:
+                            planet_modifiers.append(
+                                self._compute_dignity_modifier(base_name, natal_h, age)
+                            )
+                    if planet_modifiers:
+                        avg_modifier = sum(planet_modifiers) / len(planet_modifiers)
+                        mag = mag * avg_modifier
+                # ────────────────────────────────────────────────────────────
+
+                # ── 35-YEAR CYCLE RULER MODIFIER ─────────────────────────────
+                # If the current period ruler is one of the rule's triggering
+                # planets → boost (ruler is "in charge" and delivering this rule).
+                # If the period ruler is an enemy of the triggering planets
+                # → friction (rulership working against the rule's planets).
+                if age and targets:
+                    cycle_ruler = get_35_year_ruler(age)
+                    base_names = {
+                        (p.replace("Masnui ", "") if p.startswith("Masnui ") else p)
+                        for p in targets
+                    }
+                    if cycle_ruler in base_names:
+                        mag *= 1.20   # period ruler is delivering this rule
+                    elif any(cycle_ruler in ENEMIES.get(p, []) for p in base_names):
+                        mag *= 0.85   # period ruler is hostile to this rule's planets
+                # ─────────────────────────────────────────────────────────────
 
                 # Parse targets and houses if they are strings in DB
                 primary_targets = targets
@@ -207,7 +309,7 @@ class RulesEngine:
             target_state = node.get("state", "occupied")
             
             # Check house_status dict in chart
-            status_map = chart.get("house_status", {})
+            status_map = chart.get("house_status") or {}
             actual_state = status_map.get(target_h, "Empty House").lower()
             
             is_match = False

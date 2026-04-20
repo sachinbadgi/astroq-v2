@@ -60,6 +60,15 @@ For multi-step tasks, state a brief plan:
 
 Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
 
+## 5. AstroQ Project-Specific Standards (Anti-Hallucination)
+
+**Lal Kitab Logic is sensitive to planetary placement. Small drift = 100% error.**
+
+- **Chart System Consistency**: NEVER mix Vedic (Lahiri/Whole Sign) and KP (Placidus) in the same payload. If a natal chart is Vedic, all 75 annual charts MUST be Vedic. In `ChartGenerator`, always inherit the natal `chart_system` for the `annual_basis`.
+- **9 Planets ONLY**: Excluding the "Asc" (Ascendant) from all planetary lists. In Lal Kitab, the Ascendant defines the houses but is NOT a Graha that casts aspects or receives strength.
+- **Shared State Isolation**: Always use `copy.deepcopy()` when processing charts in the `LKPredictionPipeline`. The internal loops (annual charts) often share nested dictionaries, leading to "Shadow Variable" bugs where the 75th year's data overwrites the Natal data.
+- **Verification First**: After any change to the calculation logic, run a regeneration script (e.g., `regenerate_sachin.py`) and verify that Jupiter and other key planets remain grounded in their expected houses.
+
 ---
 
 **These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.

@@ -1,16 +1,13 @@
 """
-Module 3: Grammar Analyser.
-
 Detects 15 Lal Kitab grammar conditions and applies their respective strength
 modifiers. Updates the `EnrichedPlanet` dicts in-place.
 
-Section 14 of lk_prediction_model_v2.md documents the COMPLETE reference rules
-implemented here.  Key fixes vs. the previous partial implementation:
-  1. Mangal Badh: 17 rules (13 increments + 4 decrements) from Mars_special_rules.py
-  2. Disposition Rules: 16 rules from global_birth_yearly_strength_additional_checks.py
+Key components:
+  1. Mangal Badh: 17 rules (13 increments + 4 decrements)
+  2. Disposition Rules: 16 rules for house-lord interactions
   3. BilMukabil: 3-step logic (friends + sig. aspect + enemy in foundational house)
-  4. Sleeping Planet: uses canonical HOUSE_ASPECT_MAP (not len(aspects) > 0)
-  5. Mangal Badh divisor: 16.0 (not 5.0)
+  4. Sleeping Planet: uses canonical HOUSE_ASPECT_MAP
+  5. Mangal Badh divisor: 16.0 (canonical reference)
 """
 
 from __future__ import annotations
@@ -99,6 +96,11 @@ class GrammarAnalyser:
         mangal_badh_counter = self.detect_mangal_badh(chart)
         chart["mangal_badh_status"] = "Active" if mangal_badh_counter > 0 else "Inactive"
         chart["mangal_badh_count"] = mangal_badh_counter
+        chart["andhi_kundli_status"] = self.detect_andhi_kundli(chart)
+
+        # Note: Masnui integration is handled in Phase 5 via _integrate_masnui()
+        # to ensure correct strength (canonical 5.0) and aspects are applied
+        # AFTER per-planet adjustments, not before.
 
         dharmi_kundli = chart.get("dharmi_kundli_status") == "Dharmi Teva"
         mangal_badh_active = chart.get("mangal_badh_status") == "Active"
@@ -142,22 +144,28 @@ class GrammarAnalyser:
             elif self.detect_sleeping(planet, planets_data):
                 ep["sleeping_status"] = "Sleeping Planet"
 
+            # Nikami (Inert)
+            if self.detect_nikami(planet, chart):
+                ep["is_nikami"] = True
+
             # Kaayam
             states = pd.get("states", [])
-            if "Kaayam" in states:
+            if "Kaayam" in states or self.detect_kaayam(planet, enriched):
                 ep["kaayam_status"] = "Kaayam"
 
-            # Dharmi — Kundli check first, then individual planet check
+            # Dharmi — Kundli-level (Dharmi Teva) takes highest priority
             if dharmi_kundli:
                 ep["dharmi_status"] = "Dharmi Teva"
-            elif self.detect_dharmi(planet, planets_data):
-                ep["dharmi_status"] = "Dharmi Planet"
-            elif pd.get("dharmi_status") == "Dharmi Planet":
-                ep["dharmi_status"] = "Dharmi Planet"
+            elif pd.get("dharmi_status"):
+                ep["dharmi_status"] = pd.get("dharmi_status")
+            else:
+                dharmi_val = self.detect_dharmi(planet, planets_data)
+                if dharmi_val:
+                    ep["dharmi_status"] = dharmi_val
 
             # Sathi & BilMukabil
             self._find_companions_and_hostiles(planet, ep, planets_data)
-            
+
             # Aspects (for UI rendering)
             self._find_aspects(planet, ep, planets_data)
 
@@ -173,6 +181,9 @@ class GrammarAnalyser:
             ep["dispositions_active"] = [
                 d for d in disposition_list if planet in d.get("affected_planets", [])
             ]
+
+        # Phase 4: Structural Classification (Nagrik/Nashtik)
+        self.apply_structural_classification(chart)
 
         # ── Phase 4: Apply per-planet strength adjustments ─────────────
         # Pass causer side-table so dispositions can be applied after sleeping
@@ -199,6 +210,7 @@ class GrammarAnalyser:
         ep.setdefault("sleeping_status", "")
         ep.setdefault("kaayam_status", "")
         ep.setdefault("dharmi_status", "")
+        ep.setdefault("is_nikami", False)
         ep.setdefault("sathi_companions", [])
         ep.setdefault("bilmukabil_hostile_to", [])
         ep.setdefault("is_masnui", False)
@@ -294,7 +306,7 @@ class GrammarAnalyser:
             if other != planet and opd.get("house") == house:
                 ep["sathi_companions"].append(other)
 
-        # BilMukabil: use the correct 3-step detection
+        # BilMukabil:friends but enemy in foundational house
         for other in planets_data:
             if other == planet:
                 continue
@@ -427,27 +439,17 @@ class GrammarAnalyser:
     ) -> None:
         total = float(ep.get("strength_total", 0.0))
         bd = ep["strength_breakdown"]
+        is_sleeping = bool(ep.get("sleeping_status"))
 
-        # 1. Kaayam (powerful state — applied first)
-        if ep["kaayam_status"] == "Kaayam":
-            delta = abs(total) * (self.w_kaayam - 1.0)
-            bd["kaayam"] += delta
-            total += delta
-
-        # 2. Dharmi (powerful state — applied before sleeping)
-        if ep["dharmi_status"]:
-            boost = self.w_dharmi_kundli if ep["dharmi_status"] == "Dharmi Teva" else self.w_dharmi
-            delta = abs(total) * (boost - 1.0)
-            bd["dharmi"] += delta
-            total += delta
-
-        # 3. Sleeping (zeroes out remaining base strength)
-        if ep["sleeping_status"]:
+        # 1. Sleeping (zeroes out base strength — must come first per Lal Kitab canon)
+        #    A sleeping planet cannot simultaneously be Kaayam or Dharmi.
+        if is_sleeping:
             delta = total * self.w_sleep - total
             bd["sleeping"] += delta
             total += delta
 
-        # 4. Disposition rules (applied AFTER sleeping so Good rules still contribute)
+        # 2. Disposition rules (external causer effects, applied before intrinsic boosts)
+        #    This ensures external planetary harm/help registers on the base value.
         if planets_data and causer_strengths:
             for causer, causer_houses, affected, effect in _DISPOSITION_RULES:
                 if affected != planet:
@@ -464,6 +466,24 @@ class GrammarAnalyser:
                 bd["disposition"] += delta
                 total += delta
 
+        # 3. Kaayam (powerful established state — only applies if not sleeping)
+        if not is_sleeping and ep["kaayam_status"] == "Kaayam":
+            delta = abs(total) * (self.w_kaayam - 1.0)
+            bd["kaayam"] += delta
+            total += delta
+
+        # 4. Dharmi (pious/protected state — applies regardless of sleeping state)
+        #    Per canonical Lal Kitab: Dharmi status is divine protection that
+        #    transcends the mechanical sleeping condition. A sleeping Dharmi planet's
+        #    protection is computed from its raw natal strength, not the zeroed total.
+        if ep["dharmi_status"]:
+            boost = self.w_dharmi_kundli if ep["dharmi_status"] == "Dharmi Teva" else self.w_dharmi
+            # Use raw base for sleeping planets (their total is 0 after sleeping)
+            dharmi_base = float(ep.get("raw_aspect_strength", 0.0)) if is_sleeping and total == 0.0 else abs(total)
+            delta = dharmi_base * (boost - 1.0)
+            bd["dharmi"] += delta
+            total += delta
+
         # 5. Sathi
         if ep["sathi_companions"]:
             delta = len(ep["sathi_companions"]) * self.w_sathi
@@ -476,19 +496,22 @@ class GrammarAnalyser:
             bd["bilmukabil"] += delta
             total += delta
 
-        # 7. Mangal Badh — formula: strength * (1 + counter / divisor)
+        # 7. Mangal Badh — formula per canonical 17-rule Goswami spec.
+        #    The formula defines the TARGET final value for Mars:
+        #      mars_final = initial_strength - initial_strength * (1 + counter / divisor)
+        #                 = - initial_strength * counter / divisor
+        #    The delta brings the running total TO this target.
         if mangal_active and planet == "Mars":
+            mars_base = abs(float(ep.get("raw_aspect_strength", abs(total))))
             counter = max(0, mangal_counter)
-            reduction = abs(total) * (1.0 + counter / self.w_mangal)
-            delta = -reduction
+            target_final = mars_base - mars_base * (1.0 + counter / self.w_mangal)
+            delta = target_final - total
             bd["mangal_badh"] += delta
-            total += delta
+            total = target_final
 
-        # 8. Masnui Feedback
-        if ep["is_masnui_parent"]:
-            delta = abs(total) * self.w_masnui
-            bd["masnui_feedback"] += delta
-            total += delta
+        # Note: Masnui parent feedback is applied separately in Phase 5 (_integrate_masnui),
+        # not here, to avoid double-counting. The virtual Masnui planet must exist first
+        # (with its canonical strength_total=5.0) before feedback is distributed.
 
         # 9. Dhoka
         if ep["dhoka_graha"]:
@@ -516,14 +539,16 @@ class GrammarAnalyser:
 
         ep["strength_total"] = total
 
+
+
     # ------------------------------------------------------------------
     # Public detectors
     # ------------------------------------------------------------------
 
     def detect_sleeping(self, planet: str, planets: dict) -> bool:
         """
-        Sleeping if planet is NOT in its Pakka Ghar AND does not cast an aspect
-        on any occupied house (using canonical HOUSE_ASPECT_MAP).
+        Sleeping if planet is NOT in its Pakka Ghar AND neither casts nor receives
+        a significant aspect (using canonical HOUSE_ASPECT_MAP).
         """
         p_data = planets.get(planet)
         if not p_data:
@@ -537,69 +562,154 @@ class GrammarAnalyser:
         if planet_house == PAKKA_GHAR.get(planet):
             return False
 
-        # Check whether any aspected house is occupied by another planet
+        # 1. Does it CAST an aspect on any occupied house?
         aspected_houses = HOUSE_ASPECT_MAP.get(planet_house, [])
         for house in aspected_houses:
-            occupied = [
-                p for p, d in planets.items()
-                if p != planet and d.get("house") == house
-            ]
+            occupied = [p for p, d in planets.items() if p != planet and d.get("house") == house]
             if occupied:
-                return False  # Aspects an occupied house → Awake
+                return False  # Awake (Casting)
 
-        return True  # Not in pakka ghar AND not aspecting any planet
+        # 2. Does it RECEIVE a significant aspect from any occupied house?
+        for other_p, other_data in planets.items():
+            if other_p == planet: continue
+            other_house = other_data.get("house")
+            if not other_house: continue
+            
+            # If the other planet hits our house via a significant aspect
+            if planet_house in HOUSE_ASPECT_MAP.get(other_house, []):
+                return False # Awake (Receiving)
+
+        return True # Neither casts nor receives significant hits
 
     def detect_kaayam(self, planet: str, planets: dict) -> bool:
-        """Kaayam if base strength > 5 and NO enemy aspects received."""
+        """Kaayam if base strength > 0 and NO enemy/equal aspects received."""
         p_data = planets.get(planet)
         if not p_data:
             return False
 
-        if p_data.get("strength_total", 0.0) <= 5.0:
+        # If it has some positive base strength, it's a candidate for stability
+        if p_data.get("strength_total", 0.0) <= 0.0:
             return False
 
         target_house = p_data.get("house")
         for caster, c_data in planets.items():
             if caster == planet:
                 continue
-            for asp in c_data.get("aspects", []):
-                if asp.get("aspecting_house") == target_house and asp.get("relationship") == "enemy":
+            
+            # Use canonical HOUSE_ASPECT_DATA to check if caster hits target_house
+            caster_house = c_data.get("house")
+            if not caster_house: continue
+            
+            aspects_from_caster = HOUSE_ASPECT_DATA.get(caster_house, {})
+            is_hitting = False
+            for target_houses in aspects_from_caster.values():
+                t_list = [target_houses] if isinstance(target_houses, int) else target_houses
+                if target_house in t_list:
+                    is_hitting = True
+                    break
+            
+            if is_hitting:
+                # Is caster an enemy or equal?
+                rel = self._get_relationship(caster, planet)
+                if rel in ("enemy", "equal"):
                     return False
         return True
 
     def detect_dharmi_kundli(self, chart: dict) -> bool:
-        """Dharmi Teva if Saturn and Jupiter are conjunct."""
+        """
+        Dharmi Teva (Kundli-level): Saturn and Jupiter are conjunct in the same house.
+        This is the highest dharmi state, elevating all planets in the chart.
+        Individual planet dharmi (e.g. Jupiter in H4, Saturn in H11) is handled by detect_dharmi().
+        """
         planets = chart.get("planets_in_houses", {})
         sat = planets.get("Saturn", {}).get("house")
         jup = planets.get("Jupiter", {}).get("house")
         return bool(sat and jup and sat == jup)
-    def detect_dharmi(self, planet: str, planets: dict[str, Any]) -> bool:
+
+    def detect_dharmi(self, planet: str, planets: dict) -> str:
         """
-        Dharmi (Lucky) Planet detection:
-        - Rahu or Ketu in House 4 (Moon's house) or conjunct Moon.
-        - Saturn in House 11 (Jupiter's house) or conjunct Jupiter.
+        Dharmi (Pious/Protected) detection per canonical Lal Kitab rules.
+        Returns a specific dharmi label describing the condition, or '' if none.
         """
-        p_info = planets.get(planet)
-        if not p_info:
-            return False
-            
-        h = p_info.get("house")
-        if not h:
-            return False
-            
-        # Detect Moon/Jupiter for conjunctions
-        h_moon = planets.get("Moon", {}).get("house")
-        h_jup = planets.get("Jupiter", {}).get("house")
+        p_data = planets.get(planet)
+        if not p_data: return ""
+
+        house = p_data.get("house")
+        if not house: return ""
+
+        # 1. Rahu in H4
+        if planet == "Rahu" and house == 4:
+            return "Dharmi Rahu (Poison Neutralized)"
+
+        # 2. Saturn in H11
+        if planet == "Saturn" and house == 11:
+            return "Dharmi Saturn (Watchdog)"
+
+        # 3. Conjunction Jupiter + Saturn (individual planet label for the conjunct case)
+        if planet in ["Jupiter", "Saturn"]:
+            other = "Saturn" if planet == "Jupiter" else "Jupiter"
+            if planets.get(other, {}).get("house") == house:
+                return "Dharmi Conjunction (Jup+Sat)"
+
+        # 4. Standard Jupiter (Not in H10)
+        if planet == "Jupiter" and house != 10:
+            return "Dharmi Jupiter"
+
+        return ""
+
+    def apply_structural_classification(self, chart: dict):
+        """Tags chart as Nagrik (H1-H6 focus) or Nashtik (H7-H12 focus)."""
+        pih = chart.get("planets_in_houses", {})
+        occupied_houses = {d.get("house") for d in pih.values() if d.get("house")}
         
-        if planet in ("Rahu", "Ketu"):
-            # H4 or conjunct Moon
-            return h == 4 or (bool(h_moon) and h == h_moon)
-            
-        if planet == "Saturn":
-            # H11 or conjunct Jupiter
-            return h == 11 or (bool(h_jup) and h == h_jup)
-            
-        return False
+        upper_half = {1, 2, 3, 4, 5, 6}
+        lower_half = {7, 8, 9, 10, 11, 12}
+        
+        if occupied_houses and occupied_houses.issubset(upper_half):
+            chart["structural_type"] = "Nagrik (Active/Self)"
+        elif occupied_houses and occupied_houses.issubset(lower_half):
+            chart["structural_type"] = "Nashtik (Passive/Social)"
+        else:
+            chart["structural_type"] = "Mixed"
+
+    def detect_nikami(self, planet: str, chart: dict) -> bool:
+        """
+        Nikami (Inert) if in an enemy house AND 7th house (opposition) is empty.
+        Source: Lal Kitab 1952.
+        """
+        pih = chart.get("planets_in_houses", {})
+        p_data = pih.get(planet)
+        if not p_data: return False
+        
+        house = p_data.get("house")
+        if not house: return False
+        
+        # 1. Is it in an enemy house? (Pakka Lord of that house is an enemy)
+        from .lk_constants import PLANET_PAKKA_GHAR, ENEMIES
+        
+        # Find who owns this house
+        house_owner = None
+        for p, h in PLANET_PAKKA_GHAR.items():
+            if h == house:
+                house_owner = p
+                break
+        
+        if not house_owner: return False
+        
+        is_enemy_house = house_owner in ENEMIES.get(planet, [])
+        if not is_enemy_house: return False
+        
+        # 2. Is 7th house from this planet empty?
+        opposition_house = (house + 6 - 1) % 12 + 1
+        
+        # Check if anyone is in opposition house
+        is_opposition_empty = True
+        for p, data in pih.items():
+            if data.get("house") == opposition_house:
+                is_opposition_empty = False
+                break
+        
+        return is_opposition_empty
 
     def detect_sathi(self, p1: str, p2: str, planets: dict) -> bool:
         """Sathi if mutual exchange of houses (Exaltation/Debilitation/Pakka)."""
@@ -697,11 +807,11 @@ class GrammarAnalyser:
         # R1: Sun+Saturn conjunct
         if conjunct("Sun", "Saturn"):
             counter += 1
-        # R2: Sun does NOT aspect Mars
-        if not aspects("Sun", "Mars"):
+        # R2: Sun exists and does NOT aspect Mars
+        if h("Sun") and not aspects("Sun", "Mars"):
             counter += 1
-        # R3: Moon does NOT aspect Mars
-        if not aspects("Moon", "Mars"):
+        # R3: Moon exists and does NOT aspect Mars
+        if h("Moon") and not aspects("Moon", "Mars"):
             counter += 1
         # R4: Mercury in H6 AND Ketu in H6
         if in_house("Mercury", 6) and in_house("Ketu", 6):
@@ -779,15 +889,20 @@ class GrammarAnalyser:
             ({"moon", "saturn"}, "Artificial Ketu (Debilitated Ketu)"),
         ]
 
-        for h_num, occupants in house_occupants.items():
-            if not occupants:
+        # Build a reverse map: lowercase planet name → title-case chart key
+        actual_name_map = {p.lower(): p for p in planets_data}
+
+        for h_num, occupants_lc in house_occupants.items():
+            if not occupants_lc:
                 continue
             for required_set, result_name in rules:
-                if required_set == occupants:
+                if required_set.issubset(occupants_lc):
+                    # Map lowercase back to actual planet names in the chart
+                    components = [actual_name_map.get(p, p.capitalize()) for p in occupants_lc]
                     res.append({
                         "formed_in_house": h_num,
                         "masnui_graha_name": result_name,
-                        "components": [p.capitalize() for p in occupants],
+                        "components": components,
                     })
         return res
 
@@ -867,14 +982,35 @@ class GrammarAnalyser:
                     potentials.append((p1, p2, h1, h2))
 
         for p1, p2, h1, h2 in potentials:
-            p1_a = a_planets.get(p1, {})
-            p2_a = a_planets.get(p2, {})
-            triggered = any(
-                asp.get("aspecting_planet") == p2 and asp.get("aspect_type") in sig_aspects
-                for asp in p1_a.get("aspects", [])
-            ) or any(
-                asp.get("aspecting_planet") == p1 and asp.get("aspect_type") in sig_aspects
-                for asp in p2_a.get("aspects", [])
+            p1_annual_house = a_planets.get(p1, {}).get("house")
+            p2_annual_house = a_planets.get(p2, {}).get("house")
+            if not p1_annual_house or not p2_annual_house:
+                continue
+
+            def has_sig_aspect(from_house: int, to_house: int) -> bool:
+                """Check if from_house has a significant aspect (100%/50%/25%) to to_house."""
+                h_data = HOUSE_ASPECT_DATA.get(from_house, {})
+                for asp_type, asp_target in h_data.items():
+                    if asp_type not in sig_aspects:
+                        continue
+                    targets = [asp_target] if isinstance(asp_target, int) else (asp_target if isinstance(asp_target, list) else [])
+                    if to_house in targets:
+                        return True
+                return False
+
+            def has_explicit_aspect(planet_a: str, planet_b: str) -> bool:
+                """Check pre-injected aspect list (upstream data). Supports both key schemas."""
+                for asp in a_planets.get(planet_a, {}).get("aspects", []):
+                    target = asp.get("aspecting_planet") or asp.get("target", "")
+                    if target == planet_b and asp.get("aspect_type") in sig_aspects:
+                        return True
+                return False
+
+            triggered = (
+                has_sig_aspect(p1_annual_house, p2_annual_house) or
+                has_sig_aspect(p2_annual_house, p1_annual_house) or
+                has_explicit_aspect(p1, p2) or
+                has_explicit_aspect(p2, p1)
             )
             if triggered:
                 res.append({"planets": [p1, p2], "birth_chart_houses": [h1, h2]})
@@ -983,6 +1119,45 @@ class GrammarAnalyser:
 
         return res
 
+    def _integrate_masnui_planets(self, chart: dict, enriched: dict) -> None:
+        """Create virtual planets in enriched for each Masnui trigger."""
+        triggers = chart.get("masnui_grahas_formed", [])
+        for trig in triggers:
+            raw_name = trig["masnui_graha_name"]
+            # Use "Masnui" prefix for enriched entries (canonical user-facing name)
+            name = raw_name.replace("Artificial ", "Masnui ")
+            h_num = trig["formed_in_house"]
+            components = trig["components"]
+            
+            # Strength is average or component-based
+            base_total = sum(enriched.get(c, {}).get("strength_total", 0.0) for c in components)
+            
+            from astroq.lk_prediction.lk_constants import MASNUI_TO_STANDARD
+            base_planet = MASNUI_TO_STANDARD.get(name, "Sun")
+            
+            enriched[name] = {
+                "house": h_num,
+                "is_masnui": True,
+                "components": components,
+                "base_standard_planet": base_planet,
+                "strength_total": base_total,
+                "raw_aspect_strength": 0.0,
+                "dignity_score": 0.0,
+                "strength_breakdown": {"masnui_foundation": base_total},
+                "aspects": [],
+                "states": ["Masnui"]
+            }
+            # Feedback to parents
+            for c in components:
+                feedback = base_total * self.w_masnui
+                if c in enriched:
+                    enriched[c]["strength_total"] = enriched[c].get("strength_total", 0.0) + feedback
+                    bd = enriched[c].setdefault("strength_breakdown", {})
+                    bd["masnui_feedback"] = bd.get("masnui_feedback", 0.0) + feedback
+                    # Add state tag for transparency and test verifiability
+                    enriched[c].setdefault("states", [])
+                    enriched[c]["states"].append(f"Masnui Feedback (+{feedback:.1f})")
+
     def _get_35_year_ruler(self, age: int) -> str:
         """Calculate the 35-year cycle ruler for a given age (1-based annual chart_period)."""
         if age <= 0:
@@ -998,3 +1173,14 @@ class GrammarAnalyser:
         if 28 <= period <= 33: return "Mars"
         if 34 <= period <= 35: return "Mercury"
         return ""
+
+    def detect_andhi_kundli(self, chart: dict) -> str:
+        """Andhi Kundli (Blind Horoscope) detection."""
+        planets = chart.get("planets_in_houses", {})
+        h = lambda p: planets.get(p, {}).get("house")
+        if h("Sun") == 4 and h("Saturn") == 7:
+            return "Active (Sun 4, Sat 7)"
+        malefics_in_10 = [p for p in ["Saturn", "Rahu", "Ketu"] if h(p) == 10]
+        if len(malefics_in_10) >= 2:
+            return "Active (Malefics cluster in 10)"
+        return "Inactive"

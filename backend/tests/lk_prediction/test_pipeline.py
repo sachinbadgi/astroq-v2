@@ -72,7 +72,6 @@ class TestPipeline:
         pipeline = self._make_pipeline(tmp_db, tmp_defaults)
         chart = self._mock_chart_data()
         
-        pipeline.cfg.set_override("classifier.threshold_absolute", 0.30)
         preds = pipeline.generate_predictions(chart)
         assert len(preds) > 0
         assert isinstance(preds[0], LKPrediction)
@@ -90,7 +89,6 @@ class TestPipeline:
         pipeline = self._make_pipeline(tmp_db, tmp_defaults)
         chart = self._mock_chart_data()
         
-        pipeline.cfg.set_override("classifier.threshold_absolute", 0.30)
         # Should only return predictions related to Career (since Sun is in 10th)
         preds = pipeline.generate_predictions(chart, focus_domains=["Career"])
         

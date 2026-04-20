@@ -58,3 +58,7 @@ The 12 houses map to the 12 Vikrami months (starting ~13 April each year):
 ## Implementation Notes
 
 > **Note**: The "rotation" does NOT generate a new astronomical chart from ephemeris. It is a purely deterministic **house-shift operation** on the existing planet positions of the parent chart. Planet dignity states (Exalted, Debilitated, Fixed House Lord) must be recomputed based on the new house positions.
+
+## System Consistency
+
+To prevent **System Drift** (where the natal potential and annual fulfillment become misaligned), the pipeline enforces that the `chart_system` used for the birth chart (e.g., Vedic Lahiri) MUST be used for all 75 annual charts. Mixing systems in a single payload is prohibited as it creates "Frankenstein" charts that produce hallucinated results.

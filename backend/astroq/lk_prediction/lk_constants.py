@@ -3,12 +3,11 @@ Canonical Lal Kitab Astrological Reference Constants
 =====================================================
 
 Single source of truth for ALL Lal Kitab lookup tables and reference data.
-This file consolidates data previously scattered across:
+This file consolidates data for:
   - constants.py           (dignities, aspects, relationships)
   - grammar_analyser.py    (grammar rules, masnui conjunctions, disposition rules)
   - remedy_engine.py       (pucca ghars, goswami rules, life area groups)
-  - lse_researcher.py      (effective ages, domain-house map)
-  - items_resolver.py      (planet-house articles, relatives)
+  - prediction_translator.py (planet-house articles, relatives)
   - chart_generator.py     (120-year Varshphal matrix)
 
 Cross-reference guide
@@ -1981,4 +1980,34 @@ PLANET_INTERMEDIARY_PERIODS: dict[str, dict[str, str]] = {
         "months_5_8":  "Rahu",
         "months_9_12": "Ketu",
     },
+}
+
+# ============================================================================
+# SECTION 35: BHAGYODAYA (LUCK AWAKENING) AGES
+# ============================================================================
+
+#: Fixed years when the luck of a planet is said to "rise" or awaken.
+#: Source: Lal Kitab 1952 p.64
+BHAGYODAYA_AGES: dict[str, int] = {
+    "Jupiter": 16,
+    "Sun":     22,
+    "Moon":    24,
+    "Venus":   25,
+    "Mars":    28,
+    "Mercury": 34,
+    "Saturn":  36,
+    "Rahu":    42,
+    "Ketu":    48,
+}
+
+# ============================================================================
+# SECTION 36: STRUCTURAL CHART CLASSIFICATIONS
+# ============================================================================
+
+#: Definitions for Nagrik (Urban) and Nashtik (Atheist) chart structures.
+#: - Nagrik: Planets focused on personal sphere (H1-H6).
+#: - Nashtik: Planets focused on social/external sphere (H7-H12).
+STRUCTURAL_CHART_TYPE_RANGES: dict[str, list[int]] = {
+    "Nagrik":  [1, 2, 3, 4, 5, 6],
+    "Nashtik": [7, 8, 9, 10, 11, 12]
 }

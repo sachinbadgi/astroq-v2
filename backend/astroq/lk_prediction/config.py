@@ -38,6 +38,7 @@ class ModelConfig:
     def __init__(self, db_path: str, defaults_path: str) -> None:
         self._db_path = db_path
         self._defaults: dict[str, Any] = {}
+        self._volatile_overrides: dict[str, Any] = {}
 
         # Load JSON defaults
         if os.path.isfile(defaults_path):
@@ -61,11 +62,16 @@ class ModelConfig:
         Resolve a config value using the hierarchical chain.
 
         Resolution order:
+            0. Volatile override (highest priority, in-memory only)
             1. Figure-specific override (if *figure* is provided)
             2. Global override
             3. JSON default
             4. *fallback* (defaults to ``None``)
         """
+        # 0. Volatile override
+        if key in self._volatile_overrides:
+            return self._volatile_overrides[key]
+
         # 1. Figure override
         if figure:
             val = self._get_override(key, figure=figure)
@@ -83,6 +89,14 @@ class ModelConfig:
 
         # 4. Fallback
         return fallback
+
+    def set_volatile_overrides(self, overrides: dict[str, Any]) -> None:
+        """Set ad-hoc, non-persistent overrides for research iterations."""
+        self._volatile_overrides.update(overrides)
+
+    def clear_volatile_overrides(self) -> None:
+        """Clear all volatile overrides."""
+        self._volatile_overrides.clear()
 
     def get_group(self, prefix: str, figure: str | None = None) -> dict[str, Any]:
         """

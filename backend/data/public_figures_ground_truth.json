@@ -4,103 +4,703 @@
     "dob": "1942-10-11",
     "tob": "16:00",
     "events": [
-      {"age": 31, "year": 1973, "domain": "career", "description": "Zanjeer release (stardom) and Marriage to Jaya"},
-      {"age": 40, "year": 1982, "domain": "health", "description": "Coolie accident - nearly fatal injury"},
-      {"age": 58, "year": 2000, "domain": "career", "description": "KBC premiere and massive career comeback"},
-      {"age": 57, "year": 1999, "domain": "finance", "description": "Financial collapse of ABCL"}
-    ]
+      {
+        "age": 31,
+        "year": 1973,
+        "domain": "career",
+        "description": "Zanjeer release (stardom) and Marriage to Jaya"
+      },
+      {
+        "age": 40,
+        "year": 1982,
+        "domain": "health",
+        "description": "Coolie accident - nearly fatal injury"
+      },
+      {
+        "age": 58,
+        "year": 2000,
+        "domain": "career",
+        "description": "KBC premiere and massive career comeback"
+      },
+      {
+        "age": 57,
+        "year": 1999,
+        "domain": "finance",
+        "description": "Financial collapse of ABCL"
+      }
+    ],
+    "birth_place": "Allahabad, India"
   },
   {
     "name": "Sachin Tendulkar",
     "dob": "1973-04-24",
     "tob": "16:15",
     "events": [
-      {"age": 16, "year": 1989, "domain": "career", "description": "International cricket debut"},
-      {"age": 22, "year": 1995, "domain": "marriage", "description": "Marriage to Anjali"},
-      {"age": 38, "year": 2011, "domain": "career", "description": "Cricket World Cup victory"},
-      {"age": 40, "year": 2013, "domain": "career", "description": "Retirement from cricket"}
-    ]
+      {
+        "age": 16,
+        "year": 1989,
+        "domain": "career",
+        "description": "International cricket debut"
+      },
+      {
+        "age": 22,
+        "year": 1995,
+        "domain": "marriage",
+        "description": "Marriage to Anjali"
+      },
+      {
+        "age": 38,
+        "year": 2011,
+        "domain": "career",
+        "description": "Cricket World Cup victory"
+      },
+      {
+        "age": 40,
+        "year": 2013,
+        "domain": "career",
+        "description": "Retirement from cricket"
+      }
+    ],
+    "birth_place": "Mumbai, India"
   },
   {
     "name": "Narendra Modi",
     "dob": "1950-09-17",
     "tob": "09:35",
     "events": [
-      {"age": 51, "year": 2001, "domain": "career", "description": "Chief Minister of Gujarat"},
-      {"age": 64, "year": 2014, "domain": "career", "description": "Prime Minister of India"},
-      {"age": 69, "year": 2019, "domain": "career", "description": "Re-elected as Prime Minister"}
-    ]
+      {
+        "age": 51,
+        "year": 2001,
+        "domain": "career",
+        "description": "Chief Minister of Gujarat"
+      },
+      {
+        "age": 64,
+        "year": 2014,
+        "domain": "career",
+        "description": "Prime Minister of India"
+      },
+      {
+        "age": 69,
+        "year": 2019,
+        "domain": "career",
+        "description": "Re-elected as Prime Minister"
+      }
+    ],
+    "birth_place": "Vadnagar, India"
   },
   {
     "name": "Steve Jobs",
     "dob": "1955-02-24",
     "tob": "19:15",
     "events": [
-      {"age": 21, "year": 1976, "domain": "career", "description": "Founding of Apple"},
-      {"age": 30, "year": 1985, "domain": "career", "description": "Fired from Apple"},
-      {"age": 42, "year": 1997, "domain": "career", "description": "Return to Apple and NeXT acquisition"},
-      {"age": 56, "year": 2011, "domain": "health", "description": "Death due to pancreatic cancer"}
-    ]
+      {
+        "age": 21,
+        "year": 1976,
+        "domain": "career",
+        "description": "Founding of Apple"
+      },
+      {
+        "age": 30,
+        "year": 1985,
+        "domain": "career",
+        "description": "Fired from Apple"
+      },
+      {
+        "age": 42,
+        "year": 1997,
+        "domain": "career",
+        "description": "Return to Apple and NeXT acquisition"
+      },
+      {
+        "age": 56,
+        "year": 2011,
+        "domain": "health",
+        "description": "Death due to pancreatic cancer"
+      }
+    ],
+    "birth_place": "San Francisco, California, US"
   },
   {
     "name": "Bill Gates",
     "dob": "1955-10-28",
     "tob": "21:15",
     "events": [
-      {"age": 20, "year": 1975, "domain": "career", "description": "Co-founded Microsoft"},
-      {"age": 39, "year": 1994, "domain": "marriage", "description": "Marriage to Melinda"},
-      {"age": 66, "year": 2021, "domain": "marriage", "description": "Divorce from Melinda"}
-    ]
+      {
+        "age": 20,
+        "year": 1975,
+        "domain": "career",
+        "description": "Co-founded Microsoft"
+      },
+      {
+        "age": 39,
+        "year": 1994,
+        "domain": "marriage",
+        "description": "Marriage to Melinda"
+      },
+      {
+        "age": 66,
+        "year": 2021,
+        "domain": "marriage",
+        "description": "Divorce from Melinda"
+      }
+    ],
+    "birth_place": "Seattle, Washington, US"
   },
   {
     "name": "Princess Diana",
     "dob": "1961-07-01",
     "tob": "19:45",
     "events": [
-      {"age": 20, "year": 1981, "domain": "marriage", "description": "Marriage to Prince Charles"},
-      {"age": 35, "year": 1996, "domain": "marriage", "description": "Divorce finalization"},
-      {"age": 36, "year": 1997, "domain": "health", "description": "Death in car accident"}
-    ]
+      {
+        "age": 20,
+        "year": 1981,
+        "domain": "marriage",
+        "description": "Marriage to Prince Charles"
+      },
+      {
+        "age": 35,
+        "year": 1996,
+        "domain": "marriage",
+        "description": "Divorce finalization"
+      },
+      {
+        "age": 36,
+        "year": 1997,
+        "domain": "health",
+        "description": "Death in car accident"
+      }
+    ],
+    "birth_place": "Sandringham, Norfolk, UK"
   },
   {
     "name": "Shah Rukh Khan",
     "dob": "1965-11-02",
     "tob": "02:30",
     "events": [
-      {"age": 26, "year": 1991, "domain": "marriage", "description": "Marriage to Gauri"},
-      {"age": 27, "year": 1992, "domain": "career", "description": "Deewana release (Film debut)"},
-      {"age": 58, "year": 2023, "domain": "career", "description": "Pathaan and Jawan (Massive comeback)"}
-    ]
+      {
+        "age": 26,
+        "year": 1991,
+        "domain": "marriage",
+        "description": "Marriage to Gauri"
+      },
+      {
+        "age": 27,
+        "year": 1992,
+        "domain": "career",
+        "description": "Deewana release (Film debut)"
+      },
+      {
+        "age": 58,
+        "year": 2023,
+        "domain": "career",
+        "description": "Pathaan and Jawan (Massive comeback)"
+      }
+    ],
+    "birth_place": "New Delhi, India"
   },
   {
     "name": "Michael Jackson",
     "dob": "1958-08-29",
     "tob": "23:45",
     "events": [
-      {"age": 11, "year": 1969, "domain": "career", "description": "Jackson 5 signing with Motown"},
-      {"age": 24, "year": 1982, "domain": "career", "description": "Thriller release (peak fame)"},
-      {"age": 35, "year": 1993, "domain": "legal", "description": "First major child abuse allegations"},
-      {"age": 51, "year": 2009, "domain": "health", "description": "Death"}
-    ]
+      {
+        "age": 11,
+        "year": 1969,
+        "domain": "career",
+        "description": "Jackson 5 signing with Motown"
+      },
+      {
+        "age": 24,
+        "year": 1982,
+        "domain": "career",
+        "description": "Thriller release (peak fame)"
+      },
+      {
+        "age": 35,
+        "year": 1993,
+        "domain": "legal",
+        "description": "First major child abuse allegations"
+      },
+      {
+        "age": 51,
+        "year": 2009,
+        "domain": "health",
+        "description": "Death"
+      }
+    ],
+    "birth_place": "Gary, Indiana, US"
   },
   {
     "name": "Indira Gandhi",
     "dob": "1917-11-19",
     "tob": "23:11",
     "events": [
-      {"age": 49, "year": 1966, "domain": "career", "description": "First time Prime Minister"},
-      {"age": 58, "year": 1975, "domain": "career", "description": "Imposition of Emergency"},
-      {"age": 67, "year": 1984, "domain": "health", "description": "Assassination/Death"}
-    ]
+      {
+        "age": 49,
+        "year": 1966,
+        "domain": "career",
+        "description": "First time Prime Minister"
+      },
+      {
+        "age": 58,
+        "year": 1975,
+        "domain": "career",
+        "description": "Imposition of Emergency"
+      },
+      {
+        "age": 67,
+        "year": 1984,
+        "domain": "health",
+        "description": "Assassination/Death"
+      }
+    ],
+    "birth_place": "Allahabad, India"
   },
   {
     "name": "Elon Musk",
     "dob": "1971-06-28",
     "tob": "07:30",
     "events": [
-      {"age": 31, "year": 2002, "domain": "career", "description": "Founding of SpaceX"},
-      {"age": 37, "year": 2008, "domain": "finance", "description": "Tesla/SpaceX near bankruptcy + Falcon 1 success"},
-      {"age": 51, "year": 2022, "domain": "career", "description": "Acquisition of Twitter"}
-    ]
+      {
+        "age": 31,
+        "year": 2002,
+        "domain": "career",
+        "description": "Founding of SpaceX"
+      },
+      {
+        "age": 37,
+        "year": 2008,
+        "domain": "finance",
+        "description": "Tesla/SpaceX near bankruptcy + Falcon 1 success"
+      },
+      {
+        "age": 51,
+        "year": 2022,
+        "domain": "career",
+        "description": "Acquisition of Twitter"
+      }
+    ],
+    "birth_place": "Pretoria, South Africa"
+  },
+  {
+    "name": "Mahatma Gandhi",
+    "dob": "1869-10-02",
+    "tob": "07:08:12",
+    "events": [
+      {
+        "description": "Began nonviolent freedom movement",
+        "year": 1919,
+        "domain": "career",
+        "age": 50
+      },
+      {
+        "description": "India Independence",
+        "year": 1947,
+        "domain": "career",
+        "age": 78
+      },
+      {
+        "description": "Assassinated in Delhi",
+        "year": 1948,
+        "domain": "health",
+        "age": 79
+      }
+    ],
+    "birth_place": "Porbandar, India"
+  },
+  {
+    "name": "Jawaharlal Nehru",
+    "dob": "1889-11-14",
+    "tob": "23:30:00",
+    "events": [
+      {
+        "description": "Left for schooling at Harrow, England",
+        "year": 1905,
+        "domain": "career",
+        "age": 16
+      },
+      {
+        "description": "Returned to India (Career start)",
+        "year": 1912,
+        "domain": "career",
+        "age": 23
+      },
+      {
+        "description": "Became first Prime Minister of India",
+        "year": 1947,
+        "domain": "career",
+        "age": 58
+      },
+      {
+        "description": "Signed Delhi Pact",
+        "year": 1950,
+        "domain": "career",
+        "age": 61
+      }
+    ],
+    "birth_place": "Allahabad, India"
+  },
+  {
+    "name": "Osho (Rajneesh)",
+    "dob": "1931-12-11",
+    "tob": "17:13:00",
+    "events": [
+      {
+        "description": "Founded commune in Oregon, US",
+        "year": 1981,
+        "domain": "career",
+        "age": 50
+      },
+      {
+        "description": "Arrested and extradited from US",
+        "year": 1985,
+        "domain": "health",
+        "age": 54
+      },
+      {
+        "description": "Died in Pune, India",
+        "year": 1990,
+        "domain": "health",
+        "age": 59
+      }
+    ],
+    "birth_place": "Raisen, India"
+  },
+  {
+    "name": "Jiddu Krishnamurti",
+    "dob": "1895-05-12",
+    "tob": "00:30:00",
+    "events": [
+      {
+        "description": "Discovered by C.W. Leadbeater",
+        "year": 1909,
+        "domain": "career",
+        "age": 14
+      },
+      {
+        "description": "Death of brother Nitya",
+        "year": 1925,
+        "domain": "marriage",
+        "age": 30
+      },
+      {
+        "description": "Dissolved Order of the Star",
+        "year": 1929,
+        "domain": "career",
+        "age": 34
+      },
+      {
+        "description": "Died in Ojai, California",
+        "year": 1986,
+        "domain": "health",
+        "age": 91
+      }
+    ],
+    "birth_place": "Madanapalle, India"
+  },
+  {
+    "name": "Salman Khan",
+    "dob": "1965-12-27",
+    "tob": "10:45:00",
+    "events": [
+      {
+        "description": "Hit-and-run case incident",
+        "year": 2002,
+        "domain": "health",
+        "age": 37
+      },
+      {
+        "description": "Diagnosed with trigeminal neuralgia",
+        "year": 2011,
+        "domain": "health",
+        "age": 46
+      },
+      {
+        "description": "Sentenced to 5 years",
+        "year": 2015,
+        "domain": "health",
+        "age": 50
+      }
+    ],
+    "birth_place": "Indore, India"
+  },
+  {
+    "name": "Lata Mangeshkar",
+    "dob": "1929-09-28",
+    "tob": "22:30:00",
+    "events": [
+      {
+        "description": "Death of father Deenanath Mangeshkar",
+        "year": 1942,
+        "domain": "marriage",
+        "age": 13
+      },
+      {
+        "description": "First major hit 'Dil Mera Toda'",
+        "year": 1948,
+        "domain": "career",
+        "age": 19
+      },
+      {
+        "description": "Awarded Bharat Ratna",
+        "year": 2001,
+        "domain": "career",
+        "age": 72
+      },
+      {
+        "description": "Died in Mumbai",
+        "year": 2022,
+        "domain": "health",
+        "age": 93
+      }
+    ],
+    "birth_place": "Indore, India"
+  },
+  {
+    "name": "Priyanka Chopra",
+    "dob": "1982-07-18",
+    "tob": "00:30:00",
+    "events": [
+      {
+        "description": "Won Miss World title",
+        "year": 2000,
+        "domain": "career",
+        "age": 18
+      },
+      {
+        "description": "Death of father Dr. Ashok Chopra",
+        "year": 2013,
+        "domain": "marriage",
+        "age": 31
+      },
+      {
+        "description": "Marriage to Nick Jonas",
+        "year": 2018,
+        "domain": "marriage",
+        "age": 36
+      }
+    ],
+    "birth_place": "Jamshedpur, India"
+  },
+  {
+    "name": "Donald Trump",
+    "dob": "1946-06-14",
+    "tob": "10:54:00",
+    "events": [
+      {
+        "description": "Marriage to Ivana Zelnickova",
+        "year": 1977,
+        "domain": "marriage",
+        "age": 31
+      },
+      {
+        "description": "Elected President of the United States",
+        "year": 2016,
+        "domain": "career",
+        "age": 70
+      },
+      {
+        "description": "End of presidential term",
+        "year": 2021,
+        "domain": "career",
+        "age": 75
+      }
+    ],
+    "birth_place": "Jamaica Hospital, Queens, New York, US"
+  },
+  {
+    "name": "Barack Obama",
+    "dob": "1961-08-04",
+    "tob": "19:24:00",
+    "events": [
+      {
+        "description": "Death of father Barack Obama Sr.",
+        "year": 1982,
+        "domain": "marriage",
+        "age": 21
+      },
+      {
+        "description": "Elected to the US Senate",
+        "year": 2004,
+        "domain": "career",
+        "age": 43
+      },
+      {
+        "description": "Elected President of the United States",
+        "year": 2008,
+        "domain": "career",
+        "age": 47
+      }
+    ],
+    "birth_place": "Honolulu, Hawaii, US"
+  },
+  {
+    "name": "Joe Biden",
+    "dob": "1942-11-20",
+    "tob": "08:30:00",
+    "events": [
+      {
+        "description": "Death of wife and daughter in car accident",
+        "year": 1972,
+        "domain": "marriage",
+        "age": 30
+      },
+      {
+        "description": "Suffered major brain aneurysm",
+        "year": 1988,
+        "domain": "health",
+        "age": 46
+      },
+      {
+        "description": "Death of son Beau Biden",
+        "year": 2015,
+        "domain": "marriage",
+        "age": 73
+      },
+      {
+        "description": "Elected President of the United States",
+        "year": 2020,
+        "domain": "career",
+        "age": 78
+      }
+    ],
+    "birth_place": "Scranton, Pennsylvania, US"
+  },
+  {
+    "name": "Queen Elizabeth II",
+    "dob": "1926-04-21",
+    "tob": "02:40:00",
+    "events": [
+      {
+        "description": "Marriage to Prince Philip",
+        "year": 1947,
+        "domain": "marriage",
+        "age": 21
+      },
+      {
+        "description": "Accession to the throne",
+        "year": 1952,
+        "domain": "career",
+        "age": 26
+      },
+      {
+        "description": "Death of Prince Philip",
+        "year": 2021,
+        "domain": "marriage",
+        "age": 95
+      },
+      {
+        "description": "Died at Balmoral",
+        "year": 2022,
+        "domain": "health",
+        "age": 96
+      }
+    ],
+    "birth_place": "Mayfair, London, UK"
+  },
+  {
+    "name": "King Charles III",
+    "dob": "1948-11-14",
+    "tob": "21:14:00",
+    "events": [
+      {
+        "description": "Marriage to Lady Diana Spencer",
+        "year": 1981,
+        "domain": "marriage",
+        "age": 33
+      },
+      {
+        "description": "Marriage to Camilla Parker Bowles",
+        "year": 2005,
+        "domain": "marriage",
+        "age": 57
+      },
+      {
+        "description": "Accession to the throne",
+        "year": 2022,
+        "domain": "career",
+        "age": 74
+      }
+    ],
+    "birth_place": "Buckingham Palace, London, UK"
+  },
+  {
+    "name": "Mother Teresa",
+    "dob": "1910-08-26",
+    "tob": "14:25:00",
+    "events": [
+      {
+        "description": "Divine call ('call within a call')",
+        "year": 1946,
+        "domain": "career",
+        "age": 36
+      },
+      {
+        "description": "Awarded Nobel Peace Prize",
+        "year": 1979,
+        "domain": "career",
+        "age": 69
+      },
+      {
+        "description": "Died in Calcutta",
+        "year": 1997,
+        "domain": "health",
+        "age": 87
+      }
+    ],
+    "birth_place": "Skopje, North Macedonia"
+  },
+  {
+    "name": "Rajiv Gandhi",
+    "dob": "1944-08-20",
+    "tob": "08:11:00",
+    "events": [
+      {
+        "description": "Marriage to Sonia Maino",
+        "year": 1968,
+        "domain": "marriage",
+        "age": 24
+      },
+      {
+        "description": "Became Prime Minister of India",
+        "year": 1984,
+        "domain": "career",
+        "age": 40
+      },
+      {
+        "description": "Assassinated in Sriperumbudur",
+        "year": 1991,
+        "domain": "health",
+        "age": 47
+      }
+    ],
+    "birth_place": "Mumbai, India"
+  },
+  {
+    "name": "Aamir Khan",
+    "dob": "1965-03-14",
+    "tob": "06:15:00",
+    "events": [
+      {
+        "description": "Marriage to Reena Dutta",
+        "year": 1986,
+        "domain": "marriage",
+        "age": 21
+      },
+      {
+        "description": "Oscar nomination for 'Lagaan'",
+        "year": 2001,
+        "domain": "career",
+        "age": 36
+      },
+      {
+        "description": "Marriage to Kiran Rao",
+        "year": 2005,
+        "domain": "marriage",
+        "age": 40
+      }
+    ],
+    "birth_place": "Mumbai, India"
   }
 ]

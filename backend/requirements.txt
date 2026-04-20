@@ -13,3 +13,5 @@ uvicorn
 vedicastro
 gradio
 langgraph
+flatlib==0.2.0
+pyswisseph

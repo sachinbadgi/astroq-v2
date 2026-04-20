@@ -18,10 +18,11 @@ import copy
 from typing import Any, Optional
 
 from astroq.lk_prediction.config import ModelConfig
-from astroq.lk_prediction.constants import (
+
+from astroq.lk_prediction.lk_constants import (
     PLANET_PAKKA_GHAR, PLANET_EXALTATION, PLANET_DEBILITATION,
-    FIXED_HOUSE_LORDS, SCAPEGOATS_INFO, FRIENDS_DATA, ENEMIES_DATA,
-    ASPECT_STRENGTH_DATA, HOUSE_ASPECT_DATA, SUDDEN_STRIKE_HOUSE_SETS
+    FIXED_HOUSE_LORDS, SCAPEGOATS, NATURAL_RELATIONSHIPS, FRIENDS, ENEMIES,
+    ASPECT_STRENGTH_DATA, HOUSE_ASPECT_DATA, SUDDEN_STRIKE_HOUSE_PAIRS as SUDDEN_STRIKE_HOUSE_SETS
 )
 
 class StrengthEngine:
@@ -69,6 +70,7 @@ class StrengthEngine:
 
             # --- Step 1: Raw Aspect Calculation ---
             raw_aspect = self._calculate_raw_aspects(planet, data, planets_data)
+            aspects_list = data.get("aspects", [])
 
             # --- Step 2: Dignity Scoring ---
             dignity = self._calculate_dignity(planet, house, data, chart_type)
@@ -82,6 +84,7 @@ class StrengthEngine:
                 "dignity_score": dignity,
                 "scapegoat_adjustment": 0.0,
                 "strength_total": strength_total,
+                "aspects": aspects_list,
                 "strength_breakdown": {
                     "aspects": raw_aspect,
                     "dignity": dignity,
@@ -193,14 +196,13 @@ class StrengthEngine:
         
         # Otherwise, dynamically calculate aspects from HOUSE_ASPECT_DATA
         if not aspects and house > 0:
-            house_str = str(house)
-            house_aspects = HOUSE_ASPECT_DATA.get(house_str, {}).get("aspects", {})
+            house_aspects = HOUSE_ASPECT_DATA.get(house, {})
             
             for aspect_type, target_houses in house_aspects.items():
                 if target_houses is None:
                     continue
                     
-                target_list = target_houses if isinstance(target_houses, list) else [target_houses]
+                target_list = [target_houses] if isinstance(target_houses, int) else target_houses
                 
                 for target_h in target_list:
                     # Find planets in the target house
@@ -213,9 +215,9 @@ class StrengthEngine:
                             aspect_str = ASPECT_STRENGTH_DATA.get(p_a_name, {}).get(p_b_name, 0.0)
                             
                             # Determine relationship
-                            if p_b_name in FRIENDS_DATA.get(p_a_name, []):
+                            if p_b_name in FRIENDS.get(p_a_name, []):
                                 rel = "friend"
-                            elif p_b_name in ENEMIES_DATA.get(p_a_name, []):
+                            elif p_b_name in ENEMIES.get(p_a_name, []):
                                 rel = "enemy"
                             else:
                                 rel = "equal"
@@ -311,7 +313,7 @@ class StrengthEngine:
             if total >= 0:
                 continue
 
-            scapegoats = SCAPEGOATS_INFO.get(planet, {})
+            scapegoats = SCAPEGOATS.get(planet, {})
             if not scapegoats:
                 continue
 
@@ -326,8 +328,8 @@ class StrengthEngine:
                     )
                     distributed_total += amount
 
-            # Record adjustment & zero out source
-            enriched[planet]["scapegoat_adjustment"] = distributed_total
+            # Record adjustment (positive delta reflecting the penalty relief) & zero out source
+            enriched[planet]["scapegoat_adjustment"] = -distributed_total
             old_total = float(enriched[planet]["strength_total"])
             enriched[planet]["strength_total"] = 0.0
             enriched[planet]["strength_breakdown"]["scapegoat"] = -old_total  # offset

@@ -25,6 +25,21 @@ For every successful `RuleHit`, the raw scoring magnitude is computed mathematic
    - "extreme" / "deterministic" -> `4.0` * base
    *(Base depends on `boost_scaling = 0.04` and `penalty_scaling = 0.15`)*
 
+3. **Annual Dignity Modifier (Yearly Charts Only)**:
+   For annual charts, a mathematical multiplier is applied based on where the planet rotates from its natal house via `VARSHPHAL_YEAR_MATRIX`:
+   - Planet rotates to **Pakka Ghar**: `x 1.25`
+   - Planet rotates to **Exaltation**: `x 1.15`
+   - Planet rotates to **Debilitation**: `x 0.75`
+   - Planet rotates to Enemy's Pakka Ghar: `x 0.85`
+   - Otherwise neutral: `x 1.0`
+   Multiple triggering planets average their dignity modifiers.
+
+4. **35-Year Cycle Ruler Modifier**:
+   Stacks multiplicatively with the Dignity Modifier by resolving the `CYCLE_35_YEAR_RANGES` ruler for the native's current age.
+   - If the Period Ruler is one of the rule's triggering planets: `x 1.20` (Ruler amplification)
+   - If the Period Ruler is an enemy of a triggering planet: `x 0.85` (Ruler friction)
+   - (*Note: 9 out of 9 planets perfectly align their Lal Kitab effective maturity ages exactly into their own ruling periods under this system.*)
+
 *RuleHits are finally sorted strictly by Specificity (depth/width of passing AST) to bubble the most accurate rules directly to the LLM agent.*
 
 ---
@@ -32,6 +47,11 @@ For every successful `RuleHit`, the raw scoring magnitude is computed mathematic
 ## 2. Karmic Remedy Engine (`remedy_engine.py`)
 
 The Remedy Engine explicitly governs "Graha Parivartan" (Planet Shifting) using Goswami's mathematical priority rules.
+
+### 2.0 Living vs. Non-Living Transference Law (Grammar of Suffering)
+A fundamental mathematical bias exists in the core predictive engine rules: negative planatary alignments afflict **Living Entities** (relatives, animals) >70% of the time, while positive alignments bestow **Non-Living Assets** perfectly balanced ~50% of the time. 
+To counteract this malefic damage vector without literalizing the pessimistic outcomes to the user, the predictive platform uses a karmic Transference Law: 
+If a rule mathematically hits a **Living Entity** (e.g., Wife via Venus), the remedy engine will specifically isolate and recommend sacrificing/donating a **Non-Living Entity/Item** tracked via `PLANET_HOUSE_ITEMS` of the same afflicted planet (e.g., Silk, Curd) to discharge the energy.
 
 ### 2.1 The "Safe House" Contract
 A house $H$ is only considered a "safe" shifting target for Planet $P$ if:

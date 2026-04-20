@@ -9,11 +9,12 @@ Welcome to the structured index of our Lal Kitab knowledge base.
 *(This section will populate as we add and compile sources about planets, chart houses, astrological predictions, and grammar rules.)*
 
 - [[SystemArchitecture]] *(Compiled from backend Python modules)*
-- [[PhysicsAndProbabilityEngines]] *(Deep algorithms & formulas)*
+- [[InterpretationLayer]] *(Rule-to-Human translation & NotebookLM optimization)*
 - [[RulesAndRemedies]] *(AST parsing & Goswami ranking logic)*
 - [[DatabaseSchema]] *(SQLite mapping & actual JSON rules)*
 - [[AstrologicalConstants]] *(Lal Kitab canonical lookups & matrices)*
 - [[LseOrchestrator]] *(Back-testing & Agent loops)*
 - [[SubChartGeneration]] *(Monthly/Daily/Hourly — Goswami 1952 pp.234-235)*
+- [[PipelineDataIntegrity]] *(Data isolation, Shadow Variables, Anti-Hallucination)*
 - [[McpIntegration]] *(FastMCP integration & Encapsulated Router Pattern)*
 - [[Goswami1952]] *(Origin source mapping & Ground Truth)*

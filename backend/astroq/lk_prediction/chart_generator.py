@@ -26,12 +26,75 @@ try:
     from timezonefinder import TimezoneFinder
     import pytz
 except ImportError:
-    pass  # Allow tests to run even if missing, unless called
+    pass
+
+# Runtime Patch for flatlib 0.3.x compatibility & Swiss Ephemeris fixes
+try:
+    import flatlib.const as flat_const
+    import flatlib.ephem.swe as swe
+    import swisseph
+
+    # 1. Inject missing Ayanamsa constants
+    _ay_vals = {
+        'AY_LAHIRI': 1, 'AY_RAMAN': 3, 'AY_KRISHNAMURTI': 5,
+        'AY_LAHIRI_1940': 43, 'AY_LAHIRI_VP285': 44, 'AY_LAHIRI_ICRC': 45,
+        'AY_KRISHNAMURTI_SENTHILATHIBAN': 57
+    }
+    for k, v in _ay_vals.items():
+        if not hasattr(flat_const, k):
+            setattr(flat_const, k, v)
+
+    # 2. Fix swisseph return handling in sweObject (avoids IndexError)
+    def patched_sweObject(obj, jd):
+        sweObj = swe.SWE_OBJECTS[obj]
+        res, flg = swisseph.calc_ut(jd, sweObj) # Handle the (data, flag) tuple
+        return {
+            'id': obj, 'lon': res[0], 'lat': res[1],
+            'lonspeed': res[3], 'latspeed': res[4]
+        }
+    swe.sweObject = patched_sweObject
+
+    def patched_sweObjectLon(obj, jd):
+        sweObj = swe.SWE_OBJECTS[obj]
+        res, flg = swisseph.calc_ut(jd, sweObj)
+        return res[0]
+    swe.sweObjectLon = patched_sweObjectLon
+
+    # 3. Add sidereal calculation support (required by vedicastro)
+    swe.SWE_AYANAMSAS = {
+        flat_const.AY_LAHIRI: 1,
+        flat_const.AY_LAHIRI_1940: 43,
+        flat_const.AY_LAHIRI_VP285: 44,
+        flat_const.AY_LAHIRI_ICRC: 45,
+        flat_const.AY_KRISHNAMURTI: 5,
+        flat_const.AY_KRISHNAMURTI_SENTHILATHIBAN: 57,
+        flat_const.AY_RAMAN: 3,
+    }
+
+    def get_ayanamsa(jd, mode):
+        eph_mode = swe.SWE_AYANAMSAS.get(mode, 1)
+        swisseph.set_sid_mode(eph_mode, 0, 0)
+        # SEFLG_SWIEPH = 2, SEFLG_SIDEREAL = 65536
+        res = swisseph.get_ayanamsa_ex_ut(jd, flags=2 | 65536)
+        return res[1]
+    swe.get_ayanamsa = get_ayanamsa
+
+    def patched_sweFixedStar(star, jd):
+        res, stnam, flg = swisseph.fixstar2_ut(star, jd) # v2 returns name and flag
+        mag = swisseph.fixstar2_mag(star)
+        return {
+            'id': star, 'mag': mag,
+            'lon': res[0], 'lat': res[1]
+        }
+    swe.sweFixedStar = patched_sweFixedStar
+
+except Exception as e:
+    logger.warning(f"Failed to apply flatlib runtime patch: {e}")
 
 try:
     from vedicastro.VedicAstro import VedicHoroscopeData
 except ImportError:
-    pass
+    VedicHoroscopeData = None
 
 logger = logging.getLogger("astroq.lk_prediction.chart_generator")
 
@@ -184,12 +247,12 @@ class ChartGenerator:
             "second": parsed_time.second
         }
 
-    def geocode_place(self, place_name: str) -> List[Dict[str, Any]]:
+    def geocode_place(self, place_name: str, user_agent: str = "astroq_research_geocoder_v1") -> List[Dict[str, Any]]:
         """Look up lat/lon and UTC offset from a place name string."""
         if not place_name or not place_name.strip():
             return []
             
-        geolocator = Nominatim(user_agent="lk_predictor_geocoder", timeout=10)
+        geolocator = Nominatim(user_agent=user_agent, timeout=10)
         tf = TimezoneFinder()
 
         try:
@@ -243,7 +306,8 @@ class ChartGenerator:
         va_planets_raw = calculator.get_planets_data_from_chart(chart)
         
         # Standard LK planets mapping
-        standard_planets = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn", "Rahu", "Ketu", "Asc"]
+        # Standard LK planets mapping (Excluding Asc as per LK methodology)
+        standard_planets = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn", "Rahu", "Ketu"]
         planets_in_houses = {}
         
         for p_obj in va_planets_raw:
@@ -252,9 +316,8 @@ class ChartGenerator:
                 # Use the library-computed HouseNr directly
                 house = getattr(p_obj, "HouseNr", 1)
                 
-                # Special constraint: Ascendant MUST be in House 1 for visual grid
-                if planet_name == "Asc":
-                    house = 1
+                # Special constraint: Ascendant is NOT a planet in Lal Kitab, but we used to handle it here.
+                # Now excluded via standard_planets list.
 
                 planets_in_houses[planet_name] = {
                     "house": house,
@@ -267,6 +330,7 @@ class ChartGenerator:
         return {
             "chart_type": "Birth",
             "chart_period": 0,
+            "chart_system": chart_system,
             "birth_time": birth_datetime_str,
             "planets_in_houses": planets_in_houses
         }
@@ -285,30 +349,24 @@ class ChartGenerator:
             birth_datetime = None
 
         for age in range(1, max_years + 1):
-            # In the 120-year matrix, the key matches the Age (e.g. Age 45 uses index 45)
-            # as validated against the 'Moon Returns to H2 at Age 45' and 'Mercury in H1' reality check.
-            year_key = age
-            mapping = self.YEAR_MATRIX.get(year_key, {})
+            # age 1 = Year 1 of life (Birth to Age 1)
+            # mapping 1 = YEAR_MATRIX[1]
+            mapping = self.YEAR_MATRIX.get(age, {})
             
             annual = natal_chart.copy()
             annual["chart_type"] = "Yearly"
             annual["chart_period"] = age
             
-            # Deep copy planets to apply new house placements without clobbering Natal
+            # Deep copy planets...
             annual_planets = {}
             for p, p_data in natal_chart.get("planets_in_houses", {}).items():
                 p_copy = p_data.copy()
-                
-                # Rule: Ascendant ALWAYS stays in House 1 in Lal Kitab Varshphal
                 if p == "Asc":
                     p_copy["house"] = 1
                 else:
                     natal_h = p_copy.get("house_natal", p_copy.get("house", 0))
-                    # Map Natal House -> Annual House using the 120-year matrix
                     if natal_h in mapping:
                         p_copy["house"] = int(mapping[natal_h])
-                    
-                    # Update States for Annual Chart (Exalted, Debilitated, Fixed House Lord)
                     p_copy["states"] = self._detect_planet_states(p, p_copy["house"])
 
                 annual_planets[p] = p_copy
@@ -316,9 +374,10 @@ class ChartGenerator:
             annual["planets_in_houses"] = annual_planets
             
             if birth_datetime:
-                # Precise birthday tracking using relativedelta
-                period_start = birth_datetime + relativedelta(years=age)
-                period_end = birth_datetime + relativedelta(years=age + 1)
+                # Year 1 (age 1) starts at birth (delta 0)
+                # Year 2 (age 2) starts at 1st birthday (delta 1)
+                period_start = birth_datetime + relativedelta(years=age - 1)
+                period_end = birth_datetime + relativedelta(years=age)
                 
                 annual["period_start"] = period_start.date().isoformat()
                 annual["period_end"] = (period_end - timedelta(days=1)).date().isoformat()
@@ -365,21 +424,31 @@ class ChartGenerator:
     # ------------------------------------------------------------------
 
     @staticmethod
-    def _rotate_chart(parent_chart: dict, rotation: int, chart_type: str, chart_label: str) -> dict:
-        """
-        Rotate all planet houses in parent_chart by `rotation` positions.
+    def _detect_states_static(planet: str, house: int) -> list:
+        """Static version of state detection for use inside logic helpers."""
+        from astroq.lk_prediction.constants import (
+            PLANET_EXALTATION, PLANET_DEBILITATION, FIXED_HOUSE_LORDS
+        )
+        states = []
+        if planet in PLANET_EXALTATION and house in PLANET_EXALTATION[planet]:
+            states.append("Exalted")
+        if planet in PLANET_DEBILITATION and house in PLANET_DEBILITATION[planet]:
+            states.append("Debilitated")
+        if house in FIXED_HOUSE_LORDS and planet in FIXED_HOUSE_LORDS[house]:
+            states.append("Fixed House Lord")
+        return states
 
-        rotation = (clock_planet_house - 1), making clock planet's house → H1.
-        new_house = ((old_house - 1 - rotation) % 12) + 1
+    @staticmethod
+    def _apply_planet_logic(parent_chart: dict, offset: int, mode: str, chart_type: str, chart_label: str) -> dict:
+        """
+        Applies either Rotation or Progression logic to a chart.
 
         Args:
-            parent_chart: The parent ChartData dict to rotate from.
-            rotation: Number of house positions to shift left (0-indexed offset).
-            chart_type: The chart_type string for the new chart.
-            chart_label: Human-readable label stored in the returned dict.
-
-        Returns:
-            A new ChartData dict with rotated planet positions and recomputed states.
+            parent_chart: Base ChartData.
+            offset: The value used for shift/rotation.
+            mode: 'rotate' (makes target house H1) or 'progress' (adds increment to all planets).
+            chart_type: Metadata type.
+            chart_label: Metadata label.
         """
         import copy
         child = copy.deepcopy(parent_chart)
@@ -393,106 +462,49 @@ class ChartGenerator:
                 p_copy["house"] = 1
             else:
                 old_house = p_data.get("house", 1)
-                p_copy["house"] = ((old_house - 1 - rotation) % 12) + 1
-                # Recompute dignity states for new house position
+                if mode == "rotate":
+                    # Subtractive shift so that 'offset+1' house becomes H1
+                    p_copy["house"] = ((old_house - 1 - offset) % 12) + 1
+                else:
+                    # Additive progression
+                    p_copy["house"] = ((old_house - 1 + offset) % 12) + 1
+                
                 p_copy["states"] = ChartGenerator._detect_states_static(planet, p_copy["house"])
             new_planets[planet] = p_copy
 
         child["planets_in_houses"] = new_planets
         return child
 
-    @staticmethod
-    def _detect_states_static(planet: str, house: int) -> list:
-        """Static version of state detection for use inside rotation helpers."""
-        from astroq.lk_prediction.constants import (
-            PLANET_EXALTATION, PLANET_DEBILITATION, FIXED_HOUSE_LORDS
-        )
-        states = []
-        if planet in PLANET_EXALTATION and house in PLANET_EXALTATION[planet]:
-            states.append("Exalted")
-        if planet in PLANET_DEBILITATION and house in PLANET_DEBILITATION[planet]:
-            states.append("Debilitated")
-        if house in FIXED_HOUSE_LORDS and planet in FIXED_HOUSE_LORDS[house]:
-            states.append("Fixed House Lord")
-        return states
-
     def generate_monthly_chart(self, annual_chart: dict, month_number: int = 1) -> dict:
         """
         Derive the Monthly chart from an Annual chart.
-
-        Source: Goswami 1952 p.234 — "for monthly chart move the chart as per the Sun"
-
-        The house where Sun sits in the Annual chart becomes the new House 1.
-        All planets rotate accordingly.
-
-        Args:
-            annual_chart: A Yearly ChartData dict (output of generate_annual_charts).
-            month_number: Month index within the annual year (1-12, for metadata only).
-
-        Returns:
-            A new ChartData dict with chart_type = "Monthly".
+        Rotation: Sun's house becomes House 1. (Goswami 1952, p.234)
         """
         sun_house = annual_chart.get("planets_in_houses", {}).get("Sun", {}).get("house", 1)
-        rotation = sun_house - 1  # shift so Sun's house → H1
-
-        child = self._rotate_chart(annual_chart, rotation, "Monthly", f"Month {month_number}")
+        rotation = sun_house - 1
+        child = self._apply_planet_logic(annual_chart, rotation, "rotate", "Monthly", f"Month {month_number}")
         child["chart_period_month"] = month_number
         child["chart_period"] = annual_chart.get("chart_period", 0)
-        child["monthly_rotation"] = rotation
-        child["monthly_sun_natal_house"] = sun_house
         return child
 
     def generate_daily_chart(self, monthly_chart: dict, days_elapsed: int) -> dict:
         """
         Derive the Daily chart from a Monthly chart.
-
-        Source: Goswami 1952 p.235 — "for daily chart move Mars"
-        "If 17 houses are counted from the house where Mars is posited, it comes to H.No.6"
-
-        Algorithm:
-            daily_mars_house = ((mars_house - 1 + days_elapsed) % 12) + 1
-            rotation = daily_mars_house - 1  (so Mars's new house becomes H1)
-
-        Args:
-            monthly_chart: A Monthly ChartData dict (output of generate_monthly_chart).
-            days_elapsed: Number of days elapsed in the current month (1-31).
-
-        Returns:
-            A new ChartData dict with chart_type = "Daily".
+        Progression: Move planets by (days_elapsed - 1) positions. (Goswami 1952, p.235)
         """
-        mars_house = monthly_chart.get("planets_in_houses", {}).get("Mars", {}).get("house", 1)
-        # Count (days_elapsed - 1) positions from Mars's house (0-indexed, verified vs book example)
-        # Book: Mars H2, 17 days elapsed → H6: ((2-1+16) % 12)+1 = 6 ✓
-        daily_mars_house = ((mars_house - 1 + days_elapsed - 1) % 12) + 1
-        rotation = daily_mars_house - 1  # Mars's computed house → H1
-
-        child = self._rotate_chart(monthly_chart, rotation, "Daily", f"Day {days_elapsed}")
+        shift = max(0, days_elapsed - 1)
+        child = self._apply_planet_logic(monthly_chart, shift, "progress", "Daily", f"Day {days_elapsed}")
         child["chart_period_day"] = days_elapsed
         child["chart_period"] = monthly_chart.get("chart_period", 0)
-        child["daily_rotation"] = rotation
-        child["daily_mars_house"] = daily_mars_house
         return child
 
     def generate_hourly_chart(self, daily_chart: dict, hour: int) -> dict:
         """
         Derive the Hourly chart from a Daily chart.
-
-        Source: Goswami 1952 p.235 — "for hourly chart move Jupiter"
-        "considering Jupiter as house No.1 then Jupiter goes to H.No.6 for hourly chart"
-
-        Args:
-            daily_chart: A Daily ChartData dict (output of generate_daily_chart).
-            hour: The hour of day (0-23).
-
-        Returns:
-            A new ChartData dict with chart_type = "Hourly".
+        Progression: Move planets by (hour - 1) positions. (Goswami 1952, p.235)
         """
-        jupiter_house = daily_chart.get("planets_in_houses", {}).get("Jupiter", {}).get("house", 1)
-        # Count (hour - 1) positions from Jupiter's house (0-indexed; hour=1 means no shift)
-        hourly_jupiter_house = ((jupiter_house - 1 + max(0, hour - 1)) % 12) + 1
-        rotation = hourly_jupiter_house - 1
-
-        child = self._rotate_chart(daily_chart, rotation, "Hourly", f"Hour {hour}")
+        shift = max(0, hour - 1)
+        child = self._apply_planet_logic(daily_chart, shift, "progress", "Hourly", f"Hour {hour}")
         child["chart_period_hour"] = hour
         child["chart_period"] = daily_chart.get("chart_period", 0)
         return child
@@ -500,14 +512,13 @@ class ChartGenerator:
     def build_full_chart_payload(self, dob_str: str, tob_str: str, place_name: str,
                                  latitude: float = 0.0, longitude: float = 0.0,
                                  utc_string: str = "+05:30", chart_system: str = "kp",
-                                 annual_basis: str = "vedic") -> Dict[str, dict]:
+                                 annual_basis: Optional[str] = None) -> Dict[str, dict]:
         """
         Wraps geocoding iff lat/lon are not provided, generates Natal, and all 75 Annual charts.
         
         Dual-basis Logic:
-        If annual_basis='vedic', we use the Vedic-Whole-Sign chart as the seed for all Varshphal mappings,
-        ensuring parity with legacy reference systems, while keeping the primary Natal chart in the user's
-        chosen system (e.g., KP).
+        Ensures parity with legacy systems by allowing a specific annual_basis, 
+        but defaults to the chosen natal chart_system (Vedic or KP) to prevent hallucinations.
         """
         if latitude is None or longitude is None or (latitude == 0.0 and longitude == 0.0):
             locations = self.geocode_place(place_name)
@@ -521,9 +532,16 @@ class ChartGenerator:
         natal_chart = self.generate_chart(dob_str, tob_str, place_name, latitude, longitude, utc_string, chart_system)
         
         # Determine the seed for annual charts
+        # Default to chart_system if annual_basis is not provided
+        if not annual_basis:
+            annual_basis = chart_system
+
         if annual_basis == "vedic" and chart_system != "vedic":
             # Generate a hidden Vedic chart to use as the seed for annual mapping
             seed_chart = self.generate_chart(dob_str, tob_str, place_name, latitude, longitude, utc_string, "vedic")
+        elif annual_basis == "kp" and chart_system != "kp":
+            # Generate a hidden KP chart to use as the seed for annual mapping
+            seed_chart = self.generate_chart(dob_str, tob_str, place_name, latitude, longitude, utc_string, "kp")
         else:
             seed_chart = natal_chart
             

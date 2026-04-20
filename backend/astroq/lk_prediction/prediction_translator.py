@@ -1,202 +1,198 @@
 """
-Module 7: Prediction Translator.
+Module 7: Prediction Translator
 
-Translates internal `ClassifiedEvent` objects into human-readable
-`LKPrediction` records. Maps probabilities to confidence levels,
-resolves affected people and items from astrological karakas, and
-provides remedy hints for malefic events.
+Translates raw RuleHit data and planetary states into human-readable predictions,
+relatives, and physical articles for remedies.
 """
 
-from __future__ import annotations
-
-from typing import Any
+from typing import List, Dict, Any, Tuple
+from astroq.lk_prediction.data_contracts import RuleHit, LKPrediction
 from astroq.lk_prediction.config import ModelConfig
-from astroq.lk_prediction.data_contracts import ClassifiedEvent, LKPrediction
 
-
-# Simple Karaka Mappings for People and Items (abridged for translation)
-PEOPLE_MAP = {
-    "Sun": ["Self", "Father", "Authority Figures"],
-    "Moon": ["Mother", "Women", "Public"],
-    "Mars": ["Brothers", "Friends", "Enemies"],
-    "Mercury": ["Sisters", "Daughters", "Business Partners"],
-    "Jupiter": ["Father", "Guru", "Children", "Elders"],
-    "Venus": ["Wife", "Spouse", "Women"],
-    "Saturn": ["Uncles", "Subordinates", "Elderly"],
-    "Rahu": ["In-laws", "Paternal Grandfather", "Strangers"],
-    "Ketu": ["Sons", "Maternal Grandfather", "Dogs"],
-    
-    # Houses
-    "h3": ["Younger Siblings"],
-    "h4": ["Mother"],
-    "h5": ["Children"],
-    "h7": ["Spouse", "Partners"],
-    "h9": ["Father", "Guru"],
-    "h11": ["Elder Siblings"]
+PLANET_HOUSE_ITEMS = {
+    "Jupiter": {
+        1: ["Goldsmith", "yellow colour", "male lion", "Sadhu on the move"],
+        2: ["Cowshed", "Turmeric", "wealth"],
+        3: ["Durga poojan", "education"],
+        4: ["Queen", "gold", "Rain"],
+        5: ["Nose", "saffron"],
+        6: ["Deer", "musk", "apples"],
+        7: ["Books", "frog", "vagabond Sadhu"],
+        8: ["Rumour", "unemployment", "Yagna"],
+        9: ["Ancestral house", "Temple", "Mosque", "Gurudwara"],
+        10: ["Dry peepal tree", "Sulphur"],
+        11: ["Sulphur with nickel"],
+        12: ["Green peepal tree", "breath"]
+    },
+    "Sun": {
+        1: ["White salt", "Copper", "Gur"],
+        2: ["Wheat", "Barely"],
+        3: ["Progeny", "Nephews"],
+        4: ["Right eyeball"],
+        5: ["Lone son", "Red faced monkey"],
+        6: ["Wheatish colour"],
+        7: ["Red cow"],
+        8: ["Chariot", "Self generated fire"],
+        9: ["Brown beer"],
+        10: ["Brown Mongoose", "stone gum"],
+        11: ["Bright copper"],
+        12: ["Brown ant"]
+    },
+    "Moon": {
+        1: ["Silver", "Milk", "Heart"],
+        2: ["Mother milk", "Rice", "White Horse"],
+        3: ["Fiery Horse", "Shiva"],
+        4: ["Well", "pool", "Spring"],
+        5: ["Milk", "Swallow wort"],
+        6: ["Male rabbit", "Travel"],
+        7: ["Agriculture land of ice"],
+        8: ["Sea", "Epilepsy"],
+        9: ["Ancestral property", "Sea"],
+        10: ["Night time", "Bitter water", "Opium"],
+        11: ["Silky Pearl", "Floating clouds"],
+        12: ["White cat", "Rain water", "Camphor"]
+    },
+    "Mars": {
+        1: ["Teeth", "Aniseed"],
+        2: ["Leopard", "Deer"],
+        3: ["Stomach", "Lips", "Chest"],
+        4: ["Deer skin", "Sword", "Dhak"],
+        5: ["Brother", "Neem tree"],
+        6: ["Partridge", "Musk Rat"],
+        7: ["Lentil", "Thymol"],
+        8: ["Body without arms"],
+        9: ["Bloody red colour"],
+        10: ["Honey sweet", "Food Sugar"],
+        11: ["Red colour of Vermilion"],
+        12: ["Driver of loud elephant"]
+    },
+    "Venus": {
+        1: ["Other woman"],
+        2: ["White cow", "Ghee", "Ginger", "Camphor"],
+        3: ["Marriage", "contended wife"],
+        4: ["Curd", "Four wheeled", "Birds"],
+        5: ["Brick", "Brass utensil"],
+        6: ["Sparrows", "Eunuch"],
+        7: ["White cow", "Barley (white)"],
+        8: ["Sweet Potato", "Carrot"],
+        9: ["Curds colour"],
+        10: ["Sweet", "Cotton"],
+        11: ["Cotton", "Pearl", "Curd"],
+        12: ["Kamdhenu cow", "Lakshmi's foot", "Family"]
+    },
+    "Mercury": {
+        1: ["Tongue", "Skull"],
+        2: ["Kidney Beans", "peas"],
+        3: ["Bat", "Cactus", "Termite"],
+        4: ["Parrot", "Soldering metal"],
+        5: ["Bamboo", "Milch goat"],
+        6: ["Fruit", "Daughter"],
+        7: ["Green grass", "Cow without tail"],
+        8: ["Flower", "Sister"],
+        9: ["Ghosts", "Bat", "Green colour forest"],
+        10: ["Teeth", "Dry grass", "Liquor", "Stairs"],
+        11: ["Parrot", "Seashell", "Alum", "Diamond"],
+        12: ["Egg", "Toys"]
+    },
+    "Saturn": {
+        1: ["Crow", "Black Salt", "Acacia"],
+        2: ["Full Black pulse", "Black paper", "Sandalwood"],
+        3: ["Precious wood", "Mulberry"],
+        4: ["Black insects", "oil", "Marble"],
+        5: ["Black antimony"],
+        6: ["Crow", "Plum", "Coal", "Stone"],
+        7: ["Black cow", "White antimony", "Eyes"],
+        8: ["Scorpion", "Walls without roof"],
+        9: ["Old wood", "Seesam Tree"],
+        10: ["Crocodile", "Snake", "Oil", "Soap"],
+        11: ["Iron", "Steel", "Tin"],
+        12: ["Artificial copper", "Fish", "Almonds"]
+    },
+    "Rahu": {
+        1: ["Chin", "Mother's parents"],
+        2: ["Mustard", "Raw smoke"],
+        3: ["Elephant"],
+        4: ["Dream time", "Coriander"],
+        5: ["Roof"],
+        6: ["Pitch black dog"],
+        7: ["Coconut"],
+        8: ["Agate", "Smoke of Chimney"],
+        9: ["Watch", "Blue colour"],
+        10: ["Latrine", "Outlet for dirty water"],
+        11: ["Blue sapphire", "Aluminium", "Zinc"],
+        12: ["Elephant", "Raw Coal"]
+    },
+    "Ketu": {
+        1: ["Leg", "Maternal House"],
+        2: ["Tamarind", "Sesame"],
+        3: ["Spinal chord", "Boils"],
+        4: ["Hearing", "Ears"],
+        5: ["Urinal"],
+        6: ["Male sparrow", "Rabbit", "Onion"],
+        7: ["Second son", "Donkey", "Pig"],
+        8: ["Ear", "Hearing power"],
+        9: ["Two coloured dog"],
+        10: ["Rat", "Mouse"],
+        11: ["Twin coloured stone"],
+        12: ["Lizard", "Adopted Son", "bed"]
+    }
 }
 
-ITEMS_MAP = {
-    "Sun": ["Government", "Gold", "Wheat"],
-    "Moon": ["Water", "Silver", "Rice", "Milk"],
-    "Mars": ["Property", "Weapons", "Blood", "Land"],
-    "Mercury": ["Business", "Green items", "Books"],
-    "Jupiter": ["Gold", "Yellow items", "Education", "Wealth"],
-    "Venus": ["Luxury", "Vehicles", "Cosmetics", "Clothes"],
-    "Saturn": ["Iron", "Machinery", "Oil", "Shoes"],
-    "Rahu": ["Electronics", "Foreign goods", "Old currency"],
-    "Ketu": ["Flags", "Dogs", "Black/White blankets"],
-    
-    # Houses
-    "h2": ["Wealth", "Bank Balance"],
-    "h4": ["Property", "Vehicles", "Home"],
-    "h6": ["Debts", "Diseases"],
-    "h8": ["Hidden Wealth", "Obstacles"],
-    "h10": ["Career", "Status"],
-    "h12": ["Expenses", "Hospitals", "Foreign Lands"]
+PLANET_RELATIVES = {
+    "Jupiter": {1: "Father/Grandfather", 2: "In-laws"},
+    "Sun": {1: "Self", 2: "Religious minister", 3: "Aggressive friend"},
+    "Moon": {1: "Queen", 4: "Mother", 6: "Mother's mother"},
+    "Venus": {1: "Wife/Husband", 7: "Life long spouse"},
+    "Mars": {1: "Brother", 2: "Elder brother", 7: "Real brother"},
+    "Mercury": {1: "Daughter", 3: "Sister", 6: "Own daughter"},
+    "Saturn": {1: "Officer", 7: "Helpful person", 10: "Paternal uncle"},
+    "Rahu": {2: "Father-in-law", 3: "Sincere friend", 4: "Maternal uncle"},
+    "Ketu": {1: "Lone son", 3: "Brother's son", 7: "Second son"}
 }
-
 
 class PredictionTranslator:
-    """Translates classified events into final LKPrediction outputs."""
+    """Consolidated Interpretation layer for raw RuleHits."""
 
-    def __init__(self, config: ModelConfig, remedy_engine: Any | None = None) -> None:
+    def __init__(self, config: ModelConfig):
         self._cfg = config
-        self.remedy_engine = remedy_engine
-        self.cert_thresh = config.get("translation.certain_threshold", fallback=0.85)
-        self.high_thresh = config.get("translation.highly_likely_threshold", fallback=0.65)
-        self.poss_thresh = config.get("translation.possible_threshold", fallback=0.40)
 
-    def translate(
-        self,
-        events: list[ClassifiedEvent],
-        enriched_natal: dict | None = None,
-        enriched_annual: dict | None = None,
-    ) -> list[LKPrediction]:
-        """Convert a list of ClassifiedEvents into LKPredictions."""
+    def translate(self, rule_hits: List[RuleHit], age: int = 0) -> List[LKPrediction]:
         predictions = []
-        
-        # Cache year shifting options for this year to avoid redundant calls
-        year_options = None
-        if events and self.remedy_engine and enriched_natal and enriched_annual:
-            year_options = self.remedy_engine.get_year_shifting_options(
-                birth_chart=enriched_natal,
-                annual_chart=enriched_annual,
-                age=events[0].peak_age,
-            )
-
-        for ev in events:
-            # Domain string
-            domain = "/".join(ev.domains) if ev.domains else "General"
-            
-            # Sub-type
-            event_type = f"{ev.planet}_{ev.sentiment.lower()}"
-            
-            # Text
-            text = self._generate_text(ev)
-            
-            # Details
-            confidence = self._map_confidence(ev.probability)
-            people = self._resolve_affected_people(ev)
-            items = self._resolve_affected_items(ev)
-            remedy_needed, hints = self._generate_remedies(ev, enriched_natal, enriched_annual, year_options=year_options)
-            
+        for hit in rule_hits:
             p = LKPrediction(
-                domain=domain,
-                event_type=event_type,
-                prediction_text=text,
-                confidence=confidence,
-                polarity=ev.sentiment,
-                peak_age=ev.peak_age,
-                age_window=ev.age_window,
-                probability=ev.probability,
-                magnitude=ev.magnitude,
-                affected_people=people,
-                affected_items=items,
-                source_planets=[ev.planet] + ev.source_planets,
-                source_houses=[ev.house] + ev.source_houses,
-                source_rules=ev.contributing_rules,
-                remedy_applicable=remedy_needed,
-                remedy_hints=hints
+                domain=hit.domain,
+                event_type=hit.rule_id,
+                prediction_text=f"{hit.description}: {hit.verdict}",
+                polarity="BENEFIC" if hit.magnitude >= 0 else "MALEFIC",
+                peak_age=age,
+                magnitude=hit.magnitude,
+                source_planets=hit.primary_target_planets,
+                source_houses=hit.target_houses,
+                source_rules=[hit.rule_id]
             )
-            predictions.append(p)
             
+            # Enrich with relatives and items
+            for planet in hit.primary_target_planets:
+                for house in hit.target_houses:
+                    p.affected_people.extend(PLANET_RELATIVES.get(planet, {}).get(house, "").split("/"))
+                    p.affected_items.extend(PLANET_HOUSE_ITEMS.get(planet, {}).get(house, []))
+            
+            p.affected_people = sorted(list(set([x for x in p.affected_people if x])))
+            
+            # Remedy generation (canonical)
+            if p.polarity == "MALEFIC":
+                p.remedy_applicable = True
+                p.remedy_hints = self._generate_simple_hints(hit)
+                
+            predictions.append(p)
         return predictions
 
-    def _map_confidence(self, prob: float) -> str:
-        """Map raw probability to human-readable confidence."""
-        if prob >= self.cert_thresh:
-            return "CERTAIN"
-        if prob >= self.high_thresh:
-            return "HIGHLY_LIKELY"
-        if prob >= self.poss_thresh:
-            return "POSSIBLE"
-        return "UNLIKELY"
-
-    def _resolve_affected_people(self, ev: ClassifiedEvent) -> list[str]:
-        """Determine affected people based on karakas."""
-        people = set()
-        if ev.planet in PEOPLE_MAP:
-            people.update(PEOPLE_MAP[ev.planet])
-        
-        h_key = f"h{ev.house}"
-        if h_key in PEOPLE_MAP:
-            people.update(PEOPLE_MAP[h_key])
-            
-        return sorted(list(people))
-
-    def _resolve_affected_items(self, ev: ClassifiedEvent) -> list[str]:
-        """Determine affected items based on karakas."""
-        items = set()
-        if ev.planet in ITEMS_MAP:
-            items.update(ITEMS_MAP[ev.planet])
-            
-        h_key = f"h{ev.house}"
-        if h_key in ITEMS_MAP:
-            items.update(ITEMS_MAP[h_key])
-            
-        return sorted(list(items))
-
-    def _generate_remedies(
-        self,
-        ev: ClassifiedEvent,
-        natal: dict | None = None,
-        annual: dict | None = None,
-        year_options: dict | None = None,
-    ) -> tuple[bool, list[str]]:
-        """If malefic or volatile, generate remedy hints."""
-        # Use RemedyEngine if provided
-        if self.remedy_engine and natal and annual:
-            options = year_options or self.remedy_engine.get_year_shifting_options(
-                birth_chart=natal,
-                annual_chart=annual,
-                age=ev.peak_age,
-            )
-            p_result = options.get(ev.planet)
-            # Use event planet's results if safe matches exist
-            target_opts = {ev.planet: p_result} if p_result and p_result.safe_matches else {}
-            # Generate hints including birth-day and Mars context
-            hints = self.remedy_engine.generate_remedy_hints(target_opts, chart=natal)
-            if hints:
-                return True, hints
-            return False, []
-
-        # Fallback if no engine
-        if ev.sentiment in ("MALEFIC", "VOLATILE"):
-            hints = [
-                f"Lal Kitab remedy required for {ev.planet}",
-                f"Check condition of House {ev.house}",
-                "Feed animals associated with planet"
-            ]
-            return True, hints
-        return False, []
-
-    def _generate_text(self, ev: ClassifiedEvent) -> str:
-        """Construct the final prediction text."""
-        if ev.prediction_text:
-            return ev.prediction_text
-            
-        # Fallback generation
-        pol = "positive" if ev.sentiment == "BENEFIC" else "challenging" if ev.sentiment == "MALEFIC" else "mixed"
-        domain_str = ", ".join(ev.domains) if ev.domains else "General life"
-        
-        return f"The placement of {ev.planet} in House {ev.house} creates a {pol} effect concerning {domain_str}."
+    def _generate_simple_hints(self, hit: RuleHit) -> List[str]:
+        """Generate first-pass remedy hints based on planet and house articles."""
+        hints = []
+        for planet in hit.primary_target_planets:
+            for house in hit.target_houses:
+                articles = PLANET_HOUSE_ITEMS.get(planet, {}).get(house, [])
+                if articles:
+                    hints.append(f"Keep/Donate {articles[0]} related to {planet} in House {house}.")
+        return hints

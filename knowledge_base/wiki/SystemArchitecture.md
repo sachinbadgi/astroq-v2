@@ -3,11 +3,10 @@
 The AstroQ v2 Lal Kitab backend is structured as a predictive astrological physics engine with a robust agentic orchestration layer. 
 
 ## Core Engines
-The predictive analysis relies on several discrete engines:
-- **`physics_engine.py`**: The core Thermodynamic Graph-Diffusion model that maps life events to topological energy states.
-- **`probability_engine.py` & `statistical_core.py`**: Responsible for determining competitive hit rates, signal noise suppression, and assessing prediction probabilities.
-- **`rules_engine.py` & `remedy_engine.py`**: Executes Lal Kitab grammar rules and recommends karmic alignment remedies.
-- **`strength_engine.py`**: Assesses planetary dignities, mutability tags, and overall strength coefficients.
+The predictive analysis relies on two primary deterministic engines:
+- **`rules_engine.py` & `remedy_engine.py`**: Executes Lal Kitab grammar rules and recommends canonical planetary remedies based on House positions.
+- **`strength_engine.py`**: Assesses planetary dignities, Lal Kitab strength coefficients (Manda/Nek), and status flags (Dharmi, Kaayam, Sleeping).
+- **`grammar_analyser.py`**: Applies the complex Lal Kitab linguistic and positional grammar to enrich raw chart data prior to rule evaluation.
 
 ## Agent / Orchestration (LSE Suite)
 The system leverages an automated domain-based workflow (Lal Kitab Software Engineer or "LSE"):
