@@ -1,127 +1,101 @@
-import sys
 import os
-import sqlite3
+import sys
 import json
 
-# Ensure backend is in path
 sys.path.append(os.path.join(os.getcwd(), "backend"))
 
+from astroq.lk_prediction.pipeline import LKPredictionPipeline
 from astroq.lk_prediction.config import ModelConfig
 from astroq.lk_prediction.chart_generator import ChartGenerator
-from astroq.lk_prediction.lse_validator import ValidatorAgent
-from astroq.lk_prediction.data_contracts import LifeEventLog
+from scripts.verify_pipeline_timing import GEO_MAP
 
-def check_fp(figure_id):
-    db_path = "backend/data/astroq_gt.db"
-    defaults_path = "backend/data/model_defaults.json"
-    
-    config = ModelConfig(db_path=db_path, defaults_path=defaults_path)
+def check_false_positives():
+    cfg = ModelConfig(db_path="backend/data/rules.db", defaults_path="backend/data/defaults.json")
+    pipeline = LKPredictionPipeline(cfg)
     generator = ChartGenerator()
-    validator = ValidatorAgent()
     
-    # 1. Load Life Events
-    conn = sqlite3.connect(db_path)
-    cur = conn.cursor()
-    
-    # Get birth chart 
-    chart_row = cur.execute("""
-        SELECT birth_date, birth_time, birth_place, latitude, longitude, utc_offset, client_name 
-        FROM lk_birth_charts WHERE client_name = ?
-    """, (figure_id,)).fetchone()
-    
-    if not chart_row:
-        # Try searching by figure_id if client_name doesn't match
-        chart_row = cur.execute("""
-            SELECT birth_date, birth_time, birth_place, latitude, longitude, utc_offset, client_name 
-            FROM lk_birth_charts WHERE client_name LIKE ?
-        """, (f"%{figure_id}%",)).fetchone()
+    data_path = os.path.join("backend", "data", "public_figures_ground_truth.json")
+    with open(data_path, "r") as f:
+        figures = json.load(f)
         
-    if not chart_row:
-        print(f"Figure {figure_id} not found.")
-        return
+    total_person_years = 0
+    true_positives = 0
+    false_positives = 0
+    true_negatives = 0
+    false_negatives = 0
+    
+    print("Calculating False Positive Rate across all 75 years for all figures...")
+    
+    for fig in figures:
+        name = fig["name"]
+        events = fig.get("events", [])
+        if not events: continue
         
-    birth_chart = {
-        "date": chart_row[0],
-        "time": chart_row[1],
-        "place": chart_row[2],
-        "lat": chart_row[3],
-        "lon": chart_row[4],
-        "tz": chart_row[5],
-        "name": chart_row[6]
-    }
-    
-    # Get ground truth events
-    events_rows = cur.execute("""
-        SELECT domain, age, event_name FROM benchmark_ground_truth WHERE figure_name = ?
-    """, (figure_id,)).fetchall()
-    life_event_log = [{"domain": r[0], "age": r[1], "description": r[2]} for r in events_rows]
-    
-    # 2. Get stored DNA overrides
-    dna_row = cur.execute("SELECT config_overrides_json FROM chart_dna WHERE figure_id = ?", (figure_id,)).fetchone()
-    if not dna_row:
-        # try figure_name if figure_id check fails
-        dna_row = cur.execute("SELECT config_overrides_json FROM chart_dna WHERE figure_id LIKE ?", (f"%{figure_id}%",)).fetchone()
-    
-    overrides = json.loads(dna_row[0]) if dna_row else {}
-    
-    # 3. Generate baseline predictions
-    print("Generating natal chart...", flush=True)
-    natal_chart = generator.generate_chart(
-        dob_str=birth_chart["date"],
-        tob_str=birth_chart["time"],
-        place_name=birth_chart["place"],
-        latitude=birth_chart["lat"],
-        longitude=birth_chart["lon"],
-        utc_string=birth_chart["tz"]
-    )
-    print("Generating 75 annual charts...", flush=True)
-    annual_charts = generator.generate_annual_charts(natal_chart, max_years=75)
-    
-    print("Initializing Pipeline...", flush=True)
-    from astroq.lk_prediction.pipeline import LKPredictionPipeline
-    pipeline = LKPredictionPipeline(config)
-    pipeline.load_natal_baseline(natal_chart)
-    
-    print("Generating predictions across 75 years...", flush=True)
-    baseline_predictions = []
-    # Natal
-    baseline_predictions.extend(pipeline.generate_predictions(natal_chart))
-    # Annuals
-    for age in range(1, 76):
-        if age % 10 == 0: print(f"  Processed age {age}...", flush=True)
-        chart_key = f"chart_{age}"
-        if chart_key in annual_charts:
-            baseline_predictions.extend(pipeline.generate_predictions(annual_charts[chart_key]))
+        # Create a set of all event ages (with +/- 1 year window)
+        event_ages = set()
+        for ev in events:
+            age = ev.get("age")
+            if age:
+                event_ages.add(age - 1)
+                event_ages.add(age)
+                event_ages.add(age + 1)
+                
+        dob = fig["dob"]
+        tob = fig["tob"]
+        if len(tob.split(":")) == 2: tob += ":00"
+        place = fig.get("birth_place", "New Delhi, India")
+        lat, lon, tz = GEO_MAP.get(place, (28.6139, 77.2090, "+05:30"))
+        
+        try:
+            payload = generator.build_full_chart_payload(
+                dob_str=dob, tob_str=tob, place_name=place, 
+                latitude=lat, longitude=lon, utc_string=tz, chart_system="vedic"
+            )
+        except Exception as e:
+            continue
             
-    print(f"Total predictions generated: {len(baseline_predictions)}", flush=True)
-    from dataclasses import replace
-    predictions = [replace(p) for p in baseline_predictions]
-    
-    # 4. Apply overrides manually (simulating LSEOrchestrator)
-    print("Applying DNA overrides...", flush=True)
-    for p in predictions:
-        for planet in p.source_planets:
-            for k, v in overrides.items():
-                if k.startswith("align.") and planet.lower() in k.lower():
-                    p.peak_age = int(v)
-                    break
-                if k.startswith("delay.") and planet.lower() in k.lower():
-                    p.peak_age += float(v)
+        charts = list(payload.values())
+        report = pipeline.generate_full_payload(name, dob, charts)
+        
+        for annual_data in report["annual_timeline"]:
+            age = annual_data["age"]
+            if age > 75: continue
+            
+            total_person_years += 1
+            
+            # Check if pipeline fired a timing signal
+            fired = False
+            for p_text in annual_data["predictions"]:
+                if "[HIGH]" in p_text or "[MEDIUM]" in p_text:
+                    fired = True
                     break
                     
-    # 5. Validate with upgraded ValidatorAgent
-    print("Running ValidatorAgent...", flush=True)
-    gap_report = validator.compare_to_events(predictions, life_event_log)
+            had_event = age in event_ages
+            
+            if fired and had_event:
+                true_positives += 1
+            elif fired and not had_event:
+                false_positives += 1
+            elif not fired and not had_event:
+                true_negatives += 1
+            elif not fired and had_event:
+                false_negatives += 1
+
+    print(f"\\n{'='*50}")
+    print(f"FALSE POSITIVE ANALYSIS REPORT")
+    print(f"{'='*50}")
+    print(f"Total Person-Years Analyzed: {total_person_years}")
+    print(f"True Positives (Signal + Event): {true_positives}")
+    print(f"False Positives (Signal, No Event): {false_positives}")
+    print(f"True Negatives (No Signal, No Event): {true_negatives}")
+    print(f"False Negatives (No Signal, Event): {false_negatives}")
     
-    print(f"\nReport for {figure_id}:", flush=True)
-    print(f"Hits: {gap_report['hits']}/{gap_report['total']}", flush=True)
-    print(f"False Positives (Redundant Predictions): {len(gap_report['false_positives'])}", flush=True)
-    for fp in gap_report['false_positives'][:10]:
-        print(f"  - {fp}", flush=True)
-    if len(gap_report['false_positives']) > 10:
-        print(f"  ... and {len(gap_report['false_positives']) - 10} more.", flush=True)
+    precision = true_positives / (true_positives + false_positives) if (true_positives + false_positives) > 0 else 0
+    fpr = false_positives / (false_positives + true_negatives) if (false_positives + true_negatives) > 0 else 0
+    
+    print(f"\\nFalse Positive Rate (FPR): {fpr*100:.2f}% (Years without events that were incorrectly flagged)")
+    print(f"Precision: {precision*100:.2f}% (When the engine fires, how often is there an event?)")
+    print(f"Total Noise Reduction: Out of {total_person_years} years, the engine correctly remained silent for {true_negatives} years!")
 
 if __name__ == "__main__":
-    print("Starting False Positive Audit...", flush=True)
-    check_fp("Steve Jobs")
-    print("Audit Complete.", flush=True)
+    check_false_positives()

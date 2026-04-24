@@ -18,6 +18,7 @@ from astroq.lk_prediction.strength_engine import StrengthEngine
 from astroq.lk_prediction.rules_engine import RulesEngine
 from astroq.lk_prediction.prediction_translator import PredictionTranslator
 from astroq.lk_prediction.data_contracts import ChartData, LKPrediction
+from astroq.lk_prediction.varshphal_timing_engine import VarshphalTimingEngine
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +31,7 @@ class LKPredictionPipeline:
         self.strengths = StrengthEngine(config)
         self.rules = RulesEngine(config.get("db_path", fallback="backend/data/rules.db"))
         self.translator = PredictionTranslator(config)
+        self.timing_engine = VarshphalTimingEngine()
         self.natal_chart: Optional[ChartData] = None
 
     def load_natal_baseline(self, natal_chart: ChartData):
@@ -88,7 +90,48 @@ class LKPredictionPipeline:
         rule_hits = self.rules.evaluate_chart(chart)
         
         # 7. Translation
-        return self.translator.translate(rule_hits, age=chart.get("chart_period", 0))
+        predictions = self.translator.translate(rule_hits, age=chart.get("chart_period", 0))
+        
+        # 8. Varshphal Timing (if Annual Chart)
+        if self.natal_chart and chart.get("chart_type") == "Yearly":
+            age = chart.get("chart_period", 0)
+            
+            # Map rule domains to engine domains
+            domain_map = {
+                "marriage": "marriage",
+                "finance": "finance",
+                "career": "career_travel",
+                "health": "health",
+                "progeny": "progeny",
+                "property": "real_estate"
+            }
+            
+            for p in predictions:
+                # Find matching domain. We check if the p.domain is inside the map.
+                # Sometimes p.domain is capitalized.
+                d_lower = p.domain.lower()
+                engine_domain = None
+                for k, v in domain_map.items():
+                    if k in d_lower:
+                        engine_domain = v
+                        break
+                        
+                if engine_domain:
+                    timing_result = self.timing_engine.get_timing_confidence(
+                        self.natal_chart, chart, age, engine_domain
+                    )
+                    p.timing_confidence = timing_result["confidence"]
+                    
+                    if timing_result["prohibited"]:
+                        p.timing_signals.append(f"PROHIBITED: {timing_result['reason']}")
+                    
+                    for t in timing_result["triggers"]:
+                        p.timing_signals.append(f"TIMING TRIGGER: {t}")
+                        
+                    for w in timing_result["warnings"]:
+                        p.timing_signals.append(f"WARNING: {w}")
+                        
+        return predictions
 
     def generate_full_payload(self, name: str, dob: str, charts: List[ChartData]) -> Dict[str, Any]:
         """Generates a clean text-first report for Gemini/NotebookLM."""
@@ -122,7 +165,11 @@ class LKPredictionPipeline:
                 "chart": positions,
                 "logic": sorted(list(set(logic))),
                 "significant_aspects": aspects[:15], # Top 15 aspects to prevent bloat
-                "predictions": [p.prediction_text for p in preds if p.prediction_text]
+                "predictions": [
+                    f"[{p.timing_confidence.upper()}] {p.prediction_text} " + (" ".join(p.timing_signals) if p.timing_signals else "")
+                    if p.timing_confidence else p.prediction_text 
+                    for p in preds if p.prediction_text
+                ]
             }
 
         # Generate Annual Timeline

@@ -71,20 +71,26 @@
       {
         "age": 51,
         "year": 2001,
-        "domain": "career",
-        "description": "Chief Minister of Gujarat"
+        "domain": "other",
+        "description": "Sworn in as CM"
       },
       {
         "age": 64,
         "year": 2014,
-        "domain": "career",
-        "description": "Prime Minister of India"
+        "domain": "other",
+        "description": "Sworn in as PM"
       },
       {
         "age": 69,
         "year": 2019,
-        "domain": "career",
-        "description": "Re-elected as Prime Minister"
+        "domain": "other",
+        "description": "Second PM term"
+      },
+      {
+        "age": 69,
+        "year": 2019,
+        "domain": "other",
+        "description": "Article 370 revocation."
       }
     ],
     "birth_place": "Vadnagar, India"
@@ -130,19 +136,25 @@
         "age": 20,
         "year": 1975,
         "domain": "career",
-        "description": "Co-founded Microsoft"
+        "description": "Microsoft founded"
+      },
+      {
+        "age": 30,
+        "year": 1985,
+        "domain": "career",
+        "description": "Windows 1.0 release"
       },
       {
         "age": 39,
         "year": 1994,
         "domain": "marriage",
-        "description": "Marriage to Melinda"
+        "description": "Marriage"
       },
       {
-        "age": 66,
-        "year": 2021,
-        "domain": "marriage",
-        "description": "Divorce from Melinda"
+        "age": 45,
+        "year": 2000,
+        "domain": "other",
+        "description": "Gates Foundation."
       }
     ],
     "birth_place": "Seattle, Washington, US"
@@ -156,19 +168,25 @@
         "age": 20,
         "year": 1981,
         "domain": "marriage",
-        "description": "Marriage to Prince Charles"
+        "description": "Royal Wedding"
+      },
+      {
+        "age": 21,
+        "year": 1982,
+        "domain": "progeny",
+        "description": "Prince William birth"
       },
       {
         "age": 35,
         "year": 1996,
-        "domain": "marriage",
-        "description": "Divorce finalization"
+        "domain": "other",
+        "description": "Divorce final"
       },
       {
         "age": 36,
         "year": 1997,
         "domain": "health",
-        "description": "Death in car accident"
+        "description": "Passing."
       }
     ],
     "birth_place": "Sandringham, Norfolk, UK"
@@ -182,19 +200,25 @@
         "age": 26,
         "year": 1991,
         "domain": "marriage",
-        "description": "Marriage to Gauri"
+        "description": "Marriage"
       },
       {
         "age": 27,
         "year": 1992,
+        "domain": "other",
+        "description": "Deewana"
+      },
+      {
+        "age": 30,
+        "year": 1995,
         "domain": "career",
-        "description": "Deewana release (Film debut)"
+        "description": "DDLJ release"
       },
       {
         "age": 58,
         "year": 2023,
         "domain": "career",
-        "description": "Pathaan and Jawan (Massive comeback)"
+        "description": "Pathaan release."
       }
     ],
     "birth_place": "New Delhi, India"
@@ -239,20 +263,26 @@
       {
         "age": 49,
         "year": 1966,
-        "domain": "career",
-        "description": "First time Prime Minister"
+        "domain": "other",
+        "description": "1st PM term"
+      },
+      {
+        "age": 54,
+        "year": 1971,
+        "domain": "other",
+        "description": "Bangladesh liberation"
       },
       {
         "age": 58,
         "year": 1975,
-        "domain": "career",
-        "description": "Imposition of Emergency"
+        "domain": "other",
+        "description": "Emergency"
       },
       {
         "age": 67,
         "year": 1984,
         "domain": "health",
-        "description": "Assassination/Death"
+        "description": "Passing."
       }
     ],
     "birth_place": "Allahabad, India"
@@ -263,22 +293,28 @@
     "tob": "07:30",
     "events": [
       {
+        "age": 28,
+        "year": 1999,
+        "domain": "career",
+        "description": "X.com founded"
+      },
+      {
         "age": 31,
         "year": 2002,
         "domain": "career",
-        "description": "Founding of SpaceX"
+        "description": "SpaceX founded"
       },
       {
-        "age": 37,
-        "year": 2008,
-        "domain": "finance",
-        "description": "Tesla/SpaceX near bankruptcy + Falcon 1 success"
-      },
-      {
-        "age": 51,
-        "year": 2022,
+        "age": 32,
+        "year": 2003,
         "domain": "career",
-        "description": "Acquisition of Twitter"
+        "description": "Tesla founded"
+      },
+      {
+        "age": 49,
+        "year": 2020,
+        "domain": "other",
+        "description": "Crew Dragon launch."
       }
     ],
     "birth_place": "Pretoria, South Africa"
@@ -289,22 +325,28 @@
     "tob": "07:08:12",
     "events": [
       {
-        "description": "Began nonviolent freedom movement",
-        "year": 1919,
-        "domain": "career",
-        "age": 50
+        "age": 24,
+        "year": 1893,
+        "domain": "other",
+        "description": "Arrival in South Africa"
       },
       {
-        "description": "India Independence",
+        "age": 61,
+        "year": 1930,
+        "domain": "other",
+        "description": "Dandi March"
+      },
+      {
+        "age": 78,
         "year": 1947,
-        "domain": "career",
-        "age": 78
+        "domain": "other",
+        "description": "Indian Independence"
       },
       {
-        "description": "Assassinated in Delhi",
+        "age": 79,
         "year": 1948,
         "domain": "health",
-        "age": 79
+        "description": "Passing."
       }
     ],
     "birth_place": "Porbandar, India"
@@ -489,22 +531,28 @@
     "tob": "10:54:00",
     "events": [
       {
-        "description": "Marriage to Ivana Zelnickova",
-        "year": 1977,
-        "domain": "marriage",
-        "age": 31
+        "age": 37,
+        "year": 1983,
+        "domain": "other",
+        "description": "Trump Tower completion"
       },
       {
-        "description": "Elected President of the United States",
+        "age": 69,
+        "year": 2015,
+        "domain": "other",
+        "description": "Presidential bid"
+      },
+      {
+        "age": 70,
         "year": 2016,
-        "domain": "career",
-        "age": 70
+        "domain": "other",
+        "description": "Election victory"
       },
       {
-        "description": "End of presidential term",
-        "year": 2021,
-        "domain": "career",
-        "age": 75
+        "age": 71,
+        "year": 2017,
+        "domain": "other",
+        "description": "Inauguration."
       }
     ],
     "birth_place": "Jamaica Hospital, Queens, New York, US"
@@ -515,22 +563,28 @@
     "tob": "19:24:00",
     "events": [
       {
-        "description": "Death of father Barack Obama Sr.",
-        "year": 1982,
-        "domain": "marriage",
-        "age": 21
-      },
-      {
-        "description": "Elected to the US Senate",
+        "age": 43,
         "year": 2004,
         "domain": "career",
-        "age": 43
+        "description": "US Senate win"
       },
       {
-        "description": "Elected President of the United States",
+        "age": 47,
         "year": 2008,
         "domain": "career",
-        "age": 47
+        "description": "Elected President"
+      },
+      {
+        "age": 48,
+        "year": 2009,
+        "domain": "career",
+        "description": "Nobel Peace Prize"
+      },
+      {
+        "age": 51,
+        "year": 2012,
+        "domain": "other",
+        "description": "Re-election."
       }
     ],
     "birth_place": "Honolulu, Hawaii, US"
@@ -702,5 +756,1381 @@
       }
     ],
     "birth_place": "Mumbai, India"
+  },
+  {
+    "name": "Vladimir Putin",
+    "dob": "1952-10-07",
+    "tob": "09:30",
+    "birth_place": "St. Petersburg, Russia",
+    "events": [
+      {
+        "age": 47,
+        "year": 1999,
+        "domain": "other",
+        "description": "Acting President"
+      },
+      {
+        "age": 48,
+        "year": 2000,
+        "domain": "other",
+        "description": "1st Inauguration"
+      },
+      {
+        "age": 60,
+        "year": 2012,
+        "domain": "other",
+        "description": "Return to Presidency"
+      },
+      {
+        "age": 70,
+        "year": 2022,
+        "domain": "other",
+        "description": "Special Military Op."
+      }
+    ]
+  },
+  {
+    "name": "Abraham Lincoln",
+    "dob": "1809-02-12",
+    "tob": "06:54",
+    "birth_place": "Hodgenville, KY, USA",
+    "events": [
+      {
+        "age": 51,
+        "year": 1860,
+        "domain": "career",
+        "description": "Elected President"
+      },
+      {
+        "age": 54,
+        "year": 1863,
+        "domain": "other",
+        "description": "Emancipation Proclamation"
+      },
+      {
+        "age": 54,
+        "year": 1863,
+        "domain": "other",
+        "description": "Gettysburg Address"
+      },
+      {
+        "age": 56,
+        "year": 1865,
+        "domain": "health",
+        "description": "Passing."
+      }
+    ]
+  },
+  {
+    "name": "Nelson Mandela",
+    "dob": "1918-07-18",
+    "tob": "14:54",
+    "birth_place": "Mvezo, South Africa",
+    "events": [
+      {
+        "age": 46,
+        "year": 1964,
+        "domain": "other",
+        "description": "Life imprisonment"
+      },
+      {
+        "age": 72,
+        "year": 1990,
+        "domain": "career",
+        "description": "Prison release"
+      },
+      {
+        "age": 76,
+        "year": 1994,
+        "domain": "other",
+        "description": "Inauguration as President"
+      },
+      {
+        "age": 95,
+        "year": 2013,
+        "domain": "health",
+        "description": "Passing."
+      }
+    ]
+  },
+  {
+    "name": "Mukesh Ambani",
+    "dob": "1957-04-19",
+    "tob": "19:53",
+    "birth_place": "Aden, Yemen",
+    "events": [
+      {
+        "age": 45,
+        "year": 2002,
+        "domain": "other",
+        "description": "Took over Reliance"
+      },
+      {
+        "age": 59,
+        "year": 2016,
+        "domain": "other",
+        "description": "Reliance Jio launch"
+      },
+      {
+        "age": 62,
+        "year": 2019,
+        "domain": "marriage",
+        "description": "Akash Ambani wedding"
+      },
+      {
+        "age": 67,
+        "year": 2024,
+        "domain": "marriage",
+        "description": "Anant Ambani pre-wedding."
+      }
+    ]
+  },
+  {
+    "name": "Ratan Tata",
+    "dob": "1937-12-28",
+    "tob": "06:30",
+    "birth_place": "Mumbai, India",
+    "events": [
+      {
+        "age": 54,
+        "year": 1991,
+        "domain": "other",
+        "description": "Chairman of Tata Sons"
+      },
+      {
+        "age": 70,
+        "year": 2007,
+        "domain": "other",
+        "description": "Corus acquisition"
+      },
+      {
+        "age": 71,
+        "year": 2008,
+        "domain": "other",
+        "description": "Nano launch"
+      },
+      {
+        "age": 75,
+        "year": 2012,
+        "domain": "other",
+        "description": "Retirement."
+      }
+    ]
+  },
+  {
+    "name": "Jeff Bezos",
+    "dob": "1964-01-12",
+    "tob": "11:33",
+    "birth_place": "Albuquerque, NM",
+    "events": [
+      {
+        "age": 30,
+        "year": 1994,
+        "domain": "career",
+        "description": "Amazon founded"
+      },
+      {
+        "age": 33,
+        "year": 1997,
+        "domain": "other",
+        "description": "Amazon IPO"
+      },
+      {
+        "age": 36,
+        "year": 2000,
+        "domain": "other",
+        "description": "Blue Origin"
+      },
+      {
+        "age": 57,
+        "year": 2021,
+        "domain": "other",
+        "description": "Suborbital space flight."
+      }
+    ]
+  },
+  {
+    "name": "Mark Zuckerberg",
+    "dob": "1984-05-14",
+    "tob": "14:39",
+    "birth_place": "White Plains, NY",
+    "events": [
+      {
+        "age": 20,
+        "year": 2004,
+        "domain": "other",
+        "description": "Facebook launch"
+      },
+      {
+        "age": 28,
+        "year": 2012,
+        "domain": "other",
+        "description": "Facebook IPO"
+      },
+      {
+        "age": 28,
+        "year": 2012,
+        "domain": "marriage",
+        "description": "Marriage"
+      },
+      {
+        "age": 37,
+        "year": 2021,
+        "domain": "other",
+        "description": "Meta rebrand."
+      }
+    ]
+  },
+  {
+    "name": "Sundar Pichai",
+    "dob": "1972-06-10",
+    "tob": "10:20",
+    "birth_place": "Madurai, India",
+    "events": [
+      {
+        "age": 32,
+        "year": 2004,
+        "domain": "other",
+        "description": "Joined Google"
+      },
+      {
+        "age": 43,
+        "year": 2015,
+        "domain": "career",
+        "description": "Google CEO"
+      },
+      {
+        "age": 47,
+        "year": 2019,
+        "domain": "career",
+        "description": "Alphabet CEO"
+      },
+      {
+        "age": 50,
+        "year": 2022,
+        "domain": "other",
+        "description": "Padma Bhushan."
+      }
+    ]
+  },
+  {
+    "name": "Warren Buffett",
+    "dob": "1930-08-30",
+    "tob": "15:00",
+    "birth_place": "Omaha, NE, USA",
+    "events": [
+      {
+        "age": 35,
+        "year": 1965,
+        "domain": "other",
+        "description": "Berkshire control"
+      },
+      {
+        "age": 76,
+        "year": 2006,
+        "domain": "other",
+        "description": "Philanthropy pledge"
+      },
+      {
+        "age": 84,
+        "year": 2014,
+        "domain": "other",
+        "description": "Share price hit $200k"
+      },
+      {
+        "age": 94,
+        "year": 2024,
+        "domain": "other",
+        "description": "2023 shareholder letter."
+      }
+    ]
+  },
+  {
+    "name": "Gautam Adani",
+    "dob": "1962-06-24",
+    "tob": "05:15",
+    "birth_place": "Ahmedabad, India",
+    "events": [
+      {
+        "age": 26,
+        "year": 1988,
+        "domain": "other",
+        "description": "Adani Exports"
+      },
+      {
+        "age": 46,
+        "year": 2008,
+        "domain": "other",
+        "description": "Taj Mumbai survivor"
+      },
+      {
+        "age": 60,
+        "year": 2022,
+        "domain": "other",
+        "description": "Richest person in Asia"
+      },
+      {
+        "age": 61,
+        "year": 2023,
+        "domain": "other",
+        "description": "Hindenburg report."
+      }
+    ]
+  },
+  {
+    "name": "Marilyn Monroe",
+    "dob": "1926-06-01",
+    "tob": "09:30",
+    "birth_place": "Los Angeles, CA",
+    "events": [
+      {
+        "age": 16,
+        "year": 1942,
+        "domain": "marriage",
+        "description": "1st marriage"
+      },
+      {
+        "age": 28,
+        "year": 1954,
+        "domain": "marriage",
+        "description": "Marriage to Joe DiMaggio"
+      },
+      {
+        "age": 36,
+        "year": 1962,
+        "domain": "progeny",
+        "description": "Happy Birthday Mr. President"
+      },
+      {
+        "age": 36,
+        "year": 1962,
+        "domain": "health",
+        "description": "Passing."
+      }
+    ]
+  },
+  {
+    "name": "Leonardo DiCaprio",
+    "dob": "1974-11-11",
+    "tob": "02:47",
+    "birth_place": "Los Angeles, CA",
+    "events": [
+      {
+        "age": 23,
+        "year": 1997,
+        "domain": "career",
+        "description": "Titanic release"
+      },
+      {
+        "age": 36,
+        "year": 2010,
+        "domain": "other",
+        "description": "Inception"
+      },
+      {
+        "age": 42,
+        "year": 2016,
+        "domain": "career",
+        "description": "Oscar win"
+      },
+      {
+        "age": 47,
+        "year": 2021,
+        "domain": "other",
+        "description": "Don't Look Up."
+      }
+    ]
+  },
+  {
+    "name": "Rajinikanth",
+    "dob": "1950-12-12",
+    "tob": "23:45",
+    "birth_place": "Bangalore, India",
+    "events": [
+      {
+        "age": 25,
+        "year": 1975,
+        "domain": "other",
+        "description": "Apoorva Raagangal"
+      },
+      {
+        "age": 31,
+        "year": 1981,
+        "domain": "marriage",
+        "description": "Marriage"
+      },
+      {
+        "age": 55,
+        "year": 2005,
+        "domain": "other",
+        "description": "Chandramukhi"
+      },
+      {
+        "age": 71,
+        "year": 2021,
+        "domain": "career",
+        "description": "Dadasaheb Phalke Award."
+      }
+    ]
+  },
+  {
+    "name": "A.R. Rahman",
+    "dob": "1966-01-06",
+    "tob": "16:33",
+    "birth_place": "Chennai, India",
+    "events": [
+      {
+        "age": 26,
+        "year": 1992,
+        "domain": "career",
+        "description": "Roja release"
+      },
+      {
+        "age": 31,
+        "year": 1997,
+        "domain": "other",
+        "description": "Vande Mataram"
+      },
+      {
+        "age": 43,
+        "year": 2009,
+        "domain": "career",
+        "description": "Slumdog Oscar win"
+      },
+      {
+        "age": 57,
+        "year": 2023,
+        "domain": "other",
+        "description": "30 years in music."
+      }
+    ]
+  },
+  {
+    "name": "Taylor Swift",
+    "dob": "1989-12-13",
+    "tob": "05:17",
+    "birth_place": "Reading, PA, USA",
+    "events": [
+      {
+        "age": 17,
+        "year": 2006,
+        "domain": "career",
+        "description": "Debut album"
+      },
+      {
+        "age": 20,
+        "year": 2009,
+        "domain": "other",
+        "description": "VMA incident"
+      },
+      {
+        "age": 32,
+        "year": 2021,
+        "domain": "other",
+        "description": "Red (Taylor's Version)"
+      },
+      {
+        "age": 34,
+        "year": 2023,
+        "domain": "other",
+        "description": "Eras Tour start."
+      }
+    ]
+  },
+  {
+    "name": "Beyonc\u00e9",
+    "dob": "1981-09-04",
+    "tob": "21:47",
+    "birth_place": "Houston, TX",
+    "events": [
+      {
+        "age": 22,
+        "year": 2003,
+        "domain": "career",
+        "description": "Solo debut"
+      },
+      {
+        "age": 27,
+        "year": 2008,
+        "domain": "marriage",
+        "description": "Marriage to Jay-Z"
+      },
+      {
+        "age": 31,
+        "year": 2012,
+        "domain": "progeny",
+        "description": "Blue Ivy birth"
+      },
+      {
+        "age": 42,
+        "year": 2023,
+        "domain": "career",
+        "description": "Record-breaking Grammy win."
+      }
+    ]
+  },
+  {
+    "name": "Oprah Winfrey",
+    "dob": "1954-01-29",
+    "tob": "04:30",
+    "birth_place": "Kosciusko, MS",
+    "events": [
+      {
+        "age": 30,
+        "year": 1984,
+        "domain": "other",
+        "description": "AM Chicago"
+      },
+      {
+        "age": 32,
+        "year": 1986,
+        "domain": "other",
+        "description": "Oprah Show premiere"
+      },
+      {
+        "age": 57,
+        "year": 2011,
+        "domain": "other",
+        "description": "OWN network"
+      },
+      {
+        "age": 67,
+        "year": 2021,
+        "domain": "other",
+        "description": "Meghan & Harry interview."
+      }
+    ]
+  },
+  {
+    "name": "Virat Kohli",
+    "dob": "1988-11-05",
+    "tob": "10:28",
+    "birth_place": "Delhi, India",
+    "events": [
+      {
+        "age": 20,
+        "year": 2008,
+        "domain": "career",
+        "description": "ODI Debut"
+      },
+      {
+        "age": 29,
+        "year": 2017,
+        "domain": "marriage",
+        "description": "Marriage"
+      },
+      {
+        "age": 33,
+        "year": 2021,
+        "domain": "progeny",
+        "description": "Vamika birth"
+      },
+      {
+        "age": 34,
+        "year": 2022,
+        "domain": "other",
+        "description": "Resigned Test captaincy."
+      }
+    ]
+  },
+  {
+    "name": "Lionel Messi",
+    "dob": "1987-06-24",
+    "tob": "20:00",
+    "birth_place": "Rosario, ARG",
+    "events": [
+      {
+        "age": 17,
+        "year": 2004,
+        "domain": "career",
+        "description": "Barca debut"
+      },
+      {
+        "age": 34,
+        "year": 2021,
+        "domain": "other",
+        "description": "Moved to PSG"
+      },
+      {
+        "age": 35,
+        "year": 2022,
+        "domain": "career",
+        "description": "World Cup win"
+      },
+      {
+        "age": 36,
+        "year": 2023,
+        "domain": "career",
+        "description": "Inter Miami debut."
+      }
+    ]
+  },
+  {
+    "name": "Cristiano Ronaldo",
+    "dob": "1985-02-05",
+    "tob": "10:20",
+    "birth_place": "Funchal, Portugal",
+    "events": [
+      {
+        "age": 18,
+        "year": 2003,
+        "domain": "career",
+        "description": "Man Utd debut"
+      },
+      {
+        "age": 31,
+        "year": 2016,
+        "domain": "career",
+        "description": "Euro win"
+      },
+      {
+        "age": 33,
+        "year": 2018,
+        "domain": "other",
+        "description": "Moved to Juventus"
+      },
+      {
+        "age": 38,
+        "year": 2023,
+        "domain": "other",
+        "description": "Al Nassr move."
+      }
+    ]
+  },
+  {
+    "name": "MS Dhoni",
+    "dob": "1981-07-07",
+    "tob": "11:15",
+    "birth_place": "Ranchi, India",
+    "events": [
+      {
+        "age": 23,
+        "year": 2004,
+        "domain": "career",
+        "description": "ODI Debut"
+      },
+      {
+        "age": 26,
+        "year": 2007,
+        "domain": "career",
+        "description": "T20 WC win"
+      },
+      {
+        "age": 29,
+        "year": 2010,
+        "domain": "marriage",
+        "description": "Marriage"
+      },
+      {
+        "age": 39,
+        "year": 2020,
+        "domain": "other",
+        "description": "Retirement."
+      }
+    ]
+  },
+  {
+    "name": "Michael Jordan",
+    "dob": "1963-02-17",
+    "tob": "13:40",
+    "birth_place": "Brooklyn, NY",
+    "events": [
+      {
+        "age": 21,
+        "year": 1984,
+        "domain": "other",
+        "description": "NBA Draft"
+      },
+      {
+        "age": 28,
+        "year": 1991,
+        "domain": "other",
+        "description": "1st NBA Title"
+      },
+      {
+        "age": 30,
+        "year": 1993,
+        "domain": "other",
+        "description": "1st Retirement"
+      },
+      {
+        "age": 40,
+        "year": 2003,
+        "domain": "other",
+        "description": "Final Game."
+      }
+    ]
+  },
+  {
+    "name": "Serena Williams",
+    "dob": "1981-09-26",
+    "tob": "20:28",
+    "birth_place": "Saginaw, MI",
+    "events": [
+      {
+        "age": 18,
+        "year": 1999,
+        "domain": "other",
+        "description": "1st Grand Slam"
+      },
+      {
+        "age": 21,
+        "year": 2002,
+        "domain": "other",
+        "description": "World No. 1"
+      },
+      {
+        "age": 36,
+        "year": 2017,
+        "domain": "marriage",
+        "description": "Marriage"
+      },
+      {
+        "age": 41,
+        "year": 2022,
+        "domain": "other",
+        "description": "Retirement match."
+      }
+    ]
+  },
+  {
+    "name": "Albert Einstein",
+    "dob": "1879-03-14",
+    "tob": "11:30",
+    "birth_place": "Ulm, Germany",
+    "events": [
+      {
+        "age": 26,
+        "year": 1905,
+        "domain": "other",
+        "description": "Photoelectric effect"
+      },
+      {
+        "age": 36,
+        "year": 1915,
+        "domain": "other",
+        "description": "Gen. Relativity"
+      },
+      {
+        "age": 43,
+        "year": 1922,
+        "domain": "career",
+        "description": "Nobel Prize"
+      },
+      {
+        "age": 76,
+        "year": 1955,
+        "domain": "health",
+        "description": "Passing."
+      }
+    ]
+  },
+  {
+    "name": "Stephen Hawking",
+    "dob": "1942-01-08",
+    "tob": "09:10",
+    "birth_place": "Oxford, UK",
+    "events": [
+      {
+        "age": 21,
+        "year": 1963,
+        "domain": "health",
+        "description": "ALS diagnosis"
+      },
+      {
+        "age": 32,
+        "year": 1974,
+        "domain": "other",
+        "description": "Hawking Radiation"
+      },
+      {
+        "age": 46,
+        "year": 1988,
+        "domain": "other",
+        "description": "Brief History of Time"
+      },
+      {
+        "age": 76,
+        "year": 2018,
+        "domain": "health",
+        "description": "Passing."
+      }
+    ]
+  },
+  {
+    "name": "Marie Curie",
+    "dob": "1867-11-07",
+    "tob": "10:30",
+    "birth_place": "Warsaw, Poland",
+    "events": [
+      {
+        "age": 28,
+        "year": 1895,
+        "domain": "marriage",
+        "description": "Marriage"
+      },
+      {
+        "age": 36,
+        "year": 1903,
+        "domain": "other",
+        "description": "1st Nobel (Physics)"
+      },
+      {
+        "age": 44,
+        "year": 1911,
+        "domain": "other",
+        "description": "2nd Nobel (Chemistry)"
+      },
+      {
+        "age": 67,
+        "year": 1934,
+        "domain": "health",
+        "description": "Passing."
+      }
+    ]
+  },
+  {
+    "name": "Isaac Newton",
+    "dob": "1643-01-04",
+    "tob": "02:00",
+    "birth_place": "Woolsthorpe, UK",
+    "events": [
+      {
+        "age": 24,
+        "year": 1667,
+        "domain": "other",
+        "description": "Trinity Fellow"
+      },
+      {
+        "age": 44,
+        "year": 1687,
+        "domain": "other",
+        "description": "Principia pub."
+      },
+      {
+        "age": 56,
+        "year": 1699,
+        "domain": "other",
+        "description": "Master of Mint"
+      },
+      {
+        "age": 84,
+        "year": 1727,
+        "domain": "health",
+        "description": "Passing."
+      }
+    ]
+  },
+  {
+    "name": "Swami Vivekananda",
+    "dob": "1863-01-12",
+    "tob": "06:33",
+    "birth_place": "Kolkata, India",
+    "events": [
+      {
+        "age": 18,
+        "year": 1881,
+        "domain": "other",
+        "description": "Met Ramakrishna"
+      },
+      {
+        "age": 30,
+        "year": 1893,
+        "domain": "other",
+        "description": "Chicago speech"
+      },
+      {
+        "age": 34,
+        "year": 1897,
+        "domain": "other",
+        "description": "Ramakrishna Mission"
+      },
+      {
+        "age": 39,
+        "year": 1902,
+        "domain": "health",
+        "description": "Passing."
+      }
+    ]
+  },
+  {
+    "name": "Sadhguru",
+    "dob": "1957-09-03",
+    "tob": "23:54",
+    "birth_place": "Mysore, India",
+    "events": [
+      {
+        "age": 25,
+        "year": 1982,
+        "domain": "other",
+        "description": "Enlightenment"
+      },
+      {
+        "age": 35,
+        "year": 1992,
+        "domain": "other",
+        "description": "Isha Foundation"
+      },
+      {
+        "age": 42,
+        "year": 1999,
+        "domain": "other",
+        "description": "Dhyanalinga"
+      },
+      {
+        "age": 60,
+        "year": 2017,
+        "domain": "other",
+        "description": "Padma Vibhushan."
+      }
+    ]
+  },
+  {
+    "name": "J. Krishnamurti",
+    "dob": "1895-05-11",
+    "tob": "00:30",
+    "birth_place": "Madanapalle, India",
+    "events": [
+      {
+        "age": 14,
+        "year": 1909,
+        "domain": "other",
+        "description": "Discovery by Leadbeater"
+      },
+      {
+        "age": 34,
+        "year": 1929,
+        "domain": "other",
+        "description": "Dissolved Order of Star"
+      },
+      {
+        "age": 89,
+        "year": 1984,
+        "domain": "other",
+        "description": "UN Peace Medal"
+      },
+      {
+        "age": 91,
+        "year": 1986,
+        "domain": "health",
+        "description": "Passing."
+      }
+    ]
+  },
+  {
+    "name": "Chhatrapati Shivaji",
+    "dob": "1630-02-19",
+    "tob": "18:27",
+    "birth_place": "Shivneri, India",
+    "events": [
+      {
+        "age": 15,
+        "year": 1645,
+        "domain": "other",
+        "description": "Torna Fort capture"
+      },
+      {
+        "age": 29,
+        "year": 1659,
+        "domain": "other",
+        "description": "Afzal Khan defeat"
+      },
+      {
+        "age": 44,
+        "year": 1674,
+        "domain": "other",
+        "description": "Coronation"
+      },
+      {
+        "age": 50,
+        "year": 1680,
+        "domain": "health",
+        "description": "Passing."
+      }
+    ]
+  },
+  {
+    "name": "Dalai Lama (14th)",
+    "dob": "1935-07-06",
+    "tob": "04:38",
+    "birth_place": "Taktser, Tibet",
+    "events": [
+      {
+        "age": 5,
+        "year": 1940,
+        "domain": "other",
+        "description": "Enthronement"
+      },
+      {
+        "age": 24,
+        "year": 1959,
+        "domain": "other",
+        "description": "Escape to India"
+      },
+      {
+        "age": 54,
+        "year": 1989,
+        "domain": "career",
+        "description": "Nobel Peace Prize"
+      },
+      {
+        "age": 76,
+        "year": 2011,
+        "domain": "other",
+        "description": "Political retirement."
+      }
+    ]
+  },
+  {
+    "name": "Sam Altman",
+    "dob": "1985-04-22",
+    "tob": "10:00",
+    "birth_place": "Chicago, IL, USA",
+    "events": [
+      {
+        "age": 29,
+        "year": 2014,
+        "domain": "other",
+        "description": "President of YC"
+      },
+      {
+        "age": 30,
+        "year": 2015,
+        "domain": "career",
+        "description": "Founded OpenAI"
+      },
+      {
+        "age": 37,
+        "year": 2022,
+        "domain": "other",
+        "description": "ChatGPT"
+      },
+      {
+        "age": 38,
+        "year": 2023,
+        "domain": "other",
+        "description": "OpenAI firing/return."
+      }
+    ]
+  },
+  {
+    "name": "Vitalik Buterin",
+    "dob": "1994-01-31",
+    "tob": "03:40",
+    "birth_place": "Kolomna, Russia",
+    "events": [
+      {
+        "age": 19,
+        "year": 2013,
+        "domain": "other",
+        "description": "Ethereum whitepaper"
+      },
+      {
+        "age": 21,
+        "year": 2015,
+        "domain": "other",
+        "description": "Ethereum launch"
+      },
+      {
+        "age": 27,
+        "year": 2021,
+        "domain": "other",
+        "description": "SHIB donation"
+      },
+      {
+        "age": 28,
+        "year": 2022,
+        "domain": "other",
+        "description": "The Merge."
+      }
+    ]
+  },
+  {
+    "name": "Bill Clinton",
+    "dob": "1946-08-19",
+    "tob": "08:51",
+    "birth_place": "Hope, AR, USA",
+    "events": [
+      {
+        "age": 46,
+        "year": 1992,
+        "domain": "career",
+        "description": "Elected"
+      },
+      {
+        "age": 47,
+        "year": 1993,
+        "domain": "other",
+        "description": "Inauguration"
+      },
+      {
+        "age": 52,
+        "year": 1998,
+        "domain": "other",
+        "description": "Impeachment"
+      },
+      {
+        "age": 55,
+        "year": 2001,
+        "domain": "other",
+        "description": "Left office."
+      }
+    ]
+  },
+  {
+    "name": "Angelina Jolie",
+    "dob": "1975-06-04",
+    "tob": "09:09",
+    "birth_place": "Los Angeles, CA",
+    "events": [
+      {
+        "age": 25,
+        "year": 2000,
+        "domain": "career",
+        "description": "Oscar Win"
+      },
+      {
+        "age": 27,
+        "year": 2002,
+        "domain": "other",
+        "description": "Maddox adoption"
+      },
+      {
+        "age": 39,
+        "year": 2014,
+        "domain": "marriage",
+        "description": "Marriage"
+      },
+      {
+        "age": 41,
+        "year": 2016,
+        "domain": "other",
+        "description": "Filed divorce."
+      }
+    ]
+  },
+  {
+    "name": "Arnold Schwarzenegger",
+    "dob": "1947-07-30",
+    "tob": "04:10",
+    "birth_place": "Thal, Austria",
+    "events": [
+      {
+        "age": 23,
+        "year": 1970,
+        "domain": "other",
+        "description": "1st Mr. Olympia"
+      },
+      {
+        "age": 37,
+        "year": 1984,
+        "domain": "other",
+        "description": "Terminator"
+      },
+      {
+        "age": 56,
+        "year": 2003,
+        "domain": "other",
+        "description": "Governor"
+      },
+      {
+        "age": 64,
+        "year": 2011,
+        "domain": "other",
+        "description": "Left governorship."
+      }
+    ]
+  },
+  {
+    "name": "George W. Bush",
+    "dob": "1946-07-06",
+    "tob": "07:26",
+    "birth_place": "New Haven, CT, USA",
+    "events": [
+      {
+        "age": 48,
+        "year": 1994,
+        "domain": "other",
+        "description": "TX Governor"
+      },
+      {
+        "age": 54,
+        "year": 2000,
+        "domain": "career",
+        "description": "Presidential Win"
+      },
+      {
+        "age": 55,
+        "year": 2001,
+        "domain": "other",
+        "description": "9/11 attacks"
+      },
+      {
+        "age": 63,
+        "year": 2009,
+        "domain": "other",
+        "description": "Left office."
+      }
+    ]
+  },
+  {
+    "name": "Whitney Houston",
+    "dob": "1963-08-09",
+    "tob": "20:55",
+    "birth_place": "Newark, NJ, USA",
+    "events": [
+      {
+        "age": 22,
+        "year": 1985,
+        "domain": "career",
+        "description": "Debut album"
+      },
+      {
+        "age": 29,
+        "year": 1992,
+        "domain": "marriage",
+        "description": "Marriage"
+      },
+      {
+        "age": 29,
+        "year": 1992,
+        "domain": "other",
+        "description": "Bodyguard"
+      },
+      {
+        "age": 49,
+        "year": 2012,
+        "domain": "health",
+        "description": "Passing."
+      }
+    ]
+  },
+  {
+    "name": "Prince",
+    "dob": "1958-06-07",
+    "tob": "18:17",
+    "birth_place": "Minneapolis, MN",
+    "events": [
+      {
+        "age": 21,
+        "year": 1979,
+        "domain": "other",
+        "description": "Prince album"
+      },
+      {
+        "age": 26,
+        "year": 1984,
+        "domain": "other",
+        "description": "Purple Rain"
+      },
+      {
+        "age": 35,
+        "year": 1993,
+        "domain": "other",
+        "description": "Symbol name"
+      },
+      {
+        "age": 58,
+        "year": 2016,
+        "domain": "health",
+        "description": "Passing."
+      }
+    ]
+  },
+  {
+    "name": "Elvis Presley",
+    "dob": "1935-01-08",
+    "tob": "04:35",
+    "birth_place": "Tupelo, MS, USA",
+    "events": [
+      {
+        "age": 19,
+        "year": 1954,
+        "domain": "other",
+        "description": "That's All Right"
+      },
+      {
+        "age": 21,
+        "year": 1956,
+        "domain": "other",
+        "description": "Heartbreak Hotel"
+      },
+      {
+        "age": 32,
+        "year": 1967,
+        "domain": "marriage",
+        "description": "Marriage"
+      },
+      {
+        "age": 42,
+        "year": 1977,
+        "domain": "health",
+        "description": "Passing."
+      }
+    ]
+  },
+  {
+    "name": "John Lennon",
+    "dob": "1940-10-09",
+    "tob": "18:30",
+    "birth_place": "Liverpool, UK",
+    "events": [
+      {
+        "age": 22,
+        "year": 1962,
+        "domain": "other",
+        "description": "Ringo joined"
+      },
+      {
+        "age": 29,
+        "year": 1969,
+        "domain": "marriage",
+        "description": "Marriage"
+      },
+      {
+        "age": 31,
+        "year": 1971,
+        "domain": "other",
+        "description": "Imagine"
+      },
+      {
+        "age": 40,
+        "year": 1980,
+        "domain": "health",
+        "description": "Passing."
+      }
+    ]
+  },
+  {
+    "name": "Paul McCartney",
+    "dob": "1942-06-18",
+    "tob": "14:00",
+    "birth_place": "Liverpool, UK",
+    "events": [
+      {
+        "age": 15,
+        "year": 1957,
+        "domain": "other",
+        "description": "Met Lennon"
+      },
+      {
+        "age": 27,
+        "year": 1969,
+        "domain": "marriage",
+        "description": "Marriage"
+      },
+      {
+        "age": 28,
+        "year": 1970,
+        "domain": "other",
+        "description": "Beatles split"
+      },
+      {
+        "age": 55,
+        "year": 1997,
+        "domain": "other",
+        "description": "Knighthood."
+      }
+    ]
   }
 ]

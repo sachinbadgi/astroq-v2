@@ -100,6 +100,8 @@ class LKPrediction:
     source_rules: list[str] = field(default_factory=list)
     remedy_applicable: bool = False
     remedy_hints: list[str] = field(default_factory=list)
+    timing_confidence: str = ""
+    timing_signals: list[str] = field(default_factory=list)
 
 
 # ---------------------------------------------------------------------------

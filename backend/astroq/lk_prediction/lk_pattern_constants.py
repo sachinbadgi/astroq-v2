@@ -190,3 +190,74 @@ When generating Lal Kitab predictions, bypass hard-coded rules and use this algo
      the [Remediable_Non_Living_Item] from the exact same PLANET_HOUSE_ITEMS array.
    - If planet is Doubtful -> Immediately add +20 to the planet-shifting priority index.
 """
+
+# ============================================================================
+# PATTERN 8: VARSHPHAL TIMING TRIGGERS (ANNUAL CHART GEOMETRY)
+# Explicit event triggers derived from B.M. Goswami & Lal Diary rules
+# ============================================================================
+VARSHPHAL_TIMING_TRIGGERS: Dict[str, List[Dict[str, Any]]] = {
+    "marriage": [
+        {"desc": "Venus or Mercury in 1,2,10,11,12 AND Saturn in 1 or 10", "annual_ven_mer": [1,2,10,11,12], "annual_sat": [1, 10]},
+        {"desc": "Natal Venus/Mercury in 7 returns to 7 in Annual", "natal_ven_mer": [7], "annual_ven_mer": [7]},
+        {"desc": "Annual Venus and Mercury conjoined AND Saturn in 2,7,12", "annual_ven_mer_conjoined": True, "annual_sat": [2, 7, 12]},
+        {"desc": "Annual Saturn in House 1", "annual_sat": [1]},
+        {"desc": "Venus/Mercury returns to Natal House, No enemies in 2,7", "ven_mer_return": True, "annual_enemies_in_2_7": False},
+        {"desc": "Natal H2, H7 blank, Annual Jupiter/Venus in 2,7", "natal_2_7_blank": True, "annual_jup_ven": [2, 7]},
+        {"desc": "Annual Venus or Mercury in 2 or 7", "annual_ven_mer": [2, 7]}
+    ],
+    "finance": [
+        {"desc": "Saturn 3,5 in Natal AND Ketu+Saturn/Rahu 1,3 in Annual", "natal_sat": [3, 5], "annual_ket_sat_rah": [1, 3], "polarity": "benefic"},
+        {"desc": "Ketu 11 in Natal AND Saturn 11 in Annual", "natal_ket": [11], "annual_sat": [11], "polarity": "benefic"},
+        {"desc": "Jup+Moon in Natal AND Jup+Moon 9 in Annual", "natal_jup_mon": True, "annual_jup_mon": [9], "polarity": "benefic"},
+        {"desc": "Saturn 6 in Natal AND Mars 1-8 in Annual", "natal_sat": [6], "annual_mar": [1,2,3,4,5,6,7,8], "polarity": "benefic"},
+        {"desc": "Mercury 3 in Natal AND Ketu 11 in Annual", "natal_mer": [3], "annual_ket": [11], "polarity": "malefic"},
+        {"desc": "Jup+Moon 10 in Natal AND Jup+Moon 10 in Annual", "natal_jup_mon": [10], "annual_jup_mon": [10], "polarity": "malefic"},
+        {"desc": "Moon 10 in Natal AND Saturn 1 in Annual", "natal_mon": [10], "annual_sat": [1], "polarity": "malefic"}
+    ],
+    "health": [
+        {"desc": "Moon and Venus conjunct in Annual", "annual_mon_ven_conjoined": True, "target": "progeny"},
+        {"desc": "Jup+Sat 2 in Natal AND Jup+Sat 2 in Annual", "natal_jup_sat": [2], "annual_jup_sat": [2], "target": "self"},
+        {"desc": "Sun 5 in Natal AND Sun 5 in Annual (H8 empty)", "natal_sun": [5], "annual_sun": [5], "annual_8_empty": True, "target": "self"},
+        {"desc": "Mer+Moon 11 in Natal AND Mer 11 alone in Annual", "natal_mer_mon": [11], "annual_mer_alone": [11], "target": "mother"},
+        {"desc": "Sun/Moon conjunct Mer in 1,6,7,8,10 in Annual", "annual_sun_mon_mer_conjoined": [1, 6, 7, 8, 10], "target": "self"}
+    ],
+    "career_travel": [
+        {"desc": "Sun+Sat in Natal AND Sun+Sat 7 in Annual", "natal_sun_sat": True, "annual_sun_sat": [7], "outcome": "jail"},
+        {"desc": "Ketu in Natal AND Ketu 1 in Annual", "natal_ket": True, "annual_ket": [1], "outcome": "transfer"},
+        {"desc": "Mercury in Natal AND Rahu/Moon/Sun 1 in Annual", "natal_mer": True, "annual_rah_mon_sun": [1], "outcome": "deception"},
+        {"desc": "Mercury 2 in Natal AND Mercury 12 in Annual", "natal_mer": [2], "annual_mer": [12], "outcome": "foreign_travel"},
+        {"desc": "Mercury 8 in Natal AND Mercury 1 in Annual", "natal_mer": [8], "annual_mer": [1], "outcome": "secrets"}
+    ],
+    "progeny": [
+        {"desc": "Mercury 12 in Natal AND Saturn 2 in Annual", "natal_mer": [12], "annual_sat": [2]},
+        {"desc": "Jupiter 5 in Natal AND Venus 9 in Annual", "natal_jup": [5], "annual_ven": [9]},
+        {"desc": "Mercury in Natal AND Ketu 1 in Annual", "natal_mer": True, "annual_ket": [1]}
+    ]
+}
+
+# ============================================================================
+# PATTERN 9: AGE GATES & PROHIBITIONS
+# ============================================================================
+VARSHPHAL_AGE_GATES: Dict[str, List[Dict[str, Any]]] = {
+    "marriage": [
+        {"planet": "Mercury", "houses": [8, 9, 10, 12], "prohibit_before": 25},
+        {"planet": "Saturn", "houses": [6, 7, 8], "prohibit_before": 28},
+        {"planet": "Rahu", "houses": [1, 2, 3, 4, 5, 6, 7], "prohibit_between": [21, 25]}
+    ],
+    "real_estate": [
+        {"planet": "Saturn", "houses": [1], "condition": "7_to_10_empty", "prohibit": True},
+        {"ages": [36, 39], "outcome": "loss_of_progeny"},
+        {"ages": [55], "outcome": "long_term_illness"}
+    ]
+}
+
+# ============================================================================
+# PATTERN 10: SPECIAL DESTRUCTION LOGIC (NISHT GRAH)
+# ============================================================================
+VARSHPHAL_SPECIAL_LOGIC = {
+    "sequential_impact_rule": {
+        "description": "If a planet is in H8 in Natal and moves to H7, 8, or 6 in Varshphal, it systematically negates the positive effects of those houses.",
+        "natal_house": 8,
+        "annual_houses": [6, 7, 8]
+    }
+}
