@@ -23,13 +23,25 @@ DOMAIN_KARAKA = {
 }
 
 ACTIVE_HOUSES = {
-    "marriage": [2, 7],               
-    "career": [1, 4, 7, 10, 11],      
-    "career_travel": [1, 4, 7, 10, 11],
-    "health": [6, 8, 12],             
-    "progeny": [5, 9],                
-    "real_estate": [4, 10],           
-    "finance": [2, 11]                
+    "marriage": [7, 2],               
+    "career": [10, 6, 2],      
+    "career_travel": [10, 6, 2, 12, 9], # combined career and foreign
+    "health": [1, 6, 8],             
+    "progeny": [5],                
+    "real_estate": [4, 8],           
+    "finance": [2, 11, 9]                
+}
+
+PLANET_MATURITY = {
+    "Jupiter": 16,
+    "Sun": 22,
+    "Moon": 24,
+    "Venus": 25,
+    "Mars": 28,
+    "Mercury": 34,
+    "Saturn": 36,
+    "Rahu": 42,
+    "Ketu": 48
 }
 
 def fetch_ground_truth():
@@ -83,6 +95,11 @@ def calculate_quantum_whr(timeline: dict, ground_truth_events: list, amp_thresho
                 if p_data:
                     amp = p_data.get("amplitude", 0)
                     house = p_data.get("house", 0)
+                    
+                    # Apply maturity multiplier
+                    maturity_age = PLANET_MATURITY.get(karaka, 0)
+                    if age < maturity_age:
+                        amp *= 0.5  # dampen signal before maturity
                     
                     if amp >= amp_threshold and house in active_houses:
                         if age == gt_age:
