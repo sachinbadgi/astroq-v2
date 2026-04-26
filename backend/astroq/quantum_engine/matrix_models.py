@@ -24,12 +24,11 @@ class StateVector:
                     return i + 1
         return 0
 
+from astroq.lk_prediction.chart_generator import ChartGenerator
+
 class VarshphalMatrix:
-    # Extracted from 1952 Goswami logic. Maps Natal House -> Annual House based on Age.
-    # We use a partial subset for the test (Age 2). A full matrix would be loaded here.
-    YEAR_MATRIX = {
-        2: {1: 4, 2: 1, 3: 12, 4: 9, 5: 3, 6: 7, 7: 5, 8: 6, 9: 2, 10: 8, 11: 10, 12: 11}
-    }
+    # Use the authentic 120-Year Goswami Matrix loaded from the main engine
+    YEAR_MATRIX = ChartGenerator.YEAR_MATRIX
     
     def apply_transformation(self, natal_sv: StateVector, age: int) -> StateVector:
         """Applies the Unitary Operator for a given age to rotate the state vector."""
