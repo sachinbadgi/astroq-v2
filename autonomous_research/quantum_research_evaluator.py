@@ -12,14 +12,14 @@ from astroq.quantum_engine.config import load_quantum_weights, QuantumConfig
 JSON_PATH = "backend/data/public_figures_ground_truth.json"
 CONFIG_PATH = "backend/astroq/quantum_engine/quantum_weights.json"
 
-DOMAIN_KARAKA = {
-    "marriage": "Venus",
-    "career": "Saturn",
-    "career_travel": "Saturn",
-    "health": "Mars",
-    "progeny": "Jupiter",
-    "real_estate": "Mars",
-    "finance": "Jupiter"
+DOMAIN_KARAKAS = {
+    "marriage": ["Venus", "Mercury"],
+    "career": ["Sun", "Mars", "Jupiter", "Saturn"],
+    "career_travel": ["Sun", "Mars", "Jupiter", "Saturn", "Rahu", "Ketu"],
+    "health": ["Sun", "Mars", "Saturn"],
+    "progeny": ["Jupiter", "Ketu"],
+    "real_estate": ["Moon", "Saturn", "Mars"],
+    "finance": ["Jupiter", "Venus", "Mercury"]
 }
 
 ACTIVE_HOUSES = {
@@ -76,10 +76,10 @@ def calculate_quantum_whr(timeline: dict, ground_truth_events: list, amp_thresho
     for gt in ground_truth_events:
         gt_age = gt["age"]
         gt_domain = gt["domain"].lower()
-        karaka = DOMAIN_KARAKA.get(gt_domain)
+        karakas = DOMAIN_KARAKAS.get(gt_domain, [])
         active_houses = ACTIVE_HOUSES.get(gt_domain, [1,4,7,10])
         
-        if not karaka:
+        if not karakas:
             continue
             
         # Check the timeline at that age and nearby ages
@@ -90,24 +90,29 @@ def calculate_quantum_whr(timeline: dict, ground_truth_events: list, amp_thresho
             chart_key = f"chart_{age}"
             if chart_key in timeline:
                 annual_chart = timeline[chart_key]
-                p_data = annual_chart.get("planets_in_houses", {}).get(karaka)
                 
-                if p_data:
-                    amp = p_data.get("amplitude", 0)
-                    house = p_data.get("house", 0)
+                # Check ALL key planets for the domain
+                for karaka in karakas:
+                    p_data = annual_chart.get("planets_in_houses", {}).get(karaka)
                     
-                    # Apply maturity multiplier
-                    maturity_age = PLANET_MATURITY.get(karaka, 0)
-                    if age < maturity_age:
-                        amp *= 0.5  # dampen signal before maturity
-                    
-                    if amp >= amp_threshold and house in active_houses:
-                        if age == gt_age:
-                            score += 1.0
-                        else:
-                            score += 0.5
-                        hit_found = True
-                        break
+                    if p_data:
+                        amp = p_data.get("amplitude", 0)
+                        house = p_data.get("house", 0)
+                        
+                        # Apply maturity multiplier
+                        maturity_age = PLANET_MATURITY.get(karaka, 0)
+                        if age < maturity_age:
+                            amp *= 0.5  # dampen signal before maturity
+                        
+                        if amp >= amp_threshold and house in active_houses:
+                            if age == gt_age:
+                                score += 1.0
+                            else:
+                                score += 0.5
+                            hit_found = True
+                            break # break out of karaka loop
+                if hit_found:
+                    break # break out of age loop
                         
     return score / total
 
