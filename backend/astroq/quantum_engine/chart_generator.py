@@ -20,13 +20,16 @@ class QuantumChartGenerator:
                 # Determine amplitude based on dignity
                 states = planets_data[planet].get("states", [])
                 
-                if "Exalted" in states or "Fixed House Lord" in states:
-                    amplitude = self.config.exaltation_amplitude
+                # LK Quantum MD dignity weights (see Weighted Dignity Scoring section):
+                # Exaltation: +5.00, Pakka Ghar: +2.20, Normal: 1.0, Debilitation: -5.00
+                if "Exalted" in states:
+                    amplitude = 5.0
+                elif "Fixed House Lord" in states:
+                    amplitude = 2.2
                 elif "Debilitated" in states:
-                    amplitude = self.config.debilitation_amplitude
+                    amplitude = -5.0
                 else:
-                    # Normal planet
-                    amplitude = 1
+                    amplitude = 1.0
                 
                 sv.set_planet_house(planet, house, amplitude)
                 
