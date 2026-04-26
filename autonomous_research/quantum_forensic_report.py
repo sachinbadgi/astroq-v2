@@ -51,7 +51,7 @@ def get_35_year_ruler(age):
             return planet
     return None
 
-def _get_planet_score(planet_data, karaka_name, age):
+def _get_planet_score(planet_data, karaka_name, age, domain=""):
     """
     Compute the quantum probability score for a single planet.
     Incorporates:
@@ -75,19 +75,24 @@ def _get_planet_score(planet_data, karaka_name, age):
         if age < maturity_age:
             score *= 0.5
 
-        is_ruler = (get_35_year_ruler(age) == karaka_name)
-        # Dignified = Exalted (5.0) or Pakka Ghar (2.2)
+        is_ruler  = (get_35_year_ruler(age) == karaka_name)
         is_dignified = (amp >= 2.2)
+        # Primary house resonance: the karaka's natural house partially activates it
+        # even when dormant (e.g., Venus in H7 for marriage). This reflects that a planet
+        # in its domain house has some inherent activity regardless of the 35-year ruler.
+        config = DOMAIN_CONFIG.get(domain, {})
+        in_primary_house = (planet_data.get("house", 0) in config.get("primary_h", []))
 
         if is_ruler:
-            # Awakened: apply full boost
             score += 1.0
         elif is_dignified:
-            # Pakka/Exalted exception: always partially awake — never fully dormant
-            # The planet's structural dignity makes it permanently observable
             score *= 0.7
+        elif in_primary_house:
+            # Primary house resonance: 0.3x (stronger than full dormancy 0.05x)
+            # but weaker than awakened or dignified state
+            score *= 0.3
         else:
-            # SOYI HUI (Dormant): strict suppression for undignified non-rulers
+            # SOYI HUI: full dormancy outside primary domain
             score *= 0.05
 
     return score
@@ -119,7 +124,7 @@ def is_event_triggered_domain(annual_chart, domain, age):
         house = p_data.get("house", 0)
         if house not in all_active: continue
         house_weight = 1.0 if house in primary_houses else 0.5
-        s = _get_planet_score(p_data, karaka, age) * house_weight
+        s = _get_planet_score(p_data, karaka, age, domain) * house_weight
         composite += s
         if s > best_single:
             best_single = s
