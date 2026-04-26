@@ -71,25 +71,25 @@
       {
         "age": 51,
         "year": 2001,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Sworn in as CM"
       },
       {
         "age": 64,
         "year": 2014,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Sworn in as PM"
       },
       {
         "age": 69,
         "year": 2019,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Second PM term"
       },
       {
         "age": 69,
         "year": 2019,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Article 370 revocation."
       }
     ],
@@ -153,7 +153,7 @@
       {
         "age": 45,
         "year": 2000,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Gates Foundation."
       }
     ],
@@ -179,7 +179,7 @@
       {
         "age": 35,
         "year": 1996,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Divorce final"
       },
       {
@@ -205,7 +205,7 @@
       {
         "age": 27,
         "year": 1992,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Deewana"
       },
       {
@@ -263,19 +263,19 @@
       {
         "age": 49,
         "year": 1966,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "1st PM term"
       },
       {
         "age": 54,
         "year": 1971,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Bangladesh liberation"
       },
       {
         "age": 58,
         "year": 1975,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Emergency"
       },
       {
@@ -313,7 +313,7 @@
       {
         "age": 49,
         "year": 2020,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Crew Dragon launch."
       }
     ],
@@ -327,19 +327,19 @@
       {
         "age": 24,
         "year": 1893,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Arrival in South Africa"
       },
       {
         "age": 61,
         "year": 1930,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Dandi March"
       },
       {
         "age": 78,
         "year": 1947,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Indian Independence"
       },
       {
@@ -533,25 +533,25 @@
       {
         "age": 37,
         "year": 1983,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Trump Tower completion"
       },
       {
         "age": 69,
         "year": 2015,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Presidential bid"
       },
       {
         "age": 70,
         "year": 2016,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Election victory"
       },
       {
         "age": 71,
         "year": 2017,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Inauguration."
       }
     ],
@@ -583,7 +583,7 @@
       {
         "age": 51,
         "year": 2012,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Re-election."
       }
     ],
@@ -766,25 +766,25 @@
       {
         "age": 47,
         "year": 1999,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Acting President"
       },
       {
         "age": 48,
         "year": 2000,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "1st Inauguration"
       },
       {
         "age": 60,
         "year": 2012,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Return to Presidency"
       },
       {
         "age": 70,
         "year": 2022,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Special Military Op."
       }
     ]
@@ -804,13 +804,13 @@
       {
         "age": 54,
         "year": 1863,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Emancipation Proclamation"
       },
       {
         "age": 54,
         "year": 1863,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Gettysburg Address"
       },
       {
@@ -830,7 +830,7 @@
       {
         "age": 46,
         "year": 1964,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Life imprisonment"
       },
       {
@@ -842,7 +842,7 @@
       {
         "age": 76,
         "year": 1994,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Inauguration as President"
       },
       {
@@ -862,13 +862,13 @@
       {
         "age": 45,
         "year": 2002,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Took over Reliance"
       },
       {
         "age": 59,
         "year": 2016,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Reliance Jio launch"
       },
       {
@@ -894,25 +894,25 @@
       {
         "age": 54,
         "year": 1991,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Chairman of Tata Sons"
       },
       {
         "age": 70,
         "year": 2007,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Corus acquisition"
       },
       {
         "age": 71,
         "year": 2008,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Nano launch"
       },
       {
         "age": 75,
         "year": 2012,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Retirement."
       }
     ]
@@ -932,19 +932,19 @@
       {
         "age": 33,
         "year": 1997,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Amazon IPO"
       },
       {
         "age": 36,
         "year": 2000,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Blue Origin"
       },
       {
         "age": 57,
         "year": 2021,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Suborbital space flight."
       }
     ]
@@ -958,13 +958,13 @@
       {
         "age": 20,
         "year": 2004,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Facebook launch"
       },
       {
         "age": 28,
         "year": 2012,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Facebook IPO"
       },
       {
@@ -976,7 +976,7 @@
       {
         "age": 37,
         "year": 2021,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Meta rebrand."
       }
     ]
@@ -990,7 +990,7 @@
       {
         "age": 32,
         "year": 2004,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Joined Google"
       },
       {
@@ -1008,7 +1008,7 @@
       {
         "age": 50,
         "year": 2022,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Padma Bhushan."
       }
     ]
@@ -1022,25 +1022,25 @@
       {
         "age": 35,
         "year": 1965,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Berkshire control"
       },
       {
         "age": 76,
         "year": 2006,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Philanthropy pledge"
       },
       {
         "age": 84,
         "year": 2014,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Share price hit $200k"
       },
       {
         "age": 94,
         "year": 2024,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "2023 shareholder letter."
       }
     ]
@@ -1054,25 +1054,25 @@
       {
         "age": 26,
         "year": 1988,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Adani Exports"
       },
       {
         "age": 46,
         "year": 2008,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Taj Mumbai survivor"
       },
       {
         "age": 60,
         "year": 2022,
-        "domain": "other",
+        "domain": "progeny",
         "description": "Richest person in Asia"
       },
       {
         "age": 61,
         "year": 2023,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Hindenburg report."
       }
     ]
@@ -1124,7 +1124,7 @@
       {
         "age": 36,
         "year": 2010,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Inception"
       },
       {
@@ -1136,7 +1136,7 @@
       {
         "age": 47,
         "year": 2021,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Don't Look Up."
       }
     ]
@@ -1150,7 +1150,7 @@
       {
         "age": 25,
         "year": 1975,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Apoorva Raagangal"
       },
       {
@@ -1162,7 +1162,7 @@
       {
         "age": 55,
         "year": 2005,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Chandramukhi"
       },
       {
@@ -1188,7 +1188,7 @@
       {
         "age": 31,
         "year": 1997,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Vande Mataram"
       },
       {
@@ -1200,7 +1200,7 @@
       {
         "age": 57,
         "year": 2023,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "30 years in music."
       }
     ]
@@ -1220,19 +1220,19 @@
       {
         "age": 20,
         "year": 2009,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "VMA incident"
       },
       {
         "age": 32,
         "year": 2021,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Red (Taylor's Version)"
       },
       {
         "age": 34,
         "year": 2023,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Eras Tour start."
       }
     ]
@@ -1278,25 +1278,25 @@
       {
         "age": 30,
         "year": 1984,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "AM Chicago"
       },
       {
         "age": 32,
         "year": 1986,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Oprah Show premiere"
       },
       {
         "age": 57,
         "year": 2011,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "OWN network"
       },
       {
         "age": 67,
         "year": 2021,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Meghan & Harry interview."
       }
     ]
@@ -1328,7 +1328,7 @@
       {
         "age": 34,
         "year": 2022,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Resigned Test captaincy."
       }
     ]
@@ -1348,7 +1348,7 @@
       {
         "age": 34,
         "year": 2021,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Moved to PSG"
       },
       {
@@ -1386,13 +1386,13 @@
       {
         "age": 33,
         "year": 2018,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Moved to Juventus"
       },
       {
         "age": 38,
         "year": 2023,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Al Nassr move."
       }
     ]
@@ -1424,7 +1424,7 @@
       {
         "age": 39,
         "year": 2020,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Retirement."
       }
     ]
@@ -1438,25 +1438,25 @@
       {
         "age": 21,
         "year": 1984,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "NBA Draft"
       },
       {
         "age": 28,
         "year": 1991,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "1st NBA Title"
       },
       {
         "age": 30,
         "year": 1993,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "1st Retirement"
       },
       {
         "age": 40,
         "year": 2003,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Final Game."
       }
     ]
@@ -1470,13 +1470,13 @@
       {
         "age": 18,
         "year": 1999,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "1st Grand Slam"
       },
       {
         "age": 21,
         "year": 2002,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "World No. 1"
       },
       {
@@ -1488,7 +1488,7 @@
       {
         "age": 41,
         "year": 2022,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Retirement match."
       }
     ]
@@ -1502,13 +1502,13 @@
       {
         "age": 26,
         "year": 1905,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Photoelectric effect"
       },
       {
         "age": 36,
         "year": 1915,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Gen. Relativity"
       },
       {
@@ -1540,13 +1540,13 @@
       {
         "age": 32,
         "year": 1974,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Hawking Radiation"
       },
       {
         "age": 46,
         "year": 1988,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Brief History of Time"
       },
       {
@@ -1572,13 +1572,13 @@
       {
         "age": 36,
         "year": 1903,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "1st Nobel (Physics)"
       },
       {
         "age": 44,
         "year": 1911,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "2nd Nobel (Chemistry)"
       },
       {
@@ -1598,19 +1598,19 @@
       {
         "age": 24,
         "year": 1667,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Trinity Fellow"
       },
       {
         "age": 44,
         "year": 1687,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Principia pub."
       },
       {
         "age": 56,
         "year": 1699,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Master of Mint"
       },
       {
@@ -1630,19 +1630,19 @@
       {
         "age": 18,
         "year": 1881,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Met Ramakrishna"
       },
       {
         "age": 30,
         "year": 1893,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Chicago speech"
       },
       {
         "age": 34,
         "year": 1897,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Ramakrishna Mission"
       },
       {
@@ -1662,25 +1662,25 @@
       {
         "age": 25,
         "year": 1982,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Enlightenment"
       },
       {
         "age": 35,
         "year": 1992,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Isha Foundation"
       },
       {
         "age": 42,
         "year": 1999,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Dhyanalinga"
       },
       {
         "age": 60,
         "year": 2017,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Padma Vibhushan."
       }
     ]
@@ -1694,19 +1694,19 @@
       {
         "age": 14,
         "year": 1909,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Discovery by Leadbeater"
       },
       {
         "age": 34,
         "year": 1929,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Dissolved Order of Star"
       },
       {
         "age": 89,
         "year": 1984,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "UN Peace Medal"
       },
       {
@@ -1726,19 +1726,19 @@
       {
         "age": 15,
         "year": 1645,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Torna Fort capture"
       },
       {
         "age": 29,
         "year": 1659,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Afzal Khan defeat"
       },
       {
         "age": 44,
         "year": 1674,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Coronation"
       },
       {
@@ -1758,13 +1758,13 @@
       {
         "age": 5,
         "year": 1940,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Enthronement"
       },
       {
         "age": 24,
         "year": 1959,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Escape to India"
       },
       {
@@ -1776,7 +1776,7 @@
       {
         "age": 76,
         "year": 2011,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Political retirement."
       }
     ]
@@ -1790,7 +1790,7 @@
       {
         "age": 29,
         "year": 2014,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "President of YC"
       },
       {
@@ -1802,13 +1802,13 @@
       {
         "age": 37,
         "year": 2022,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "ChatGPT"
       },
       {
         "age": 38,
         "year": 2023,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "OpenAI firing/return."
       }
     ]
@@ -1822,25 +1822,25 @@
       {
         "age": 19,
         "year": 2013,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Ethereum whitepaper"
       },
       {
         "age": 21,
         "year": 2015,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Ethereum launch"
       },
       {
         "age": 27,
         "year": 2021,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "SHIB donation"
       },
       {
         "age": 28,
         "year": 2022,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "The Merge."
       }
     ]
@@ -1860,19 +1860,19 @@
       {
         "age": 47,
         "year": 1993,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Inauguration"
       },
       {
         "age": 52,
         "year": 1998,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Impeachment"
       },
       {
         "age": 55,
         "year": 2001,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Left office."
       }
     ]
@@ -1892,7 +1892,7 @@
       {
         "age": 27,
         "year": 2002,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Maddox adoption"
       },
       {
@@ -1904,7 +1904,7 @@
       {
         "age": 41,
         "year": 2016,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Filed divorce."
       }
     ]
@@ -1918,25 +1918,25 @@
       {
         "age": 23,
         "year": 1970,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "1st Mr. Olympia"
       },
       {
         "age": 37,
         "year": 1984,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Terminator"
       },
       {
         "age": 56,
         "year": 2003,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Governor"
       },
       {
         "age": 64,
         "year": 2011,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Left governorship."
       }
     ]
@@ -1950,7 +1950,7 @@
       {
         "age": 48,
         "year": 1994,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "TX Governor"
       },
       {
@@ -1962,13 +1962,13 @@
       {
         "age": 55,
         "year": 2001,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "9/11 attacks"
       },
       {
         "age": 63,
         "year": 2009,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Left office."
       }
     ]
@@ -1994,7 +1994,7 @@
       {
         "age": 29,
         "year": 1992,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Bodyguard"
       },
       {
@@ -2014,19 +2014,19 @@
       {
         "age": 21,
         "year": 1979,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Prince album"
       },
       {
         "age": 26,
         "year": 1984,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Purple Rain"
       },
       {
         "age": 35,
         "year": 1993,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Symbol name"
       },
       {
@@ -2046,13 +2046,13 @@
       {
         "age": 19,
         "year": 1954,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "That's All Right"
       },
       {
         "age": 21,
         "year": 1956,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Heartbreak Hotel"
       },
       {
@@ -2078,7 +2078,7 @@
       {
         "age": 22,
         "year": 1962,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Ringo joined"
       },
       {
@@ -2090,7 +2090,7 @@
       {
         "age": 31,
         "year": 1971,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Imagine"
       },
       {
@@ -2110,7 +2110,7 @@
       {
         "age": 15,
         "year": 1957,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Met Lennon"
       },
       {
@@ -2122,13 +2122,13 @@
       {
         "age": 28,
         "year": 1970,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Beatles split"
       },
       {
         "age": 55,
         "year": 1997,
-        "domain": "other",
+        "domain": "career_travel",
         "description": "Knighthood."
       }
     ]

@@ -1,12 +1,12 @@
 import os
 import sys
 import json
-import logging
+from datetime import datetime
 
 sys.path.append(os.path.join(os.getcwd(), "backend"))
 
 from astroq.lk_prediction.chart_generator import ChartGenerator
-from astroq.lk_prediction.lk_constants import PLANET_PAKKA_GHAR, PLANET_EXALTATION, PLANET_DEBILITATION
+from astroq.lk_prediction.varshphal_timing_engine import VarshphalTimingEngine
 
 # Quick geocode dictionary for public figures
 GEO_MAP = {
@@ -32,25 +32,15 @@ GEO_MAP = {
     "Skopje, North Macedonia": (42.0003, 21.4280, "+01:00")
 }
 
-def is_doubtful_placement(planet, ppos):
-    if planet == "Venus" and ppos.get("Venus") == 4: return True
-    if planet == "Sun" and ppos.get("Sun") == 4 and ppos.get("Saturn") == 10: return True
-    if planet == "Saturn" and ppos.get("Saturn") == 10 and ppos.get("Sun") == 4: return True
-    return False
-
-def check_states(ppos):
-    states = []
-    for planet, house in ppos.items():
-        if house == PLANET_PAKKA_GHAR.get(planet): states.append((planet, "Pakka Ghar"))
-        if house in PLANET_EXALTATION.get(planet, []): states.append((planet, "Exalted"))
-        if house in PLANET_DEBILITATION.get(planet, []): states.append((planet, "Debilitated"))
-        if is_doubtful_placement(planet, ppos): states.append((planet, "Doubtful"))
-    return states
+def _confidence_score(confidence: str) -> int:
+    return {"None": 0, "Low": 1, "Medium": 2, "High": 3}.get(confidence, 0)
 
 def run_public_figures_timing_fuzzer():
-    print(f"=== Starting Public Figures Timing Fuzzer ===")
+    print(f"=== Starting Public Figures Timing Fuzzer (Graha Phal - Strict Boolean) ===")
     
     generator = ChartGenerator()
+    engine = VarshphalTimingEngine()
+    
     data_path = os.path.join("backend", "data", "public_figures_ground_truth.json")
     
     with open(data_path, "r") as f:
@@ -58,6 +48,19 @@ def run_public_figures_timing_fuzzer():
         
     total_events = 0
     confirmed_events = 0
+    
+    total_noise_years = 0
+    noise_hits = 0
+    
+    domain_map = {
+        "career":   "career_travel",
+        "legal":    "career_travel",
+        "other":    "career_travel",
+        "finance":  "finance",
+        "health":   "health",
+        "marriage": "marriage",
+        "progeny":  "progeny",
+    }
     
     for fig in figures:
         name = fig["name"]
@@ -69,8 +72,7 @@ def run_public_figures_timing_fuzzer():
         place = fig.get("birth_place", "New Delhi, India")
         lat, lon, tz = GEO_MAP.get(place, (28.6139, 77.2090, "+05:30"))
         
-        # We only generate charts specifically for the years/ages of the events to save time
-        print(f"\\nAnalyzing {name}...")
+        print(f"\nAnalyzing {name}...")
         
         try:
             payload = generator.build_full_chart_payload(
@@ -81,69 +83,72 @@ def run_public_figures_timing_fuzzer():
             print(f"  Error generating payload for {name}: {e}")
             continue
             
+        natal_chart = payload.get("chart_0")
+        if not natal_chart:
+            print(f"  Could not find Natal Chart!")
+            continue
+            
         for event in fig.get("events", []):
             age = event.get("age")
             year = event.get("year")
             desc = event.get("description")
+            domain = event.get("domain", "career_travel")
+            engine_domain = domain_map.get(domain, "career_travel")
+            
             total_events += 1
             
-            # Find the Annual Chart for this age
-            annual_chart_key = f"chart_{age}"
-            if annual_chart_key not in payload:
-                # Some charts might use index offset, let's try finding by age
-                found_key = None
+            # Helper to find annual chart by age
+            def get_annual(target_age):
                 for k, v in payload.items():
-                    if k.startswith("chart_") and v.get("chart_type") == "Yearly" and v.get("chart_period") == age:
-                        found_key = k
-                        break
-                if found_key:
-                    annual_chart_key = found_key
-                else:
-                    print(f"  [Event Age {age}] {desc} - Could not find Annual Chart!")
-                    continue
-                    
-            annual_chart = payload[annual_chart_key]
-            ppos_annual = {p: d["house"] for p, d in annual_chart["planets_in_houses"].items() if p != "Lagna"}
-            annual_states = check_states(ppos_annual)
-            
-            if not annual_states:
-                print(f"  [Age {age}] {desc} - No structural pattern in Annual Chart.")
+                    if k.startswith("chart_") and v.get("chart_type") == "Yearly" and v.get("chart_period") == target_age:
+                        return v
+                return None
+
+            annual_chart = get_annual(age)
+            if not annual_chart:
+                print(f"  [Event Age {age}] {desc} - Could not find Annual Chart!")
                 continue
                 
-            # Check Monthly charts
-            monthly_charts = []
-            for m in range(1, 13):
-                m_chart = generator.generate_monthly_chart(annual_chart, m)
-                monthly_charts.append({p: d["house"] for p, d in m_chart["planets_in_houses"].items() if p != "Lagna"})
-                
-            confirmed = False
-            confirming_months = []
-            confirming_states = []
+            # Evaluate event year
+            result = engine.get_timing_confidence(natal_chart, annual_chart, age, engine_domain)
+            score = _confidence_score(result["confidence"])
             
-            for planet, state_type in annual_states:
-                for m_idx, mc in enumerate(monthly_charts):
-                    m_states = check_states(mc)
-                    if (planet, state_type) in m_states:
-                        confirmed = True
-                        confirming_months.append(m_idx + 1)
-                        confirming_states.append(f"{planet} ({state_type})")
-                        
-            if confirmed:
+            # Boolean logic: Medium (2) or High (3) is a hit. Low (1) or None (0) is a miss.
+            is_hit = score > 1
+            
+            if is_hit:
                 confirmed_events += 1
-                states_str = ", ".join(set(confirming_states))
-                months_str = ", ".join(map(str, set(confirming_months)))
-                print(f"  [Age {age}] {desc} - ✓ DOUBLE CONFIRMED: {states_str} peaked in Month(s) {months_str}")
+                triggers = " | ".join(result.get("triggers", []))
+                print(f"  [Age {age}] {desc} - ✓ HIT: {triggers}")
             else:
-                states_str = ", ".join([f"{p}({s})" for p, s in annual_states])
-                print(f"  [Age {age}] {desc} - ✗ Annual pattern {states_str} did not double-confirm.")
+                print(f"  [Age {age}] {desc} - ✗ MISS: No exact double confirmation triggered.")
+                
+            # Evaluate noise years (True Negative Rate testing)
+            NOISE_WINDOW = 5
+            for n_age in range(max(1, age - NOISE_WINDOW), age + NOISE_WINDOW + 1):
+                if n_age == age: continue
+                n_chart = get_annual(n_age)
+                if n_chart:
+                    total_noise_years += 1
+                    n_res = engine.get_timing_confidence(natal_chart, n_chart, n_age, engine_domain)
+                    if _confidence_score(n_res["confidence"]) > 1:
+                        noise_hits += 1
 
-    print("\\n" + "="*50)
+    print("\n" + "="*50)
     print("      PUBLIC FIGURES DOUBLE-CONFIRMATION REPORT")
+    print("      (Strict Boolean Graha Phal Logic)")
     print("="*50)
     if total_events > 0:
-        rate = (confirmed_events / total_events) * 100
+        hit_rate = (confirmed_events / total_events) * 100
         print(f"Total Life Events Analyzed: {total_events}")
-        print(f"Events with Double Confirmation (Pattern peaking in a specific month): {confirmed_events} ({rate:.1f}%)")
+        print(f"Absolute Hits (Janam + Varshphal Lock): {confirmed_events} ({hit_rate:.1f}%)")
+        
+    if total_noise_years > 0:
+        fpr = (noise_hits / total_noise_years) * 100
+        tnr = 100 - fpr
+        print(f"\nTotal Noise Years Analyzed: {total_noise_years}")
+        print(f"False Positives: {noise_hits} ({fpr:.1f}%)")
+        print(f"True Negative Rate (Silence Metric): {tnr:.1f}%")
 
 if __name__ == "__main__":
     run_public_figures_timing_fuzzer()

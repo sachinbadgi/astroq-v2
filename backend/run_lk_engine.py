@@ -1,327 +1,379 @@
 #!/usr/bin/env python3
 """
-Lal Kitab Engine — Main Entry Point
-====================================
-Interactive CLI that:
-  1. Collects user input (name, DOB, TOB, place)
-  2. Builds Natal + 75 Annual charts via ChartGenerator
-  3. Runs the full Grammar + Strength + Rules Engine pipeline
-  4. Saves a structured JSON output ready for LLM analysis
+run_lk_engine.py
+================
+Full Lal Kitab Engine Runner.
+Takes birth data as input → builds natal chart → runs the full prediction
+pipeline (rules engine + grammar + varshphal timing) → produces the Domain
+Fate Report for the created chart.
+
+Two modes:
+  NATAL    — analyses the birth chart alone (default)
+  ANNUAL   -- also runs the engine for a specific age year
 
 Usage:
-    cd <project-root>
-    PYTHONPATH=backend python backend/run_lk_engine.py
+    cd /Users/sachinbadgi/Documents/lal_kitab/astroq-v2/backend
 
-Or, if using the venv:
-    PYTHONPATH=backend backend/.venv/bin/python backend/run_lk_engine.py
+    # Known figure
+    python run_lk_engine.py --figure "Amitabh Bachchan"
+    python run_lk_engine.py --figure "MS Dhoni" --no-neither
+
+    # Custom birth data
+    python run_lk_engine.py --dob 1942-10-11 --tob 16:00 --place "Allahabad, India" --name "Amitabh"
+
+    # With annual analysis at age 40
+    python run_lk_engine.py --figure "Amitabh Bachchan" --age 40
+
+    # Domain-only (skip rule engine predictions)
+    python run_lk_engine.py --figure "Vladimir Putin" --domain-only
+
+    # JSON output
+    python run_lk_engine.py --figure "Steve Jobs" --json
+
+    # List all known figures
+    python run_lk_engine.py --list
 """
-
+import argparse
+import json
 import os
 import sys
-import json
-import re
-import logging
+from collections import defaultdict
 from datetime import datetime
 
-# ── Path bootstrap ────────────────────────────────────────────────────────────
-BACKEND_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)))
-if BACKEND_DIR not in sys.path:
-    sys.path.insert(0, BACKEND_DIR)
+ROOT = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, ROOT)
 
-# ── Core imports ──────────────────────────────────────────────────────────────
 from astroq.lk_prediction.chart_generator import ChartGenerator
+from astroq.lk_prediction.natal_fate_view import NatalFateView
 from astroq.lk_prediction.config import ModelConfig
-from astroq.lk_prediction.grammar_analyser import GrammarAnalyser
-from astroq.lk_prediction.strength_engine import StrengthEngine
-from astroq.lk_prediction.rules_engine import RulesEngine
-from astroq.lk_prediction.prediction_translator import PredictionTranslator
 from astroq.lk_prediction.pipeline import LKPredictionPipeline
 
-# ── Logging ───────────────────────────────────────────────────────────────────
-logging.basicConfig(level=logging.WARNING,
-                    format="%(levelname)s  %(name)s: %(message)s")
+# ── Geo map ───────────────────────────────────────────────────────────────────
+GEO_MAP = {
+    "Allahabad, India":                        (25.4358,  81.8463,  "+05:30"),
+    "Mumbai, India":                           (19.0760,  72.8777,  "+05:30"),
+    "Vadnagar, India":                         (23.7801,  72.6373,  "+05:30"),
+    "San Francisco, California, US":           (37.7749,-122.4194,  "-08:00"),
+    "Seattle, Washington, US":                 (47.6062,-122.3321,  "-08:00"),
+    "Sandringham, Norfolk, UK":                (52.8311,   0.5054,  "+00:00"),
+    "New Delhi, India":                        (28.6139,  77.2090,  "+05:30"),
+    "Gary, Indiana, US":                       (41.5934, -87.3464,  "-06:00"),
+    "Pretoria, South Africa":                  (-25.7479, 28.2293,  "+02:00"),
+    "Porbandar, India":                        (21.6417,  69.6293,  "+05:30"),
+    "Jamaica Hospital, Queens, New York, US":  (40.7028, -73.8152,  "-05:00"),
+    "Honolulu, Hawaii, US":                    (21.3069,-157.8583,  "-10:00"),
+    "Mayfair, London, UK":                     (51.5100,  -0.1458,  "+00:00"),
+    "Skopje, North Macedonia":                 (42.0003,  21.4280,  "+01:00"),
+    "Scranton, Pennsylvania, US":              (41.4090, -75.6624,  "-05:00"),
+    "Buckingham Palace, London, UK":           (51.5014,  -0.1419,  "+00:00"),
+    "St. Petersburg, Russia":                  (59.9311,  30.3609,  "+03:00"),
+    "Hodgenville, KY, USA":                    (37.5737, -85.7411,  "-06:00"),
+    "Mvezo, South Africa":                     (-31.9329, 28.9988,  "+02:00"),
+    "Aden, Yemen":                             (12.7855,  45.0187,  "+03:00"),
+    "Indore, India":                           (22.7196,  75.8577,  "+05:30"),
+    "Jamshedpur, India":                       (22.8046,  86.2029,  "+05:30"),
+    "Raisen, India":                           (23.3314,  77.7886,  "+05:30"),
+    "Madanapalle, India":                      (13.5510,  78.5051,  "+05:30"),
+}
+DEFAULT_GEO = (28.6139, 77.2090, "+05:30")
 
-DATA_DIR       = os.path.join(BACKEND_DIR, "data")
-DB_PATH        = os.path.join(DATA_DIR, "rules.db")
-DEFAULTS_PATH  = os.path.join(DATA_DIR, "model_defaults.json")
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Helpers
-# ─────────────────────────────────────────────────────────────────────────────
-
-def _safe_filename(name: str) -> str:
-    return re.sub(r"[^a-zA-Z0-9\s]", "", name).strip().replace(" ", "_").lower()
-
-
-def _prompt(label: str, default: str = "") -> str:
-    suffix = f" [{default}]" if default else ""
-    try:
-        val = input(f"  {label}{suffix}: ").strip()
-    except KeyboardInterrupt:
-        print("\n\nAborted.")
-        sys.exit(0)
-    return val or default
-
-
-def _extract_charts(payload: dict) -> tuple[dict, list[dict]]:
-    """
-    Splits build_full_chart_payload() output into (natal_chart, annual_charts_list).
-
-    Payload keys:   chart_0  = Natal,  chart_1..chart_75 = Annual year 1-75,
-                    metadata = system metadata (skip)
-    """
-    natal_chart    = payload.get("chart_0")
-    annual_charts  = []
-    for key in sorted(payload.keys()):
-        if key == "chart_0" or not key.startswith("chart_"):
-            continue
-        c = payload[key]
-        if isinstance(c, dict) and c.get("chart_type") == "Yearly":
-            annual_charts.append(c)
-    return natal_chart, annual_charts
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Core pipeline runner
-# ─────────────────────────────────────────────────────────────────────────────
-
-def _build_chart_section(
-    chart: dict,
-    pipeline: LKPredictionPipeline,
-    is_natal: bool = False
-) -> dict:
-    """
-    Runs the full pipeline on a single chart and returns a compact JSON section.
-
-    Steps:
-      1. Masnui detection (so house_status is accurate)
-      2. House status enrichment
-      3. Strength calculation
-      4. Grammar rules (Dharmi, Kaayam, Sleeping, BilMukabil, etc.)
-      5. Rules engine evaluation
-      6. Prediction translation
-    """
-    # Run through the pipeline (sets chart["_enriched"] as a side effect)
-    predictions = pipeline.generate_predictions(chart)
-
-    # After pipeline runs, enriched data is attached to chart["_enriched"]
-    enriched = chart.get("_enriched", {})
-
-    # ── Collect grammar signals ────────────────────────────────────────────
-    grammar_signals = []
-    if chart.get("mangal_badh_status") == "Active":
-        grammar_signals.append(f"Mangal Badh: Active (counter={chart.get('mangal_badh_count', 0)})")
-    if chart.get("dharmi_kundli_status") == "Dharmi Teva":
-        grammar_signals.append("Dharmi Teva: Protected Chart (Jupiter+Saturn conjunct)")
-    if chart.get("andhi_kundli_status") and chart["andhi_kundli_status"] != "Normal":
-        grammar_signals.append(f"Andhi Kundli: {chart['andhi_kundli_status']}")
-    for debt in chart.get("lal_kitab_debts", []):
-        if debt.get("active"):
-            grammar_signals.append(f"Karmic Debt: {debt['debt_name']}")
-    for masnui in chart.get("masnui_grahas_formed", []):
-        grammar_signals.append(
-            f"Masnui: {masnui['masnui_graha_name']} (H{masnui['formed_in_house']}) "
-            f"← [{', '.join(masnui.get('components', []))}]"
-        )
-
-    # ── Planet positions + grammar state ──────────────────────────────────
-    # enriched contains strength, sleeping, kaayam, dharmi, aspects per planet
-    planet_states = {}
-    for p_name, p_data in chart.get("planets_in_houses", {}).items():
-        ep = enriched.get(p_name, p_data)  # enriched has grammar-enhanced data
-        states = []
-        if ep.get("sleeping_status"):
-            states.append(ep["sleeping_status"])
-        if ep.get("kaayam_status") == "Kaayam":
-            states.append("Kaayam")
-        if ep.get("dharmi_status"):
-            states.append(ep["dharmi_status"])
-        if ep.get("is_masnui_parent"):
-            states.append("Masnui Parent")
-        if ep.get("bilmukabil_hostile_to"):
-            states.append(f"BilMukabil ← {ep['bilmukabil_hostile_to']}")
-        planet_states[p_name] = {
-            "house": p_data.get("house"),
-            "strength": round(ep.get("strength_total", 0.0), 2),
-            "states": states,
-        }
-
-    # ── Significant aspects (from enriched, populated by _find_aspects) ───
-    significant_aspects = []
-    for p_name, ep in enriched.items():
-        for asp in ep.get("aspects", []):
-            if asp.get("aspect_type") in {"100 Percent", "50 Percent", "25 Percent"}:
-                significant_aspects.append({
-                    "from": p_name,
-                    "to": asp.get("target", "?"),
-                    "type": asp["aspect_type"],
-                    "relationship": asp.get("relationship", "neutral"),
-                })
-
-    section = {
-        "planet_positions": planet_states,
-        "grammar_signals": sorted(set(grammar_signals)),
-        "significant_aspects": significant_aspects,
-        "predictions": [p.prediction_text for p in predictions if p.prediction_text],
-    }
-    return section
+CAT_ORDER = [
+    "canonical", "career_tech", "finance", "home_lifestyle",
+    "health_wellness", "tech_infra", "modern_finance", "sustainable", "social_psych",
+]
+CAT_LABELS = {
+    "canonical":      "CANONICAL DOMAINS",
+    "career_tech":    "CAREER & TECHNOLOGY",
+    "finance":        "FINANCE & INVESTMENTS",
+    "home_lifestyle": "HOME, LIFESTYLE & SUSTAINABILITY",
+    "health_wellness":"HEALTH & WELLNESS",
+    "tech_infra":     "TECHNOLOGY & DIGITAL INFRASTRUCTURE",
+    "modern_finance": "MODERN FINANCE",
+    "sustainable":    "SUSTAINABLE INNOVATION",
+    "social_psych":   "SOCIAL & PSYCHOLOGICAL",
+}
+BADGE = {
+    "GRAHA_PHAL": "[ GP ✓ ]",
+    "RASHI_PHAL": "[ RP ~ ]",
+    "HYBRID":     "[ HY ⊕ ]",
+    "NEITHER":    "[  --  ]",
+}
 
 
+# ── Helpers ───────────────────────────────────────────────────────────────────
+def get_geo(place):
+    pl = place.lower()
+    for key, val in GEO_MAP.items():
+        if key.lower() in pl or pl in key.lower():
+            return val
+    return DEFAULT_GEO
 
-def run_engine(
-    client_name: str,
-    dob: str,
-    tob: str,
-    place: str,
-    chart_system: str = "vedic",
-    annual_basis: str = "vedic",
-    output_path: str = None,
-) -> str:
-    """
-    Full engine run. Returns the path to the output JSON file.
-    """
-    print()
-    print("─" * 60)
-    print(f"  Step 1/3  Generating astronomical charts …")
-    print("─" * 60)
 
-    generator = ChartGenerator()
-    payload = generator.build_full_chart_payload(
-        dob_str=dob,
-        tob_str=tob,
-        place_name=place,
-        chart_system=chart_system,
-        annual_basis=annual_basis,
+def load_figures():
+    path = os.path.join(ROOT, "data", "public_figures_ground_truth.json")
+    return json.load(open(path)) if os.path.exists(path) else []
+
+
+def find_figure(name, figures):
+    nl = name.lower()
+    for fig in figures:
+        if fig.get("name","").lower() == nl: return fig
+    for fig in figures:
+        if nl in fig.get("name","").lower(): return fig
+    return None
+
+
+def build_chart(gen, dob, tob, place):
+    tob_full = tob + ":00" if len(tob) == 5 else tob
+    lat, lon, tz = get_geo(place)
+    payload = gen.build_full_chart_payload(
+        dob_str=dob, tob_str=tob_full, place_name=place,
+        latitude=lat, longitude=lon, utc_string=tz, chart_system="vedic",
     )
+    natal = payload.get("chart_0")
+    if not natal:
+        raise RuntimeError("ChartGenerator returned no chart_0")
+    return natal, payload
 
-    natal_chart, annual_charts = _extract_charts(payload)
-    if not natal_chart:
-        raise RuntimeError("ChartGenerator returned no natal chart (chart_0 missing).")
 
-    print(f"  ✓  Natal chart built.  {len(annual_charts)} annual charts generated.")
+def build_pipeline():
+    db  = os.path.join(ROOT, "data", "rules.db")
+    cfg_file = os.path.join(ROOT, "data", "model_defaults.json")
+    if not os.path.exists(db):
+        return None
+    cfg = ModelConfig(db, cfg_file)
+    return LKPredictionPipeline(cfg)
 
-    # ── Initialise pipeline ───────────────────────────────────────────────
+
+# ── Rendering ─────────────────────────────────────────────────────────────────
+def render(name, dob, tob, place, natal, fate_entries, rule_preds,
+           annual_preds, age, include_neither):
+    W = 112
+    SEP  = "═" * W
+    THIN = "─" * W
+
+    planets = {p: d.get("house") for p, d in natal.get("planets_in_houses", {}).items()}
+    planet_line = "  ".join(f"{p}→H{h}" for p, h in sorted(planets.items(), key=lambda x: x[1] or 0))
+
+    gp = [e for e in fate_entries if e["fate_type"] == "GRAHA_PHAL"]
+    rp = [e for e in fate_entries if e["fate_type"] == "RASHI_PHAL"]
+    hy = [e for e in fate_entries if e["fate_type"] == "HYBRID"]
+    ni = [e for e in fate_entries if e["fate_type"] == "NEITHER"]
+    total = len(fate_entries)
+
     print()
-    print("─" * 60)
-    print(f"  Step 2/3  Initialising Grammar + Rules engine …")
-    print("─" * 60)
+    print(SEP)
+    print(f"  LAL KITAB ENGINE — FULL CHART ANALYSIS")
+    print(f"  {name}  │  DOB: {dob}  TOB: {tob}  │  {place}")
+    print(f"  Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(SEP)
 
-    cfg      = ModelConfig(db_path=DB_PATH, defaults_path=DEFAULTS_PATH)
-    pipeline = LKPredictionPipeline(cfg)
-    pipeline.load_natal_baseline(natal_chart)
+    # ── Natal positions ───────────────────────────────────────────────────────
+    print(f"\n  ◈ NATAL CHART POSITIONS")
+    print(f"  {THIN}")
+    print(f"  {planet_line}\n")
 
-    # ── Natal chart ───────────────────────────────────────────────────────
-    print("  Running natal chart …")
-    natal_section = _build_chart_section(natal_chart, pipeline, is_natal=True)
-    print(f"  ✓  Natal:  {len(natal_section['predictions'])} predictions,  "
-          f"{len(natal_section['grammar_signals'])} grammar signals")
+    # ── Rule engine predictions ───────────────────────────────────────────────
+    if rule_preds is not None:
+        benefic = [p for p in rule_preds if p.polarity == "benefic"]
+        malefic = [p for p in rule_preds if p.polarity == "malefic"]
+        print(f"  ◈ NATAL RULE ENGINE — {len(rule_preds)} PREDICTIONS  "
+              f"(+{len(benefic)} benefic  −{len(malefic)} malefic)")
+        print(f"  {THIN}")
+        for p in sorted(rule_preds, key=lambda x: -x.magnitude)[:20]:
+            pol = "✓" if p.polarity == "benefic" else "✗"
+            print(f"  [{pol}] [{p.domain:<14}]  mag={p.magnitude:>5.2f}  {p.prediction_text[:70]}")
+        if len(rule_preds) > 20:
+            print(f"  ... ({len(rule_preds)-20} more)")
+        print()
 
-    # ── Annual charts (deterministic, ordered) ───────────────────────────
-    print()
-    print("─" * 60)
-    print(f"  Step 3/3  Running {len(annual_charts)} annual charts …")
-    print("─" * 60)
+    # ── Annual predictions ────────────────────────────────────────────────────
+    if annual_preds is not None and age:
+        print(f"\n  ◈ ANNUAL CHART — AGE {age} ENGINE PREDICTIONS  ({len(annual_preds)} hits)")
+        print(f"  {THIN}")
+        for p in sorted(annual_preds, key=lambda x: -x.magnitude)[:15]:
+            pol = "✓" if p.polarity == "benefic" else "✗"
+            tc  = f"[{p.timing_confidence.upper()}]" if p.timing_confidence else ""
+            print(f"  [{pol}] {tc:<8} [{p.domain:<14}]  {p.prediction_text[:65]}")
+            for sig in p.timing_signals[:2]:
+                print(f"         ↳ {sig[:80]}")
+        print()
 
-    timeline = []
-    for chart in annual_charts:
-        age = chart.get("chart_period", 0)
-        section = _build_chart_section(chart, pipeline)
-        timeline.append({
-            "age": age,
-            "from": chart.get("period_start", ""),
-            "to":   chart.get("period_end", ""),
-            **section,
-        })
-        if age % 10 == 0:
-            print(f"  … age {age} done")
+    # ── Fate distribution ─────────────────────────────────────────────────────
+    bar = 52
+    print(f"  ◈ DOMAIN FATE DISTRIBUTION  ({total} domains)")
+    print(f"  {THIN}")
+    print(f"  GP ✓  Graha Phal  (Fixed Fate)    : {len(gp):>3}  ({len(gp)/total*100:>5.1f}%)  {'█'*round(len(gp)/total*bar)}")
+    print(f"  RP ~  Rashi Phal  (Conditional)   : {len(rp):>3}  ({len(rp)/total*100:>5.1f}%)  {'▒'*round(len(rp)/total*bar)}")
+    print(f"  HY ⊕  Hybrid      (Mixed)          : {len(hy):>3}  ({len(hy)/total*100:>5.1f}%)  {'░'*round(len(hy)/total*bar)}")
+    print(f"  --    Neither     (Absent)         : {len(ni):>3}  ({len(ni)/total*100:>5.1f}%)  {'·'*round(len(ni)/total*bar)}")
 
-    print(f"  ✓  All annual charts complete.")
+    # ── Full domain table ─────────────────────────────────────────────────────
+    print(f"\n\n  ◈ FULL DOMAIN CLASSIFICATION  (56 domains)")
+    print(f"  {THIN}")
+    print(f"  {'Badge':<10}  {'Domain':<45}  {'Planet Dignity':<50}")
+    print(f"  {'─'*10}  {'─'*45}  {'─'*50}")
 
-    # ── Assemble final output ─────────────────────────────────────────────
-    output = {
-        "metadata": {
-            "name":         client_name,
-            "dob":          dob,
-            "tob":          tob,
-            "place":        place,
-            "chart_system": chart_system,
-            "annual_basis": annual_basis,
-            "generated_at": datetime.now().isoformat(timespec="seconds"),
-            "engine":       "lk-engine-v2.5",
-        },
-        "natal_chart": natal_section,
-        "annual_timeline": timeline,
-    }
+    by_cat = defaultdict(list)
+    for e in fate_entries:
+        by_cat[e["category"]].append(e)
 
-    # ── Write output ──────────────────────────────────────────────────────
-    if not output_path:
-        output_path = f"{_safe_filename(client_name)}_lk_predictions.json"
+    for cat in CAT_ORDER:
+        cat_entries = by_cat.get(cat, [])
+        if not cat_entries:
+            continue
+        print(f"\n  ▸ {CAT_LABELS.get(cat, cat)}")
+        for e in cat_entries:
+            if not include_neither and e["fate_type"] == "NEITHER":
+                continue
+            badge  = BADGE.get(e["fate_type"], "[  ?? ]")
+            dignity = ", ".join(
+                f"{p}:{d}" for p, d in e["dignity_details"].items()
+                if d and "Absent" not in d and "Off-domain" not in d
+            )
+            print(f"  {badge}  {e['label']:<45}  {dignity[:50]}")
 
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(output, f, indent=2, ensure_ascii=False)
+    # ── GP summary ────────────────────────────────────────────────────────────
+    if gp:
+        print(f"\n\n  {'─'*W}")
+        print(f"  GRAHA PHAL — {len(gp)} FIXED FATE DOMAINS  ✓ Hard-wired natal promises")
+        print(f"  {'─'*W}")
+        for e in gp:
+            dignity = ", ".join(
+                f"{p}:{d}" for p, d in e["dignity_details"].items()
+                if d and "Absent" not in d and "Off-domain" not in d
+            )
+            evid = e["evidence"][0][:45] if e["evidence"] else ""
+            print(f"  [ GP ✓ ]  {e['label']:<45}  {dignity:<40}  → {evid}")
 
-    return output_path
+    # ── RP summary ────────────────────────────────────────────────────────────
+    if rp:
+        print(f"\n\n  {'─'*W}")
+        print(f"  RASHI PHAL — {len(rp)} CONDITIONAL DOMAINS  ~ Need annual chart geometry to activate")
+        print(f"  {'─'*W}")
+        for e in rp:
+            dignity = ", ".join(
+                f"{p}:{d}" for p, d in e["dignity_details"].items()
+                if d and "Absent" not in d and "Off-domain" not in d
+            )
+            print(f"  [ RP ~ ]  {e['label']:<45}  {dignity}")
+
+    print(f"\n{'═'*W}\n")
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# CLI entry point
-# ─────────────────────────────────────────────────────────────────────────────
-
+# ── Main ──────────────────────────────────────────────────────────────────────
 def main():
-    print()
-    print("╔══════════════════════════════════════════════════════════╗")
-    print("║         Lal Kitab Predictive Engine  v2.5               ║")
-    print("║    Goswami 1952 — Grammar + Rules + Strength Engine     ║")
-    print("╚══════════════════════════════════════════════════════════╝")
-    print()
-    print("  Enter birth details (Ctrl+C to exit at any time)")
-    print()
+    parser = argparse.ArgumentParser(
+        description="Lal Kitab Full Engine — Chart + Predictions + Domain Fate Report",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  python run_lk_engine.py --figure "Amitabh Bachchan"
+  python run_lk_engine.py --figure "MS Dhoni" --no-neither
+  python run_lk_engine.py --figure "Amitabh Bachchan" --age 40
+  python run_lk_engine.py --dob 1942-10-11 --tob 16:00 --place "Allahabad, India" --name "Amitabh"
+  python run_lk_engine.py --figure "Vladimir Putin" --domain-only
+  python run_lk_engine.py --figure "Steve Jobs" --json
+  python run_lk_engine.py --list
+        """,
+    )
+    parser.add_argument("--figure",      type=str)
+    parser.add_argument("--name",        type=str, default="Custom Chart")
+    parser.add_argument("--dob",         type=str)
+    parser.add_argument("--tob",         type=str, default="12:00")
+    parser.add_argument("--place",       type=str, default="New Delhi, India")
+    parser.add_argument("--age",         type=int, default=None, help="Run annual chart for this age too")
+    parser.add_argument("--no-neither",  action="store_true")
+    parser.add_argument("--domain-only", action="store_true", help="Skip rule engine, only domain fate view")
+    parser.add_argument("--json",        action="store_true")
+    parser.add_argument("--list",        action="store_true")
+    args = parser.parse_args()
 
-    client_name  = _prompt("Full Name")
-    dob          = _prompt("Date of Birth  (YYYY-MM-DD)")
-    tob          = _prompt("Time of Birth  (HH:MM, 24h)")
-    place        = _prompt("Place of Birth (city, country)")
-    chart_system = _prompt("Chart System   (vedic / kp)", default="vedic").lower()
-    annual_basis = _prompt("Annual Basis   (vedic / kp)", default=chart_system).lower()
+    figures = load_figures()
 
-    if not all([client_name, dob, tob, place]):
-        print("\nError: all fields are required.")
-        sys.exit(1)
+    if args.list:
+        print(f"\n{'─'*65}")
+        print(f"  {'#':>3}  {'Name':<30}  {'DOB':<12}  Place")
+        print(f"{'─'*65}")
+        for i, f in enumerate(figures, 1):
+            print(f"  {i:>3}  {f['name']:<30}  {f['dob']:<12}  {f.get('birth_place','?')[:25]}")
+        print(); sys.exit(0)
 
-    # Validate date/time formats
+    # Resolve birth data
+    if args.figure:
+        fig = find_figure(args.figure, figures)
+        if not fig:
+            print(f"\n❌  '{args.figure}' not found. Use --list.\n"); sys.exit(1)
+        name, dob, tob, place = fig["name"], fig["dob"], fig.get("tob","12:00"), fig.get("birth_place","New Delhi, India")
+    elif args.dob:
+        name, dob, tob, place = args.name, args.dob, args.tob, args.place
+    else:
+        print("\n  Enter birth details:")
+        name  = input("  Name      : ").strip() or "Custom"
+        dob   = input("  DOB (YYYY-MM-DD): ").strip()
+        tob   = input("  TOB (HH:MM)     : ").strip() or "12:00"
+        place = input("  Place           : ").strip() or "New Delhi, India"
+
+    print(f"\n  Building natal chart for {name} ({dob} {tob}, {place})...")
+    gen = ChartGenerator()
     try:
-        datetime.strptime(dob, "%Y-%m-%d")
-    except ValueError:
-        print(f"\nError: Date '{dob}' must be in YYYY-MM-DD format.")
-        sys.exit(1)
-    try:
-        datetime.strptime(tob, "%H:%M")
-    except ValueError:
-        print(f"\nError: Time '{tob}' must be in HH:MM format.")
-        sys.exit(1)
-
-    try:
-        output_path = run_engine(
-            client_name=client_name,
-            dob=dob,
-            tob=tob,
-            place=place,
-            chart_system=chart_system,
-            annual_basis=annual_basis,
-        )
+        natal, full_payload = build_chart(gen, dob, tob, place)
     except Exception as e:
-        print(f"\n✗  Engine error: {e}")
-        logging.exception("Engine failed")
-        sys.exit(1)
+        print(f"\n❌  {e}\n"); sys.exit(1)
 
-    print()
-    print("─" * 60)
-    print(f"  ✅  Done!  Output → {output_path}")
-    print("─" * 60)
-    print()
-    print("  Load this file into NotebookLM / Gemini for full analysis.")
-    print()
+    # ── Rule engine ───────────────────────────────────────────────────────────
+    rule_preds = None
+    annual_preds = None
+
+    if not args.domain_only:
+        print("  Running rule engine predictions...")
+        pipe = build_pipeline()
+        if pipe:
+            try:
+                pipe.load_natal_baseline(natal)
+                rule_preds = pipe.generate_predictions(natal)
+
+                if args.age:
+                    annual_chart = full_payload.get(f"chart_{args.age}")
+                    if annual_chart:
+                        print(f"  Running annual chart for age {args.age}...")
+                        annual_preds = pipe.generate_predictions(annual_chart)
+                    else:
+                        print(f"  ⚠️  No pre-built annual chart for age {args.age} in payload. Skipping.")
+            except Exception as e:
+                print(f"  ⚠️  Rule engine error: {e} — continuing with domain fate only.")
+        else:
+            print("  ⚠️  rules.db not found — running domain fate only.")
+
+    # ── Domain fate view ──────────────────────────────────────────────────────
+    print("  Running domain fate classification...")
+    view = NatalFateView()
+    fate_entries = view.evaluate(natal, include_neither=not args.no_neither)
+
+    # ── Output ────────────────────────────────────────────────────────────────
+    if args.json:
+        planets = {p: d.get("house") for p, d in natal.get("planets_in_houses", {}).items()}
+        out = {
+            "name": name, "dob": dob, "tob": tob, "place": place,
+            "planets": planets,
+            "fate_stats": {
+                "GP": sum(1 for e in fate_entries if e["fate_type"] == "GRAHA_PHAL"),
+                "RP": sum(1 for e in fate_entries if e["fate_type"] == "RASHI_PHAL"),
+                "HY": sum(1 for e in fate_entries if e["fate_type"] == "HYBRID"),
+                "NI": sum(1 for e in fate_entries if e["fate_type"] == "NEITHER"),
+                "total": len(fate_entries),
+            },
+            "domain_fate_view": fate_entries,
+            "rule_predictions": [
+                {"domain": p.domain, "polarity": p.polarity,
+                 "magnitude": round(p.magnitude, 3), "text": p.prediction_text}
+                for p in (rule_preds or [])
+            ],
+        }
+        print(json.dumps(out, indent=2))
+    else:
+        render(name, dob, tob, place, natal, fate_entries, rule_preds,
+               annual_preds, args.age, include_neither=not args.no_neither)
 
 
 if __name__ == "__main__":
