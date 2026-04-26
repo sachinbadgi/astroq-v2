@@ -10,26 +10,62 @@ from astroq.quantum_engine.chart_generator import QuantumChartGenerator
 JSON_PATH = "backend/data/public_figures_ground_truth.json"
 CONFIG_PATH = "backend/astroq/quantum_engine/quantum_weights.json"
 
-DOMAIN_KARAKA = {
-    "marriage": "Venus",
-    "career": "Saturn",
-    "career_travel": "Saturn",
-    "health": "Mars",
-    "progeny": "Jupiter",
-    "real_estate": "Mars",
-    "finance": "Jupiter"
+DOMAIN_KARAKAS = {
+    "marriage": ["Venus", "Mercury"],
+    "career": ["Sun", "Mars", "Jupiter", "Saturn"],
+    "career_travel": ["Sun", "Mars", "Jupiter", "Saturn", "Rahu", "Ketu"],
+    "health": ["Sun", "Mars", "Saturn"],
+    "progeny": ["Jupiter", "Ketu"],
+    "real_estate": ["Moon", "Saturn", "Mars"],
+    "finance": ["Jupiter", "Venus", "Mercury"]
 }
 
-# Lal Kitab logical active houses for each domain (where the karaka creates the event)
 ACTIVE_HOUSES = {
-    "marriage": [2, 7],               # Venus's own and partner house
-    "career": [1, 4, 7, 10, 11],      # Kendras and gains
-    "career_travel": [1, 4, 7, 10, 11],
-    "health": [6, 8, 12],             # Disease, accident/death, hospital
-    "progeny": [5, 9],                # Children and fortune
-    "real_estate": [4, 10],           # Property
-    "finance": [2, 11]                # Wealth and income
+    "marriage": [7, 2],               
+    "career": [10, 6, 2],      
+    "career_travel": [10, 6, 2, 12, 9],
+    "health": [1, 6, 8],             
+    "progeny": [5],                
+    "real_estate": [4, 8],           
+    "finance": [2, 11, 9]                
 }
+
+PLANET_MATURITY = {
+    "Jupiter": 16, "Sun": 22, "Moon": 24, "Venus": 25, 
+    "Mars": 28, "Mercury": 34, "Saturn": 36, "Rahu": 42, "Ketu": 48
+}
+
+CYCLE_35_YEAR_RANGES = [
+    (1, 6, "Saturn"), (7, 12, "Rahu"), (13, 15, "Ketu"),
+    (16, 21, "Jupiter"), (22, 23, "Sun"), (24, 24, "Moon"),
+    (25, 27, "Venus"), (28, 33, "Mars"), (34, 35, "Mercury")
+]
+
+def get_35_year_ruler(age):
+    period = (age - 1) % 35 + 1
+    for start, end, planet in CYCLE_35_YEAR_RANGES:
+        if start <= period <= end:
+            return planet
+    return None
+
+def is_event_triggered(planet_data, domain, age, karaka_name):
+    """Determines if the quantum engine predicts the event based on amplitude, maturity, 35-year cycle, and house."""
+    if not planet_data: return False
+    amp = planet_data.get("amplitude", 0)
+    house = planet_data.get("house", 0)
+    
+    active_houses = ACTIVE_HOUSES.get(domain, [1,4,7,10])
+    
+    if age != 99:
+        maturity_age = PLANET_MATURITY.get(karaka_name, 0)
+        if age < maturity_age:
+            amp *= 0.5
+            
+        # The 35-Year Cycle "Awakening" Trigger
+        if get_35_year_ruler(age) == karaka_name:
+            amp += 1.0
+        
+    return amp >= 1.5 and house in active_houses
 
 def fetch_ground_truth():
     if not os.path.exists(JSON_PATH):
@@ -38,17 +74,6 @@ def fetch_ground_truth():
         
     with open(JSON_PATH, 'r') as f:
         return json.load(f)
-
-def is_event_triggered(planet_data, domain):
-    """Determines if the quantum engine predicts the event based on amplitude and house."""
-    if not planet_data: return False
-    amp = planet_data.get("amplitude", 0)
-    house = planet_data.get("house", 0)
-    
-    active_houses = ACTIVE_HOUSES.get(domain, [1,4,7,10])
-    
-    # Triggered if it has constructive amplitude AND is rotated into an active house for that domain
-    return amp >= 1 and house in active_houses
 
 def generate_forensic_report():
     print("Loading Public Figures Data...")
@@ -93,31 +118,37 @@ def generate_forensic_report():
             domain = ev.get("domain", "").lower()
             desc = ev.get("description", "")
             
-            karaka = DOMAIN_KARAKA.get(domain)
-            if not karaka: continue
+            karakas = DOMAIN_KARAKAS.get(domain)
+            if not karakas: continue
             total_events += 1
             
             report_lines.append(f"FIGURE: {name} | EVENT: {desc}")
-            report_lines.append(f"  -> Ground Truth Age: {actual_age} | Domain: {domain} | Karaka: {karaka}")
+            report_lines.append(f"  -> Ground Truth Age: {actual_age} | Domain: {domain} | Karakas: {karakas}")
             
             # --- Check Natal Promise ---
-            natal_karaka_data = natal_quantum_chart.get("planets_in_houses", {}).get(karaka)
-            has_promise = is_event_triggered(natal_karaka_data, domain)
-            if has_promise:
-                natal_promises += 1
-                n_house = natal_karaka_data.get('house')
-                report_lines.append(f"  -> Natal Promise: YES (Karaka sits in active house {n_house})")
-            else:
-                n_house = natal_karaka_data.get('house') if natal_karaka_data else 'None'
-                report_lines.append(f"  -> Natal Promise: NO (Karaka in house {n_house}, inactive for {domain})")
+            has_promise = False
+            for karaka in karakas:
+                natal_karaka_data = natal_quantum_chart.get("planets_in_houses", {}).get(karaka)
+                # Pass 99 as age for natal chart to bypass maturity dampening (natal promise is a lifetime potential)
+                if is_event_triggered(natal_karaka_data, domain, 99, karaka):
+                    has_promise = True
+                    natal_promises += 1
+                    n_house = natal_karaka_data.get('house')
+                    report_lines.append(f"  -> Natal Promise: YES (Karaka {karaka} sits in active house {n_house})")
+                    break
+            
+            if not has_promise:
+                report_lines.append(f"  -> Natal Promise: NO (No Karaka in structurally active house)")
             
             # --- Scan all 75 years for Triggers ---
             predicted_ages = []
             for age in range(1, 76):
                 annual_chart = timeline.get(f"chart_{age}", {})
-                annual_karaka_data = annual_chart.get("planets_in_houses", {}).get(karaka)
-                if is_event_triggered(annual_karaka_data, domain):
-                    predicted_ages.append(age)
+                for karaka in karakas:
+                    annual_karaka_data = annual_chart.get("planets_in_houses", {}).get(karaka)
+                    if is_event_triggered(annual_karaka_data, domain, age, karaka):
+                        predicted_ages.append(age)
+                        break
             
             report_lines.append(f"  -> Predicted Trigger Ages: {predicted_ages}")
             
