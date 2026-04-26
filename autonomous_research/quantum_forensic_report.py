@@ -104,7 +104,8 @@ def generate_forensic_report():
                 dob_str=fig['dob'], tob_str=fig.get('tob', '12:00'),
                 place_name=fig.get('birth_place', 'New Delhi'),
                 latitude=fig.get('lat', 28.61), longitude=fig.get('lon', 77.20),
-                utc_string=fig.get('tz', '+05:30')
+                utc_string=fig.get('tz', '+05:30'),
+                chart_system="vedic"
             )
             natal_data = payload["chart_0"]
         except Exception as e:

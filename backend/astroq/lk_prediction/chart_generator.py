@@ -322,6 +322,7 @@ class ChartGenerator:
                 planets_in_houses[planet_name] = {
                     "house": house,
                     "house_natal": house,
+                    "states": self._detect_planet_states(planet_name, house)
                 }
 
         birth_datetime_str = f"{dt['year']:04d}-{dt['month']:02d}-{dt['day']:02d}T{dt['hour']:02d}:{dt['minute']:02d}:{dt['second']:02d}"
