@@ -17,10 +17,18 @@ class QuantumChartGenerator:
                 # Get the house
                 house = planets_data[planet].get("house", 1)
                 
-                # Determine initial amplitude. For now, default to 1 (constructive) or 0
-                # In a full engine, we'd read exalted/debilitated states from chart_data to set 1, 0, -1
-                # Here we just initialize with 1 for simplicity of testing.
-                sv.set_planet_house(planet, house, 1)
+                # Determine amplitude based on dignity
+                states = planets_data[planet].get("states", [])
+                
+                if "Exalted" in states or "Fixed House Lord" in states:
+                    amplitude = self.config.exaltation_amplitude
+                elif "Debilitated" in states:
+                    amplitude = self.config.debilitation_amplitude
+                else:
+                    # Normal planet
+                    amplitude = 1
+                
+                sv.set_planet_house(planet, house, amplitude)
                 
         return sv
         

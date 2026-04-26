@@ -22,6 +22,16 @@ DOMAIN_KARAKA = {
     "finance": "Jupiter"
 }
 
+ACTIVE_HOUSES = {
+    "marriage": [2, 7],               
+    "career": [1, 4, 7, 10, 11],      
+    "career_travel": [1, 4, 7, 10, 11],
+    "health": [6, 8, 12],             
+    "progeny": [5, 9],                
+    "real_estate": [4, 10],           
+    "finance": [2, 11]                
+}
+
 def fetch_ground_truth():
     if not os.path.exists(JSON_PATH):
         print(f"Error: {JSON_PATH} not found.")
@@ -34,7 +44,7 @@ def update_config(masnui_multiplier, annual_rotation):
     """Writes a new config to JSON to be picked up by the generator."""
     data = {
       "amplitudes": {
-        "exaltation": 1,
+        "exaltation": 2,
         "debilitation": -1,
         "superposed": 0
       },
@@ -46,15 +56,16 @@ def update_config(masnui_multiplier, annual_rotation):
     with open(CONFIG_PATH, 'w') as f:
         json.dump(data, f, indent=2)
 
-def calculate_quantum_whr(timeline: dict, ground_truth_events: list) -> float:
+def calculate_quantum_whr(timeline: dict, ground_truth_events: list, amp_threshold: float = 1.0) -> float:
     score = 0.0
     total = len(ground_truth_events)
     if total == 0: return 0.0
     
     for gt in ground_truth_events:
         gt_age = gt["age"]
-        gt_domain = gt["domain"]
-        karaka = DOMAIN_KARAKA.get(gt_domain.lower())
+        gt_domain = gt["domain"].lower()
+        karaka = DOMAIN_KARAKA.get(gt_domain)
+        active_houses = ACTIVE_HOUSES.get(gt_domain, [1,4,7,10])
         
         if not karaka:
             continue
@@ -70,8 +81,10 @@ def calculate_quantum_whr(timeline: dict, ground_truth_events: list) -> float:
                 p_data = annual_chart.get("planets_in_houses", {}).get(karaka)
                 
                 if p_data:
-                    # If amplitude is constructive (>= 1), it's a hit
-                    if p_data.get("amplitude", 0) >= 1:
+                    amp = p_data.get("amplitude", 0)
+                    house = p_data.get("house", 0)
+                    
+                    if amp >= amp_threshold and house in active_houses:
                         if age == gt_age:
                             score += 1.0
                         else:
@@ -114,6 +127,7 @@ def run_optimization():
     # Define grid to search
     masnui_grid = [0.5, 1.0, 1.5]
     annual_grid = [0.8, 1.0, 1.2]
+    amp_grid = [0.5, 1.0, 1.5, 2.0]
     
     best_score = -1
     best_params = {}
@@ -125,27 +139,30 @@ def run_optimization():
             
             generator = QuantumChartGenerator(CONFIG_PATH)
             
-            total_whr = 0.0
-            
+            # Pre-generate timelines to save time across amp_grid
+            timelines = []
             for fig in figures:
-                # Generate timeline using the quantum matrix
                 timeline = generator.generate_quantum_timeline(fig["natal_data"], max_years=75)
+                timelines.append({"timeline": timeline, "events": fig["events"]})
                 
-                # Score timeline
-                whr = calculate_quantum_whr(timeline, fig["events"])
-                total_whr += whr
+            for amp in amp_grid:
+                total_whr = 0.0
+                for item in timelines:
+                    whr = calculate_quantum_whr(item["timeline"], item["events"], amp_threshold=amp)
+                    total_whr += whr
+                    
+                avg_score = total_whr / len(figures)
+                print(f"  Params [masnui={masnui}, annual={annual}, amp_thresh={amp}] => WHR Score: {avg_score:.4f}")
                 
-            avg_score = total_whr / len(figures)
-            print(f"  Params [masnui={masnui}, annual={annual}] => WHR Score: {avg_score:.4f}")
-            
-            if avg_score > best_score:
-                best_score = avg_score
-                best_params = {"masnui_entanglement": masnui, "annual_rotation": annual}
+                if avg_score > best_score:
+                    best_score = avg_score
+                    best_params = {"masnui_entanglement": masnui, "annual_rotation": annual, "amp_threshold": amp}
                 
     print("\n=========================================")
     print(f"BEST CONFIGURATION FOUND:")
     print(f"  Masnui Entanglement Multiplier: {best_params['masnui_entanglement']}")
     print(f"  Annual Rotation Boost: {best_params['annual_rotation']}")
+    print(f"  Optimal Amplitude Threshold: {best_params['amp_threshold']}")
     print(f"  Maximized WHR Score: {best_score:.4f}")
     print("=========================================")
     
