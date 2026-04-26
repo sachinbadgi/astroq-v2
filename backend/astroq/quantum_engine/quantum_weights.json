@@ -3,5 +3,9 @@
     "exaltation": 1,
     "debilitation": -1,
     "superposed": 0
+  },
+  "multipliers": {
+    "masnui_entanglement": 0.5,
+    "annual_rotation": 0.8
   }
 }
