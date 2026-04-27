@@ -13,7 +13,7 @@ from .lk_constants import (
     PLANET_PAKKA_GHAR,
     PUCCA_GHARS_EXTENDED
 )
-from .lk_pattern_constants import MALEFIC_FATE_DISTRIBUTION
+from .dormancy_engine import DormancyEngine
 
 class VarshphalTimingEngine:
     """
@@ -25,6 +25,7 @@ class VarshphalTimingEngine:
         self.triggers = VARSHPHAL_TIMING_TRIGGERS
         self.age_gates = VARSHPHAL_AGE_GATES
         self.special_logic = VARSHPHAL_SPECIAL_LOGIC
+        self.dormancy_engine = DormancyEngine()
 
     def _get_planetary_positions(self, chart_data: Dict[str, Any]) -> Dict[str, int]:
         """Helper to extract planet house positions from chart payload."""
@@ -35,19 +36,8 @@ class VarshphalTimingEngine:
         return positions
 
     def _is_planet_dormant(self, planet: str, house: int, chart_positions: Dict[str, int]) -> bool:
-        """A planet is dormant if ALL houses it aspects are completely empty.
-        Note: Planets in Pakka Ghar/Pucca Ghar retain awareness via the dormancy rule;
-        full override was found empirically to over-wake too many planets (increases FPR).
-        """
-        if not house: return False
-        target_houses = HOUSE_ASPECT_TARGETS.get(house, [])
-        if not target_houses: return False
-
-        occupied_houses = list(chart_positions.values())
-        for t in target_houses:
-            if t in occupied_houses:
-                return False
-        return True
+        """Deprecated: Use DormancyEngine instead."""
+        return not self.dormancy_engine.is_awake(planet, house, chart_positions)
 
     def _has_180_degree_block(self, planet: str, house: int, chart_positions: Dict[str, int]) -> bool:
         """Checks if a natural enemy is placed exactly 180 degrees away (house + 6 mod 12)."""
@@ -59,7 +49,7 @@ class VarshphalTimingEngine:
         enemies_in_opposition = [p for p, h in chart_positions.items() if h == enemy_house]
         if not enemies_in_opposition: return False
             
-        planet_enemies = NATURAL_RELATIONSHIPS.get(planet, {}).get("enemies", [])
+        planet_enemies = NATURAL_RELATIONSHIPS.get(planet, {}).get("Enemies", [])
         for opp_planet in enemies_in_opposition:
             if opp_planet in planet_enemies:
                 if house in PLANET_EXALTATION.get(planet, []): continue
@@ -252,20 +242,33 @@ class VarshphalTimingEngine:
                         
                 is_blocked = False
                 is_premature = False
+                sustenance_factor = 1.0
+                complex_states = {}
                 
                 for p in primary_planets:
                     h = annual_pos.get(p)
                     if h:
-                        # Dormancy filter (with Pakka Ghar override built-in)
-                        if self._is_planet_dormant(p, h, annual_pos):
+                        # Use DormancyEngine for complex state
+                        state = self.dormancy_engine.get_complex_state(p, h, annual_pos)
+                        complex_states[p] = state
+                        
+                        if not state["is_awake"]:
                             is_blocked = True
                             rule["desc"] = f"[SUPPRESSED: DORMANT] {rule.get('desc')}"
                             break
+                        
                         # 180-Degree enemy block
                         if self._has_180_degree_block(p, h, annual_pos):
                             is_blocked = True
                             rule["desc"] = f"[SUPPRESSED: 180-DEG ENEMY] {rule.get('desc')}"
                             break
+                        
+                        # Apply sustenance factor (Leakage Principle)
+                        # We take the minimum sustenance among involved planets for safety
+                        sustenance_factor = min(sustenance_factor, state["sustenance_factor"])
+                        
+                        if state["is_startled"]:
+                            rule["desc"] = f"[STARTLED] {rule.get('desc')}"
                             
                 for p in primary_planets:
                     if not self._check_maturity_age(p, age):
@@ -274,6 +277,7 @@ class VarshphalTimingEngine:
                         
                 rule["is_blocked"] = is_blocked
                 rule["is_premature"] = is_premature
+                rule["sustenance_factor"] = sustenance_factor
                 matches.append(rule)
                 
         return matches
@@ -298,11 +302,30 @@ class VarshphalTimingEngine:
         
         valid_triggers = [t for t in triggers if not t.get("is_blocked")]
         
+        # Calculate Effective Trigger Count based on Sustenance Factor
+        # A trigger with 0.6 sustenance only counts as 0.6 of a trigger.
+        effective_count = sum(t.get("sustenance_factor", 1.0) for t in valid_triggers)
+        has_leakage = any(t.get("sustenance_factor", 1.0) < 1.0 for t in valid_triggers)
+        
         confidence = "Low"
-        if len(valid_triggers) > 0:
-            confidence = "High" if len(valid_triggers) > 1 else "Medium"
+        if effective_count >= 1.5:
+            confidence = "High"
+        elif effective_count >= 0.8:
+            confidence = "Medium"
+        else:
+            confidence = "Low"
             
-        # Add premature warnings but do NOT downgrade confidence, because premature events DO happen (they just carry a penalty)
+        # The Leakage Principle: Hard cap at Medium if sustenance is missing
+        if has_leakage and confidence == "High":
+            confidence = "Medium"
+            
+        # Add sustenance warnings
+        for t in valid_triggers:
+            sf = t.get("sustenance_factor", 1.0)
+            if sf < 1.0:
+                warnings.append(f"Result Leakage (H2 Blank/Afflicted): {t['desc']} (Sustenance: {sf})")
+                
+        # Add premature warnings
         for t in valid_triggers:
             if t.get("is_premature"):
                 warnings.append(f"Premature Activation Trap: {t['desc']}")
@@ -310,7 +333,7 @@ class VarshphalTimingEngine:
         return {
             "confidence": confidence,
             "prohibited": False,
-            "reason": "Age gates passed.",
+            "reason": f"Age gates passed. Effective Trigger Score: {effective_count:.2f}",
             "triggers": [t["desc"] for t in valid_triggers],
             "warnings": warnings,
             "raw_matches": valid_triggers
