@@ -47,5 +47,22 @@ class TestDormancyEngine(unittest.TestCase):
         factor = self.engine.get_sustenance_factor("Sun", 1, ppos)
         self.assertEqual(factor, 0.4)
 
+    def test_takkar_awakening(self):
+        """A dormant planet hit by a Takkar (Confrontation) should wake up."""
+        # For Mercury in H2, Takkar comes from H7.
+        ppos = {"Mercury": 2, "Saturn": 7}
+        state = self.engine.get_complex_state("Mercury", 2, ppos)
+        self.assertTrue(state["is_awake"])
+        self.assertEqual(state["wake_reason"], "Startled (Takkar)")
+        self.assertTrue(state["is_startled"])
+
+    def test_buniyad_awakening(self):
+        """A dormant planet hit by a Buniyad (Foundation) should wake up."""
+        # For Mercury in H2, Buniyad comes from H6.
+        ppos = {"Mercury": 2, "Jupiter": 6}
+        state = self.engine.get_complex_state("Mercury", 2, ppos)
+        self.assertTrue(state["is_awake"])
+        self.assertEqual(state["wake_reason"], "Supportive (Buniyad)")
+
 if __name__ == "__main__":
     unittest.main()

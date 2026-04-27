@@ -1,6 +1,6 @@
 import logging
 from typing import Dict, Tuple, Any
-from .lk_constants import HOUSE_ASPECT_TARGETS, ENEMIES, PLANET_PAKKA_GHAR
+from .lk_constants import HOUSE_ASPECT_TARGETS, ENEMIES, PLANET_PAKKA_GHAR, HOUSE_ASPECT_DATA
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +55,30 @@ class DormancyEngine:
             res["wake_reason"] = "Lamp Principle"
             return res
 
-        # 3. Standard Activation Rules
+        # 3. Dynamic Awakening (The Startle Triggers)
+        # These are prioritized over standard rules to capture the 'Ghatna' (Incident).
+        for p, h in ppos.items():
+            if p == planet:
+                continue
+            
+            aspect_data = HOUSE_ASPECT_DATA.get(h, {})
+            
+            # Takkar (Confrontation)
+            confrontation_target = aspect_data.get("Confrontation")
+            if confrontation_target == house:
+                res["is_awake"] = True
+                res["wake_reason"] = "Startled (Takkar)"
+                res["is_startled"] = True
+                return res
+            
+            # Buniyad (Foundation)
+            foundation_target = aspect_data.get("Foundation")
+            if foundation_target == house:
+                res["is_awake"] = True
+                res["wake_reason"] = "Supportive (Buniyad)"
+                return res
+
+        # 4. Standard Activation Rules
         is_dormant, woken_by_fwd, woken_by_aspect = self.check_dormancy_state(planet, house, ppos)
         
         if not is_dormant:
