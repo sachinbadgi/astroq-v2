@@ -28,6 +28,8 @@ try:
 except ImportError:
     pass
 
+logger = logging.getLogger("astroq.lk_prediction.chart_generator")
+
 # Runtime Patch for flatlib 0.3.x compatibility & Swiss Ephemeris fixes
 try:
     import flatlib.const as flat_const
@@ -95,8 +97,6 @@ try:
     from vedicastro.VedicAstro import VedicHoroscopeData
 except ImportError:
     VedicHoroscopeData = None
-
-logger = logging.getLogger("astroq.lk_prediction.chart_generator")
 
 
 class ChartGenerator:

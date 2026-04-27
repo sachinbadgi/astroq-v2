@@ -40,6 +40,7 @@ from .lk_constants import (
     RULE_FATE_TYPE_LABELS,
 )
 from .lk_pattern_constants import EVENT_DOMAIN_CATALOGUE
+from .dormancy_engine import DormancyEngine
 
 
 # ---------------------------------------------------------------------------
@@ -75,6 +76,9 @@ class NatalFateView:
     No database required; works purely from lk_constants.py dignity tables
     and EVENT_DOMAIN_CATALOGUE in lk_pattern_constants.py.
     """
+
+    def __init__(self):
+        self.dormancy_engine = DormancyEngine()
 
     def evaluate(
         self,
@@ -124,7 +128,7 @@ class NatalFateView:
             if categories and entry["category"] not in categories:
                 continue
 
-            fate_entry = self._classify_domain(entry, positions, db_domain_fate)
+            fate_entry = self._classify_domain(entry, positions, db_domain_fate, natal_chart)
 
             if not include_neither and fate_entry["fate_type"] == "NEITHER":
                 continue
@@ -142,6 +146,7 @@ class NatalFateView:
         entry: Dict[str, Any],
         positions: Dict[str, int],
         db_domain_fate: Dict[str, str],
+        natal_chart: Dict[str, Any],
     ) -> Dict[str, Any]:
         """Run the 5-step classification algorithm for a single domain entry."""
         primary_houses: List[int] = entry["primary_houses"]
@@ -214,6 +219,20 @@ class NatalFateView:
         else:
             fate_type = "NEITHER"
             evidence = [f"No planet in primary houses {primary_houses} or key planets absent"]
+
+        # Step 4.5: Check for Dormancy (Soyi Hui)
+        # If any planet in primary houses or key_planets is dormant, add to evidence
+        is_any_dormant = False
+        dormant_planets = []
+        for planet in key_planets:
+            if planet in positions:
+                state = self.dormancy_engine.get_complex_state(planet, positions[planet], natal_chart)
+                if not state["is_awake"]:
+                    is_any_dormant = True
+                    dormant_planets.append(planet)
+        
+        if is_any_dormant and fate_type != "NEITHER":
+            evidence.append(f"DORMANT: Key planets {dormant_planets} are Soya Hua (Dormant). Promise exists but needs 'Jagane Wala Grah' (Awakener).")
 
         # Step 5: DB override (only upgrades or confirms; never silently downgrades)
         db_fate = db_domain_fate.get(entry["domain"], "")

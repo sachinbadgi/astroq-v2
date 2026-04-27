@@ -57,10 +57,15 @@ class DormancyEngine:
 
         # 3. Dynamic Awakening (The Startle Triggers)
         # These are prioritized over standard rules to capture the 'Ghatna' (Incident).
-        for p, h in ppos.items():
+        for p, p_data in ppos.items():
             if p == planet:
                 continue
             
+            # Extract house number if it's a dict (ChartData contract)
+            h = p_data.get("house") if isinstance(p_data, dict) else p_data
+            if h is None:
+                continue
+
             aspect_data = HOUSE_ASPECT_DATA.get(h, {})
             
             # Takkar (Confrontation)
