@@ -34,8 +34,10 @@ Usage:
     python run_lk_engine.py --list
 """
 import argparse
+import io
 import json
 import os
+import re
 import sys
 from collections import defaultdict
 from datetime import datetime
@@ -43,39 +45,7 @@ from datetime import datetime
 ROOT = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, ROOT)
 
-from astroq.lk_prediction.chart_generator import ChartGenerator
-from astroq.lk_prediction.natal_fate_view import NatalFateView
-from astroq.lk_prediction.config import ModelConfig
-from astroq.lk_prediction.pipeline import LKPredictionPipeline
-
-# ── Geo map ───────────────────────────────────────────────────────────────────
-GEO_MAP = {
-    "Allahabad, India":                        (25.4358,  81.8463,  "+05:30"),
-    "Mumbai, India":                           (19.0760,  72.8777,  "+05:30"),
-    "Vadnagar, India":                         (23.7801,  72.6373,  "+05:30"),
-    "San Francisco, California, US":           (37.7749,-122.4194,  "-08:00"),
-    "Seattle, Washington, US":                 (47.6062,-122.3321,  "-08:00"),
-    "Sandringham, Norfolk, UK":                (52.8311,   0.5054,  "+00:00"),
-    "New Delhi, India":                        (28.6139,  77.2090,  "+05:30"),
-    "Gary, Indiana, US":                       (41.5934, -87.3464,  "-06:00"),
-    "Pretoria, South Africa":                  (-25.7479, 28.2293,  "+02:00"),
-    "Porbandar, India":                        (21.6417,  69.6293,  "+05:30"),
-    "Jamaica Hospital, Queens, New York, US":  (40.7028, -73.8152,  "-05:00"),
-    "Honolulu, Hawaii, US":                    (21.3069,-157.8583,  "-10:00"),
-    "Mayfair, London, UK":                     (51.5100,  -0.1458,  "+00:00"),
-    "Skopje, North Macedonia":                 (42.0003,  21.4280,  "+01:00"),
-    "Scranton, Pennsylvania, US":              (41.4090, -75.6624,  "-05:00"),
-    "Buckingham Palace, London, UK":           (51.5014,  -0.1419,  "+00:00"),
-    "St. Petersburg, Russia":                  (59.9311,  30.3609,  "+03:00"),
-    "Hodgenville, KY, USA":                    (37.5737, -85.7411,  "-06:00"),
-    "Mvezo, South Africa":                     (-31.9329, 28.9988,  "+02:00"),
-    "Aden, Yemen":                             (12.7855,  45.0187,  "+03:00"),
-    "Indore, India":                           (22.7196,  75.8577,  "+05:30"),
-    "Jamshedpur, India":                       (22.8046,  86.2029,  "+05:30"),
-    "Raisen, India":                           (23.3314,  77.7886,  "+05:30"),
-    "Madanapalle, India":                      (13.5510,  78.5051,  "+05:30"),
-}
-DEFAULT_GEO = (28.6139, 77.2090, "+05:30")
+from astroq.lk_prediction.engine_runner import LKEngineRunner
 
 CAT_ORDER = [
     "canonical", "career_tech", "finance", "home_lifestyle",
@@ -101,13 +71,6 @@ BADGE = {
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
-def get_geo(place):
-    pl = place.lower()
-    for key, val in GEO_MAP.items():
-        if key.lower() in pl or pl in key.lower():
-            return val
-    return DEFAULT_GEO
-
 
 def load_figures():
     path = os.path.join(ROOT, "data", "public_figures_ground_truth.json")
@@ -121,28 +84,6 @@ def find_figure(name, figures):
     for fig in figures:
         if nl in fig.get("name","").lower(): return fig
     return None
-
-
-def build_chart(gen, dob, tob, place):
-    tob_full = tob + ":00" if len(tob) == 5 else tob
-    lat, lon, tz = get_geo(place)
-    payload = gen.build_full_chart_payload(
-        dob_str=dob, tob_str=tob_full, place_name=place,
-        latitude=lat, longitude=lon, utc_string=tz, chart_system="vedic",
-    )
-    natal = payload.get("chart_0")
-    if not natal:
-        raise RuntimeError("ChartGenerator returned no chart_0")
-    return natal, payload
-
-
-def build_pipeline():
-    db  = os.path.join(ROOT, "data", "rules.db")
-    cfg_file = os.path.join(ROOT, "data", "model_defaults.json")
-    if not os.path.exists(db):
-        return None
-    cfg = ModelConfig(db, cfg_file)
-    return LKPredictionPipeline(cfg)
 
 
 # ── Rendering ─────────────────────────────────────────────────────────────────
@@ -261,6 +202,75 @@ def render(name, dob, tob, place, natal, fate_entries, rule_preds,
     print(f"\n{'═'*W}\n")
 
 
+# ── Auto-save ─────────────────────────────────────────────────────────────────
+
+def _safe_filename(name: str) -> str:
+    """Convert a person's name to a safe filename slug."""
+    slug = re.sub(r"[^\w\s-]", "", name).strip()
+    slug = re.sub(r"[\s]+", "_", slug)
+    return slug
+
+
+def save_chart(
+    name: str, dob: str, tob: str, place: str,
+    natal: dict, fate_entries: list, rule_preds, annual_preds,
+    age, include_neither: bool
+):
+    """
+    Write the chart output to backend/output/<slug>_<date>.txt  (plain text)
+    and                         backend/output/<slug>_<date>.json (structured).
+    Returns the paths of the two saved files.
+    """
+    output_dir = os.path.join(ROOT, "output")
+    os.makedirs(output_dir, exist_ok=True)
+
+    slug = _safe_filename(name)
+    date_tag = datetime.now().strftime("%Y-%m-%d_%H%M%S")
+    base = os.path.join(output_dir, f"{slug}_{date_tag}")
+
+    # ── Text report ──────────────────────────────────────────────────────────
+    buf = io.StringIO()
+    _old_stdout = sys.stdout
+    sys.stdout = buf
+    try:
+        render(name, dob, tob, place, natal, fate_entries, rule_preds,
+               annual_preds, age, include_neither=include_neither)
+    finally:
+        sys.stdout = _old_stdout
+    txt_path = base + ".txt"
+    with open(txt_path, "w", encoding="utf-8") as f:
+        f.write(buf.getvalue())
+
+    # ── JSON report ──────────────────────────────────────────────────────────
+    planets = {p: d.get("house") for p, d in natal.get("planets_in_houses", {}).items()}
+    gp = [e for e in fate_entries if e["fate_type"] == "GRAHA_PHAL"]
+    rp = [e for e in fate_entries if e["fate_type"] == "RASHI_PHAL"]
+    hy = [e for e in fate_entries if e["fate_type"] == "HYBRID"]
+    ni = [e for e in fate_entries if e["fate_type"] == "NEITHER"]
+    out = {
+        "meta": {
+            "name": name, "dob": dob, "tob": tob, "place": place,
+            "generated_at": datetime.now().isoformat(),
+        },
+        "natal_positions": planets,
+        "fate_stats": {
+            "GRAHA_PHAL": len(gp), "RASHI_PHAL": len(rp),
+            "HYBRID": len(hy), "NEITHER": len(ni), "total": len(fate_entries),
+        },
+        "domain_fate_view": fate_entries,
+        "rule_predictions": [
+            {"domain": p.domain, "polarity": p.polarity,
+             "magnitude": round(p.magnitude, 3), "text": p.prediction_text}
+            for p in (rule_preds or [])
+        ],
+    }
+    json_path = base + ".json"
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(out, f, indent=2, ensure_ascii=False)
+
+    return txt_path, json_path
+
+
 # ── Main ──────────────────────────────────────────────────────────────────────
 def main():
     parser = argparse.ArgumentParser(
@@ -315,42 +325,36 @@ Examples:
         place = input("  Place           : ").strip() or "New Delhi, India"
 
     print(f"\n  Building natal chart for {name} ({dob} {tob}, {place})...")
-    gen = ChartGenerator()
+    
+    db_path = os.path.join(ROOT, "data", "rules.db")
+    cfg_file = os.path.join(ROOT, "data", "model_defaults.json")
+    
+    runner = LKEngineRunner(db_path, cfg_file)
     try:
-        natal, full_payload = build_chart(gen, dob, tob, place)
+        results = runner.run(
+            dob=dob,
+            tob=tob,
+            place=place,
+            age=args.age,
+            domain_only=args.domain_only,
+            include_neither=not args.no_neither
+        )
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         print(f"\n❌  {e}\n"); sys.exit(1)
 
-    # ── Rule engine ───────────────────────────────────────────────────────────
-    rule_preds = None
-    annual_preds = None
+    if results.get("pipeline_error"):
+        print(f"  ⚠️  Rule engine error: {results['pipeline_error']} — continuing with domain fate only.")
 
-    if not args.domain_only:
-        print("  Running rule engine predictions...")
-        pipe = build_pipeline()
-        if pipe:
-            try:
-                pipe.load_natal_baseline(natal)
-                rule_preds = pipe.generate_predictions(natal)
-
-                if args.age:
-                    annual_chart = full_payload.get(f"chart_{args.age}")
-                    if annual_chart:
-                        print(f"  Running annual chart for age {args.age}...")
-                        annual_preds = pipe.generate_predictions(annual_chart)
-                    else:
-                        print(f"  ⚠️  No pre-built annual chart for age {args.age} in payload. Skipping.")
-            except Exception as e:
-                print(f"  ⚠️  Rule engine error: {e} — continuing with domain fate only.")
-        else:
-            print("  ⚠️  rules.db not found — running domain fate only.")
-
-    # ── Domain fate view ──────────────────────────────────────────────────────
-    print("  Running domain fate classification...")
-    view = NatalFateView()
-    fate_entries = view.evaluate(natal, include_neither=not args.no_neither)
+    natal = results["natal_chart"]
+    fate_entries = results["fate_entries"]
+    rule_preds = results["rule_predictions"]
+    annual_preds = results["annual_predictions"]
 
     # ── Output ────────────────────────────────────────────────────────────────
+    include_neither = not args.no_neither
+
     if args.json:
         planets = {p: d.get("house") for p, d in natal.get("planets_in_houses", {}).items()}
         out = {
@@ -373,7 +377,15 @@ Examples:
         print(json.dumps(out, indent=2))
     else:
         render(name, dob, tob, place, natal, fate_entries, rule_preds,
-               annual_preds, args.age, include_neither=not args.no_neither)
+               annual_preds, args.age, include_neither=include_neither)
+
+    # ── Auto-save (always runs, regardless of --json flag) ────────────────────
+    txt_path, json_path = save_chart(
+        name, dob, tob, place, natal, fate_entries, rule_preds,
+        annual_preds, args.age, include_neither=include_neither
+    )
+    print(f"  💾  Saved → {txt_path}")
+    print(f"  💾  Saved → {json_path}\n")
 
 
 if __name__ == "__main__":
