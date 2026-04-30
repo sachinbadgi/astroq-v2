@@ -202,7 +202,76 @@ def render(name, dob, tob, place, natal, fate_entries, rule_preds,
     print(f"\n{'═'*W}\n")
 
 
-# ── Auto-save ─────────────────────────────────────────────────────────────────
+# ── Lifecycle timeline renderer ────────────────────────────────────────────────
+
+def render_lifecycle(name: str, dob: str, lifecycle_by_age: dict):
+    """
+    Print and return a string summary of the 75-year lifecycle sweep.
+    lifecycle_by_age: {age: [LKPrediction, ...]}
+    """
+    W = 112
+    lines = []
+    lines.append(f"\n{'═'*W}")
+    lines.append(f"  LAL KITAB ENGINE — 75-YEAR LIFECYCLE TIMELINE")
+    lines.append(f"  {name}  │  DOB: {dob}")
+    lines.append(f"  Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    lines.append(f"{'═'*W}")
+    lines.append(f"  {'Age':<5}  {'Domain':<16}  {'Pol':<3}  {'Mag':>5}  Prediction")
+    lines.append(f"  {'─'*5}  {'─'*16}  {'─'*3}  {'─'*5}  {'─'*70}")
+
+    for age in sorted(lifecycle_by_age.keys()):
+        preds = lifecycle_by_age[age]
+        if not preds:
+            continue
+        lines.append(f"")
+        lines.append(f"  ▸ AGE {age}")
+        for p in sorted(preds, key=lambda x: -abs(x.magnitude))[:10]:
+            pol = "+" if p.polarity == "benefic" else "−"
+            tc  = f"[{p.timing_confidence[:4].upper()}]" if p.timing_confidence else "     "
+            lines.append(
+                f"  {age:<5}  {p.domain:<16}  {pol:<3}  {p.magnitude:>5.2f}  "
+                f"{tc} {p.prediction_text[:68]}"
+            )
+
+    lines.append(f"\n{'═'*W}\n")
+    return "\n".join(lines)
+
+
+def save_lifecycle_report(name: str, dob: str, lifecycle_by_age: dict, slug: str, date_tag: str) -> str:
+    """Save lifecycle timeline to output/<slug>_lifecycle_<date>.txt"""
+    output_dir = os.path.join(ROOT, "output")
+    os.makedirs(output_dir, exist_ok=True)
+    path = os.path.join(output_dir, f"{slug}_lifecycle_{date_tag}.txt")
+
+    # Also save as JSON
+    json_path = os.path.join(output_dir, f"{slug}_lifecycle_{date_tag}.json")
+    lifecycle_json = {
+        "meta": {"name": name, "dob": dob, "generated_at": datetime.now().isoformat()},
+        "annual_charts": {
+            str(age): [
+                {
+                    "domain": p.domain,
+                    "polarity": p.polarity,
+                    "magnitude": round(p.magnitude, 3),
+                    "timing_confidence": p.timing_confidence,
+                    "text": p.prediction_text,
+                    "timing_signals": p.timing_signals,
+                }
+                for p in preds
+            ]
+            for age, preds in sorted(lifecycle_by_age.items())
+        }
+    }
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(lifecycle_json, f, indent=2, ensure_ascii=False)
+
+    text = render_lifecycle(name, dob, lifecycle_by_age)
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(text)
+
+    return path, json_path
+
+
 
 def _safe_filename(name: str) -> str:
     """Convert a person's name to a safe filename slug."""
@@ -292,7 +361,8 @@ Examples:
     parser.add_argument("--dob",         type=str)
     parser.add_argument("--tob",         type=str, default="12:00")
     parser.add_argument("--place",       type=str, default="New Delhi, India")
-    parser.add_argument("--age",         type=int, default=None, help="Run annual chart for this age too")
+    parser.add_argument("--age",         type=int, default=None, help="Run annual chart for this specific age")
+    parser.add_argument("--lifecycle",   action="store_true", help="Sweep all 75 annual charts and save a timeline report")
     parser.add_argument("--no-neither",  action="store_true")
     parser.add_argument("--domain-only", action="store_true", help="Skip rule engine, only domain fate view")
     parser.add_argument("--json",        action="store_true")
@@ -380,12 +450,45 @@ Examples:
                annual_preds, args.age, include_neither=include_neither)
 
     # ── Auto-save (always runs, regardless of --json flag) ────────────────────
+    slug = _safe_filename(name)
+    date_tag = datetime.now().strftime("%Y-%m-%d_%H%M%S")
+
     txt_path, json_path = save_chart(
         name, dob, tob, place, natal, fate_entries, rule_preds,
         annual_preds, args.age, include_neither=include_neither
     )
     print(f"  💾  Saved → {txt_path}")
-    print(f"  💾  Saved → {json_path}\n")
+    print(f"  💾  Saved → {json_path}")
+
+    # ── Lifecycle sweep ───────────────────────────────────────────────────────
+    if args.lifecycle and not args.domain_only:
+        pipe = runner.build_pipeline()
+        if not pipe:
+            print("  ⚠️  rules.db not found — cannot run lifecycle sweep.")
+        else:
+            full_payload = results["full_payload"]
+            print(f"\n  ⏳  Running 75-year lifecycle sweep for {name}...")
+            pipe.load_natal_baseline(natal)
+            lifecycle_by_age = {}
+            for age_n in range(1, 76):
+                annual_chart = full_payload.get(f"chart_{age_n}")
+                if annual_chart:
+                    try:
+                        preds = pipe.generate_predictions(annual_chart)
+                        lifecycle_by_age[age_n] = preds or []
+                    except Exception as lc_err:
+                        lifecycle_by_age[age_n] = []
+                else:
+                    lifecycle_by_age[age_n] = []
+
+            lc_txt, lc_json = save_lifecycle_report(name, dob, lifecycle_by_age, slug, date_tag)
+            # Print summary to terminal
+            text = render_lifecycle(name, dob, lifecycle_by_age)
+            print(text)
+            print(f"  💾  Lifecycle saved → {lc_txt}")
+            print(f"  💾  Lifecycle saved → {lc_json}\n")
+    else:
+        print()
 
 
 if __name__ == "__main__":

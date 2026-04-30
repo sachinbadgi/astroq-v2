@@ -35,9 +35,12 @@ class StateLedger:
 
     def apply_trauma(self, planet: str, points: float):
         """Permanent accumulation of trauma (Scarring Model)."""
-        p = self.planets[planet]
+        base = planet.replace("Masnui ", "") if planet.startswith("Masnui ") else planet
+        p = self.planets.get(base)
+        if p is None:
+            return  # Unknown planet — silently skip rather than crash
         p.trauma_points += points
-        self._update_thresholds(planet)
+        self._update_thresholds(base)
 
     def apply_strike_impact(self, planet: str, points: float, is_startled: bool):
         """
