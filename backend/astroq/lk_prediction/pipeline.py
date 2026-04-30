@@ -16,8 +16,16 @@ from astroq.lk_prediction.config import ModelConfig
 from astroq.lk_prediction.grammar_analyser import GrammarAnalyser
 from astroq.lk_prediction.strength_engine import StrengthEngine
 from astroq.lk_prediction.rules_engine import RulesEngine
-from astroq.lk_prediction.prediction_translator import PredictionTranslator
+from astroq.lk_prediction.contextual_assembler import ContextualAssembler
 from astroq.lk_prediction.data_contracts import ChartData, LKPrediction
+from astroq.lk_prediction.lifecycle_engine import LifecycleEngine
+from astroq.lk_prediction.chart_enricher import ChartEnricher
+from astroq.lk_prediction.astrological_context import UnifiedAstrologicalContext
+from astroq.lk_prediction.synthesis_reporter import SynthesisReporter
+from astroq.lk_prediction.state_ledger import StateLedger
+
+from astroq.lk_prediction.narrative_engine import NarrativeEngine
+from astroq.lk_prediction.remedy_engine import RemedyEngine
 from astroq.lk_prediction.varshphal_timing_engine import VarshphalTimingEngine
 
 logger = logging.getLogger(__name__)
@@ -29,164 +37,99 @@ class LKPredictionPipeline:
         self.cfg = config
         self.grammar = GrammarAnalyser(config)
         self.strengths = StrengthEngine(config)
-        self.rules = RulesEngine(config.get("db_path", fallback="backend/data/rules.db"))
-        self.translator = PredictionTranslator(config)
+        self.rules = RulesEngine(config)
+        
+        # Instantiate dependencies for the ContextualAssembler
+        self.narrative = NarrativeEngine()
+        self.remedies = RemedyEngine()
         self.timing_engine = VarshphalTimingEngine()
+        
+        self.assembler = ContextualAssembler(
+            narrative_engine=self.narrative,
+            remedy_engine=self.remedies,
+            timing_engine=self.timing_engine
+        )
+        self.lifecycle = LifecycleEngine()
+        # Deep Module: ChartEnricher now handles both Grammar and Strengths coordination
+        self.enricher = ChartEnricher(self.grammar, self.strengths)
         self.natal_chart: Optional[ChartData] = None
+        self.ledger_history: Dict[int, Any] = {}
 
     def load_natal_baseline(self, natal_chart: ChartData):
-        """Sets the birth chart background for annual analysis."""
+        """Sets the birth chart background for annual analysis and pre-calculates lifecycle history."""
         self.natal_chart = copy.deepcopy(natal_chart)
+        
+        # Pre-pave the 75-year forensic lifecycle
+        self.ledger_history = self.lifecycle.run_75yr_analysis(natal_chart)
 
-    def _enrich_chart_data(self, chart: ChartData):
-        """Populates house_status and other runtime metadata for the RulesEngine."""
-        pd = chart.get("planets_in_houses", {})
-        # Initialize all 12 houses as Empty
-        status = {str(i): "Empty House" for i in range(1, 13)}
-        
-        # Mark occupied houses from standard planets
-        for p_name, p_info in pd.items():
-            h = p_info.get("house")
-            if h and 1 <= h <= 12:
-                status[str(h)] = "Occupied"
-                
-        # Also mark occupied from Masnui (Artificial) planets
-        for m in chart.get("masnui_grahas_formed", []):
-            h = m.get("formed_in_house")
-            if h:
-                status[str(h)] = "Occupied"
-        
-        chart["house_status"] = status
+    def generate_predictions(self, chart: ChartData, focus_domains: Optional[List[str]] = None) -> List[LKPrediction]:
+        """Runs the core prediction loop using a Deep Module Context."""
+        if chart.get("chart_type") == "Yearly" and not self.natal_chart:
+            raise ValueError("Annual analysis requires a loaded natal baseline.")
 
-    def generate_predictions(self, chart: ChartData) -> List[LKPrediction]:
-        """Runs the core prediction loop for a single chart (Natal or Annual)."""
-        # 1. Preliminary Enrichment: Detect Masnui planets so they count for House Status
-        masnuis = self.grammar.detect_masnui(chart)
-        chart["masnui_grahas_formed"] = masnuis
+        age = chart.get("chart_period", 0)
         
-        # 2. House Status Enrichment (Critical for RulesEngine and Sleeping Houses)
-        self._enrich_chart_data(chart)
-        
-        # 3. Strength Calculation (provides base aspects)
-        enriched = self.strengths.calculate_chart_strengths(chart, self.natal_chart)
-        
-        # 4. Grammar: Apply remaining rules (Kaayam, Dharmi, etc.)
-        self.grammar.apply_grammar_rules(chart, enriched)
+        # 1. Enrichment (Grammar, Strengths, Masnui)
+        # DEEP MODULE: The pipeline now uses a single unified enrichment call.
+        # It no longer needs to know the internal sequence of Grammar vs Strength.
+        self.enricher.enrich_chart(chart, self.natal_chart)
 
-        # 5. Attach enriched data to chart so callers can read grammar states
-        #    (planet strength, sleeping, kaayam, dharmi, aspects, etc.)
-        chart["_enriched"] = enriched
-
-        # 5b. Inject natal positions into chart so rules engine can compute
-        #     annual dignity modifiers (Pakka Ghar / Exaltation / Debilitation)
+        # 2. Hydrate Context (The Deep Module interface)
+        # M-5 FIX: For Birth charts, use a fresh StateLedger so that 75-year lifecycle
+        # trauma accumulated by LifecycleEngine never contaminates natal analysis.
+        # Annual charts use the pre-computed ledger snapshot for that age.
         if self.natal_chart and chart.get("chart_type") == "Yearly":
-            chart["_natal_positions"] = {
-                p: info.get("house")
-                for p, info in self.natal_chart.get("planets_in_houses", {}).items()
-                if info.get("house")
-            }
+            year_ledger = self.ledger_history.get(age)
+        else:
+            year_ledger = StateLedger()
+        
+        context = UnifiedAstrologicalContext(
+            chart=chart, 
+            natal_chart=self.natal_chart, 
+            ledger=year_ledger,
+            config=self.cfg
+        )
 
-        # 6. Rule Evaluation
-        rule_hits = self.rules.evaluate_chart(chart)
+        # 3. Rule Evaluation
+        rule_hits = self.rules.evaluate_chart(context)
         
-        # 7. Translation
-        predictions = self.translator.translate(rule_hits, age=chart.get("chart_period", 0))
-        
-        # 8. Varshphal Timing (if Annual Chart)
-        if self.natal_chart and chart.get("chart_type") == "Yearly":
-            age = chart.get("chart_period", 0)
-            
-            # Map rule domains to engine domains
-            domain_map = {
-                "marriage": "marriage",
-                "finance": "finance",
-                "career": "career_travel",
-                "health": "health",
-                "progeny": "progeny",
-                "property": "real_estate"
-            }
-            
-            for p in predictions:
-                # Find matching domain. We check if the p.domain is inside the map.
-                # Sometimes p.domain is capitalized.
-                d_lower = p.domain.lower()
-                engine_domain = None
-                for k, v in domain_map.items():
-                    if k in d_lower:
-                        engine_domain = v
-                        break
-                        
-                if engine_domain:
-                    timing_result = self.timing_engine.get_timing_confidence(
-                        self.natal_chart, chart, age, engine_domain
-                    )
-                    p.timing_confidence = timing_result["confidence"]
-                    
-                    if timing_result["prohibited"]:
-                        p.timing_signals.append(f"PROHIBITED: {timing_result['reason']}")
-                    
-                    for t in timing_result["triggers"]:
-                        p.timing_signals.append(f"TIMING TRIGGER: {t}")
-                        
-                    for w in timing_result["warnings"]:
-                        p.timing_signals.append(f"WARNING: {w}")
-                        
+        # 4. Synthesis
+        predictions = self.assembler.assemble(rule_hits=rule_hits, context=context)
+
+        # 5. Domain Filtering
+        if focus_domains:
+            focus_lower = [d.lower() for d in focus_domains]
+            predictions = [
+                p for p in predictions 
+                if p.domain.lower() in focus_lower 
+                or any(d.lower() in focus_lower for d in getattr(p, "domains", []))
+                or any(item.lower() in focus_lower for item in p.affected_items)
+            ]
+
         return predictions
 
     def generate_full_payload(self, name: str, dob: str, charts: List[ChartData]) -> Dict[str, Any]:
-        """Generates a clean text-first report for Gemini/NotebookLM."""
-        # Find natal chart
+        """Delegates report generation to the SynthesisReporter."""
         natal = next((c for c in charts if c.get("chart_type") == "Birth"), charts[0])
         self.load_natal_baseline(natal)
         
-        def _get_report_section(c: ChartData) -> Dict[str, Any]:
-            # 1. Core Logic & Enrichment
-            preds = self.generate_predictions(c)
-            # Find and extract grammar hits for the logic list
-            logic = []
-            if c.get("mangal_badh_status") == "Active": logic.append("Mangal Badh: Active (Afflicted Mars)")
-            if c.get("dharmi_kundli_status") == "Dharmi Teva": logic.append("Dharmi Teva: Active (Protected Chart)")
-            for debt in c.get("lal_kitab_debts", []):
-                if debt.get("active"): logic.append(f"Karmic Debt: {debt['debt_name']}")
-            for masnui in c.get("masnui_grahas_formed", []):
-                logic.append(f"Masnui Formation: {masnui['masnui_graha_name']} in House {masnui['formed_in_house']}")
-
-            # 2. Extract aspects
-            aspects = []
-            for p, p_data in c.get("planets_in_houses", {}).items():
-                for asp in p_data.get("aspects", []):
-                    strength_val = f"(Strength: {asp['aspect_strength']:.2f})" if "aspect_strength" in asp else ""
-                    aspects.append(f"{p} casts {asp['aspect_type']} on {asp['target']} in House {asp['target_house']} {strength_val}")
-
-            # 3. Compact Positions
-            positions = {p: d.get("house", 0) for p, d in c.get("planets_in_houses", {}).items() if p != "Asc"}
-
-            return {
-                "chart": positions,
-                "logic": sorted(list(set(logic))),
-                "significant_aspects": aspects[:15], # Top 15 aspects to prevent bloat
-                "predictions": [
-                    f"[{p.timing_confidence.upper()}] {p.prediction_text} " + (" ".join(p.timing_signals) if p.timing_signals else "")
-                    if p.timing_confidence else p.prediction_text 
-                    for p in preds if p.prediction_text
-                ]
-            }
+        # Generate Natal Report
+        natal_preds = self.generate_predictions(natal)
+        natal_report = SynthesisReporter.format_chart_section(natal, natal_preds)
 
         # Generate Annual Timeline
         timeline = []
         for age in range(1, 76):
             annual = next((c for c in charts if c.get("chart_period") == age), None)
             if annual:
+                preds = self.generate_predictions(annual)
+                section = SynthesisReporter.format_chart_section(annual, preds)
                 timeline.append({
                     "age": age,
                     "year_of_life": age,
                     "from": annual.get("period_start", ""),
                     "to": annual.get("period_end", ""),
-                    **_get_report_section(annual)
+                    **section
                 })
         
-        return {
-            "metadata": {"name": name, "dob": dob, "engine": "2.5-report-optimized"},
-            "natal_profile": _get_report_section(natal),
-            "annual_timeline": timeline
-        }
+        return SynthesisReporter.generate_full_payload(name, dob, natal_report, timeline)

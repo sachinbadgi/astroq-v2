@@ -73,15 +73,31 @@ class TestNatalFateView:
     # --- RASHI_PHAL cases ------------------------------------------------
 
     def test_marriage_rashi_phal_venus_not_dignified(self):
-        """Venus in H6 (debilitated) AND H7 empty → NEITHER (primary house empty).
-        But when Saturn is in H7 (not a key planet for marriage), H7 is occupied
-        and Venus is undignified → RASHI_PHAL (promise exists, conditional)."""
-        # Case A: H7 empty, Venus off-domain → NEITHER
+        """
+        NatalFateView classification algorithm (Step 4):
+          NEITHER  = all primary houses empty AND all key planets absent from chart.
+          RASHI_PHAL = primary house occupied OR any key planet present (but not dignified).
+
+        Case A: Venus H6, Mercury H3.
+          - Mercury IS a key marriage planet and is present in the chart → any_key_planet_present=True
+          - H7 is empty → primary_occupied=False
+          - Neither planet is in Pakka Ghar / Exaltation → no gp_signal
+          - Result: RASHI_PHAL (karaka present but not in primary house, fate is conditional)
+
+        Case B: Venus H3, Saturn H7.
+          - Venus off-domain, Saturn not a key marriage planet
+          - H7 is occupied → primary_occupied=True
+          - No gp_signal from key planets → RASHI_PHAL
+        """
+        # Case A: Mercury present (key planet) → RASHI_PHAL, not NEITHER
         chart_a = _chart({"Venus": 6, "Mercury": 3})
         entries_a = self.view.evaluate(chart_a, categories=["canonical"])
         entry_a = _get(entries_a, "marriage")
         assert entry_a is not None
-        assert entry_a["fate_type"] == "NEITHER"   # H7 empty = no structural promise
+        assert entry_a["fate_type"] == "RASHI_PHAL", (
+            "Mercury is a key marriage planet — its presence in the chart (even off-domain) "
+            "triggers RASHI_PHAL, not NEITHER. NEITHER requires ALL key planets absent."
+        )
 
         # Case B: H7 occupied by Saturn (not a key planet), Venus off-domain → RASHI_PHAL
         chart_b = _chart({"Venus": 3, "Saturn": 7})

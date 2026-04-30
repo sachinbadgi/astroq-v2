@@ -1,19 +1,14 @@
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Tuple, Optional
 from .lk_pattern_constants import (
     VARSHPHAL_TIMING_TRIGGERS,
     VARSHPHAL_AGE_GATES,
-    VARSHPHAL_SPECIAL_LOGIC,
-    MATURITY_AGE_PATTERN
+    VARSHPHAL_SPECIAL_LOGIC
 )
-from .lk_constants import (
-    HOUSE_ASPECT_TARGETS,
-    NATURAL_RELATIONSHIPS,
-    PLANET_EXALTATION,
-    PLANET_DEBILITATION,
-    PLANET_PAKKA_GHAR,
-    PUCCA_GHARS_EXTENDED
-)
-from .dormancy_engine import DormancyEngine
+from .state_ledger import StateLedger
+from .data_contracts import LKPrediction
+from .astrological_context import UnifiedAstrologicalContext
+from .doubtful_timing_engine import DoubtfulTimingEngine
+from .lk_constants import TIMING_DOMAIN_MAP, KARAKA_DOMAIN_MAP
 
 class VarshphalTimingEngine:
     """
@@ -21,49 +16,43 @@ class VarshphalTimingEngine:
     Provides precise timing signals by comparing Natal and Annual planetary geometries.
     """
     
+    PLANET_MAP = {
+        "Sat": "Saturn", "Ket": "Ketu", "Mer": "Mercury", "Mon": "Moon", 
+        "Jup": "Jupiter", "Sun": "Sun", "Rah": "Rahu", "Ven": "Venus", "Mar": "Mars"
+    }
+
+
     def __init__(self):
         self.triggers = VARSHPHAL_TIMING_TRIGGERS
         self.age_gates = VARSHPHAL_AGE_GATES
         self.special_logic = VARSHPHAL_SPECIAL_LOGIC
-        self.dormancy_engine = DormancyEngine()
+        self.doubtful_engine = DoubtfulTimingEngine()
 
-    def _get_planetary_positions(self, chart_data: Dict[str, Any]) -> Dict[str, int]:
-        """Helper to extract planet house positions from chart payload."""
-        positions = {}
-        for planet, data in chart_data.get("planets_in_houses", {}).items():
-            if planet != "Lagna":
-                positions[planet] = data.get("house", 0)
-        return positions
-
-    def _is_planet_dormant(self, planet: str, house: int, chart_positions: Dict[str, int]) -> bool:
-        """Deprecated: Use DormancyEngine instead."""
-        return not self.dormancy_engine.is_awake(planet, house, chart_positions)
-
-    def _has_180_degree_block(self, planet: str, house: int, chart_positions: Dict[str, int]) -> bool:
-        """Checks if a natural enemy is placed exactly 180 degrees away (house + 6 mod 12)."""
-        if not house: return False
+    def resolve_timing_for_prediction(
+        self, 
+        p: LKPrediction, 
+        context: UnifiedAstrologicalContext
+    ) -> Dict[str, Any]:
+        """
+        DEEP MODULE: The primary interface for predictions to resolve their timing.
+        Hides domain mapping and confidence calculation complexity.
+        """
+        d_lower = p.domain.lower()
+        engine_domain = next((v for k, v in TIMING_DOMAIN_MAP.items() if k in d_lower), None)
         
-        enemy_house = house + 6
-        if enemy_house > 12: enemy_house -= 12
+        if not engine_domain:
+            return {
+                "confidence": "Low",
+                "prohibited": False,
+                "reason": "Unknown domain for timing analysis.",
+                "triggers": [],
+                "warnings": []
+            }
             
-        enemies_in_opposition = [p for p, h in chart_positions.items() if h == enemy_house]
-        if not enemies_in_opposition: return False
-            
-        planet_enemies = NATURAL_RELATIONSHIPS.get(planet, {}).get("Enemies", [])
-        for opp_planet in enemies_in_opposition:
-            if opp_planet in planet_enemies:
-                if house in PLANET_EXALTATION.get(planet, []): continue
-                if enemy_house in PLANET_EXALTATION.get(opp_planet, []): continue
-                return True
-        return False
+        return self.get_timing_confidence(context, engine_domain)
 
-    def _check_maturity_age(self, planet: str, age: int) -> bool:
-        """Returns True if the planet has reached its maturity age."""
-        maturity_ages = MATURITY_AGE_PATTERN.get("maturity_ages", {})
-        mat_age = maturity_ages.get(planet, 0)
-        return age >= mat_age
 
-    def check_age_gates(self, natal_chart: Dict[str, Any], age: int, domain: str) -> Tuple[bool, str]:
+    def check_age_gates(self, context: UnifiedAstrologicalContext, domain: str) -> Tuple[bool, str]:
         """
         Checks if the given age is prohibited for the specified domain based on Natal placements.
         Returns (is_prohibited, reason).
@@ -72,7 +61,10 @@ class VarshphalTimingEngine:
         if not gates:
             return False, ""
             
-        natal_pos = self._get_planetary_positions(natal_chart)
+        natal_pos = {p: context.get_natal_house(p) for p in self.PLANET_MAP.values()}
+        # remove Nones
+        natal_pos = {k: v for k, v in natal_pos.items() if v is not None}
+        age = context.age
         
         for rule in gates:
             if "planet" in rule and "houses" in rule:
@@ -100,13 +92,15 @@ class VarshphalTimingEngine:
                 
         return False, ""
 
-    def evaluate_special_destruction(self, natal_chart: Dict[str, Any], annual_chart: Dict[str, Any]) -> List[str]:
+    def evaluate_special_destruction(self, context: UnifiedAstrologicalContext) -> List[str]:
         """
         Evaluates the Sequential Impact Rule (Nisht Grah) from Lal Diary.
         """
         warnings = []
-        natal_pos = self._get_planetary_positions(natal_chart)
-        annual_pos = self._get_planetary_positions(annual_chart)
+        natal_pos = {p: context.get_natal_house(p) for p in self.PLANET_MAP.values()}
+        natal_pos = {k: v for k, v in natal_pos.items() if v is not None}
+        annual_pos = {p: context.get_house(p) for p in self.PLANET_MAP.values()}
+        annual_pos = {k: v for k, v in annual_pos.items() if v is not None}
         
         rule = self.special_logic.get("sequential_impact_rule", {})
         n_house = rule.get("natal_house")
@@ -120,7 +114,50 @@ class VarshphalTimingEngine:
                     
         return warnings
 
-    def evaluate_varshphal_triggers(self, natal_chart: Dict[str, Any], annual_chart: Dict[str, Any], age: int, domain: str) -> List[Dict[str, Any]]:
+    def evaluate_rashi_phal_triggers(self, context: UnifiedAstrologicalContext, domain: str) -> List[Dict[str, Any]]:
+        """
+        Evaluate a given year for deterministic Rashi Phal triggers based purely on thermodynamic state changes.
+        Accepts context (UnifiedAstrologicalContext) or a dict for backward compatibility.
+        """
+        triggers = []
+
+        doubtful_promises = self.doubtful_engine._identify_doubtful_natal_promises(context)
+        if not doubtful_promises:
+            return triggers
+
+        volatile_planets = set()
+        for p in doubtful_promises:
+            for planet in p.get("planets", []):
+                volatile_planets.add(planet)
+
+        # 2. Check the thermodynamic state (Activation) in the Annual Chart
+        annual_pos = {p: context.get_house(p) for p in self.PLANET_MAP.values()}
+        annual_pos = {k: v for k, v in annual_pos.items() if v is not None}
+
+        for planet in volatile_planets:
+            house = annual_pos.get(planet)
+            if not house:
+                continue
+            # Filter by domain using strict Karaka mapping
+            domains = KARAKA_DOMAIN_MAP.get(planet, [])
+            if domain not in domains and domain not in [TIMING_DOMAIN_MAP.get(d) for d in domains]:
+                continue
+            # THE TRIGGER: Planetary Activation (Wake-Up)
+            is_awake = context.is_awake(planet)
+            if is_awake:
+                # Filter 1: The "Dead Zone" Houses (Statistical Noise)
+                if house in [4, 5, 10]:
+                    continue
+                state = context.get_complex_state(planet) if hasattr(context, 'get_complex_state') else type('dummy', (), {'is_startled': False, 'sustenance_factor': 1.0})()
+                triggers.append({
+                    "desc": f"[RASHI PHAL WAKE-UP] Doubtful {planet} lost dormancy and woke up in H{house}",
+                    "sustenance_factor": getattr(state, 'sustenance_factor', 1.0),
+                    "is_blocked": False,
+                    "is_premature": not (context.check_maturity_age(planet) if hasattr(context, 'check_maturity_age') else False)
+                })
+        return triggers
+
+    def evaluate_varshphal_triggers(self, context: UnifiedAstrologicalContext, domain: str) -> List[Dict[str, Any]]:
         """
         Evaluates the specific geometric triggers for a given domain.
         Returns a list of matched trigger rules.
@@ -129,165 +166,149 @@ class VarshphalTimingEngine:
         if not domain_triggers:
             return []
             
-        natal_pos = self._get_planetary_positions(natal_chart)
-        annual_pos = self._get_planetary_positions(annual_chart)
+        natal_pos = {p: context.get_natal_house(p) for p in self.PLANET_MAP.values()}
+        natal_pos = {k: v for k, v in natal_pos.items() if v is not None}
+        annual_pos = {p: context.get_house(p) for p in self.PLANET_MAP.values()}
+        annual_pos = {k: v for k, v in annual_pos.items() if v is not None}
+        age = context.age
         
         matches = []
         
         for rule in domain_triggers:
             match = True
             
-            # Simple planet checks (e.g. "natal_sat": [3, 5])
+            # ── DYNAMIC KEY EVALUATION ──────────────────────────────────────
             for key, val in rule.items():
                 if key in ["desc", "polarity", "outcome", "target"]:
                     continue
-                    
-                if key.startswith("natal_"):
-                    planet_abbr = key.split("_")[1].capitalize() # e.g. "sat" -> "Sat"
-                    # Special cases for combined logic
-                    if key == "natal_ven_mer":
-                        if natal_pos.get("Venus") not in val and natal_pos.get("Mercury") not in val:
-                            match = False
-                    elif key == "natal_jup_mon":
+                
+                is_natal = key.startswith("natal_")
+                is_annual = key.startswith("annual_")
+                
+                if not (is_natal or is_annual):
+                    if key == "ven_mer_return":
+                        v_return = (annual_pos.get("Venus") == natal_pos.get("Venus"))
+                        m_return = (annual_pos.get("Mercury") == natal_pos.get("Mercury"))
+                        if (v_return or m_return) != val: match = False
+                    continue
+
+                pos = natal_pos if is_natal else annual_pos
+                sub_key = key.replace("natal_", "").replace("annual_", "")
+                
+                # Handle complex combined keys
+                if sub_key == "ven_mer":
+                    if pos.get("Venus") not in val and pos.get("Mercury") not in val: match = False
+                elif sub_key == "jup_mon":
+                    if isinstance(val, bool):
+                        if (pos.get("Jupiter") == pos.get("Moon")) != val: match = False
+                    else:
+                        if pos.get("Jupiter") not in val or pos.get("Moon") not in val: match = False
+                elif sub_key == "sun_sat":
+                    if (pos.get("Sun") == pos.get("Saturn")) != val: match = False
+                elif sub_key == "mer_mon":
+                    if pos.get("Mercury") not in val or pos.get("Moon") not in val: match = False
+                elif sub_key == "jup_sat":
+                    if pos.get("Jupiter") not in val or pos.get("Saturn") not in val: match = False
+                elif sub_key == "ven_mer_conjoined":
+                    if (pos.get("Venus") == pos.get("Mercury")) != val: match = False
+                elif sub_key == "mon_ven_conjoined":
+                    if (pos.get("Moon") == pos.get("Venus")) != val: match = False
+                elif sub_key == "2_7_blank":
+                    occupied = list(pos.values())
+                    if (2 not in occupied and 7 not in occupied) != val: match = False
+                elif sub_key == "8_empty":
+                    if (8 not in pos.values()) != val: match = False
+                elif sub_key == "mer_alone":
+                    h = pos.get("Mercury")
+                    if h not in val: match = False
+                    elif sum(1 for p, house in pos.items() if house == h) > 1: match = False
+                elif sub_key == "sun_mon_mer_conjoined":
+                    h = pos.get("Mercury")
+                    if h not in val: match = False
+                    elif pos.get("Sun") != h or pos.get("Moon") != h: match = False
+                elif sub_key == "enemies_in_2_7":
+                    enemies = [pos.get("Sun"), pos.get("Moon"), pos.get("Rahu")]
+                    has_enemies = any(e in [2, 7] for e in enemies)
+                    if has_enemies != val: match = False
+                elif sub_key == "ket_sat_rah":
+                    k = pos.get("Ketu"); s = pos.get("Saturn"); r = pos.get("Rahu")
+                    if k not in val or (s not in val and r not in val): match = False
+                elif sub_key == "rah_mon_sun":
+                    if pos.get("Rahu") not in val and pos.get("Moon") not in val and pos.get("Sun") not in val: match = False
+                else:
+                    # Standard single planet house check
+                    abbr = sub_key.capitalize()
+                    p_name = self.PLANET_MAP.get(abbr)
+                    if p_name:
                         if isinstance(val, bool):
-                            if (natal_pos.get("Jupiter") == natal_pos.get("Moon")) != val: match = False
-                        else:
-                            if natal_pos.get("Jupiter") not in val or natal_pos.get("Moon") not in val: match = False
-                    elif key == "natal_sun_sat":
-                        if (natal_pos.get("Sun") == natal_pos.get("Saturn")) != val: match = False
-                    elif key == "natal_mer_mon":
-                        if natal_pos.get("Mercury") not in val or natal_pos.get("Moon") not in val: match = False
-                    elif key == "natal_jup_sat":
-                        if natal_pos.get("Jupiter") not in val or natal_pos.get("Saturn") not in val: match = False
-                    elif key == "natal_2_7_blank":
-                        occupied = list(natal_pos.values())
-                        if (2 not in occupied and 7 not in occupied) != val: match = False
-                    else:
-                        planet_map = {"Sat": "Saturn", "Ket": "Ketu", "Mer": "Mercury", "Mon": "Moon", "Jup": "Jupiter", "Sun": "Sun", "Rah": "Rahu"}
-                        if planet_abbr in planet_map:
-                            p = planet_map[planet_abbr]
-                            if isinstance(val, bool):
-                                if (p in natal_pos) != val: match = False
-                            elif natal_pos.get(p) not in val:
-                                match = False
-                                
-                if key.startswith("annual_"):
-                    planet_abbr = key.split("_")[1].capitalize()
-                    
-                    if key == "annual_ven_mer":
-                        if annual_pos.get("Venus") not in val and annual_pos.get("Mercury") not in val:
-                            match = False
-                    elif key == "annual_ven_mer_conjoined":
-                        if (annual_pos.get("Venus") == annual_pos.get("Mercury")) != val: match = False
-                    elif key == "annual_enemies_in_2_7":
-                        enemies = [annual_pos.get("Sun"), annual_pos.get("Moon"), annual_pos.get("Rahu")]
-                        has_enemies = any(e in [2, 7] for e in enemies)
-                        if has_enemies != val: match = False
-                    elif key == "annual_jup_ven":
-                        if annual_pos.get("Jupiter") not in val and annual_pos.get("Venus") not in val: match = False
-                    elif key == "annual_ket_sat_rah":
-                        k = annual_pos.get("Ketu")
-                        s = annual_pos.get("Saturn")
-                        r = annual_pos.get("Rahu")
-                        if k not in val or (s not in val and r not in val): match = False
-                    elif key == "annual_jup_mon":
-                        if annual_pos.get("Jupiter") not in val or annual_pos.get("Moon") not in val: match = False
-                    elif key == "annual_jup_sat":
-                        if annual_pos.get("Jupiter") not in val or annual_pos.get("Saturn") not in val: match = False
-                    elif key == "annual_mon_ven_conjoined":
-                        if (annual_pos.get("Moon") == annual_pos.get("Venus")) != val: match = False
-                    elif key == "annual_mer_alone":
-                        mer_house = annual_pos.get("Mercury")
-                        if mer_house not in val:
-                            match = False
-                        else:
-                            count = sum(1 for p, h in annual_pos.items() if h == mer_house)
-                            if count > 1: match = False
-                    elif key == "annual_sun_mon_mer_conjoined":
-                        mer_h = annual_pos.get("Mercury")
-                        if mer_h not in val:
-                            match = False
-                        elif annual_pos.get("Sun") != mer_h and annual_pos.get("Moon") != mer_h:
-                            match = False
-                    elif key == "annual_sun_sat":
-                        if annual_pos.get("Sun") not in val or annual_pos.get("Saturn") not in val: match = False
-                    elif key == "annual_rah_mon_sun":
-                        if annual_pos.get("Rahu") not in val and annual_pos.get("Moon") not in val and annual_pos.get("Sun") not in val: match = False
-                    elif key == "annual_8_empty":
-                        if (8 not in annual_pos.values()) != val: match = False
-                    else:
-                        planet_map = {"Sat": "Saturn", "Ket": "Ketu", "Mer": "Mercury", "Mon": "Moon", "Jup": "Jupiter", "Sun": "Sun", "Rah": "Rahu", "Ven": "Venus", "Mar": "Mars"}
-                        if planet_abbr in planet_map:
-                            if annual_pos.get(planet_map[planet_abbr]) not in val:
-                                match = False
-                                
-                if key == "ven_mer_return":
-                    v_return = (annual_pos.get("Venus") == natal_pos.get("Venus"))
-                    m_return = (annual_pos.get("Mercury") == natal_pos.get("Mercury"))
-                    if (v_return or m_return) != val:
-                        match = False
+                            if (p_name in pos) != val: match = False
+                        elif pos.get(p_name) not in val: match = False
+            # ────────────────────────────────────────────────────────────────
             
             if match:
+                # C-1 FIX: Work on a shallow copy so the shared module-level constant
+                # VARSHPHAL_TIMING_TRIGGERS is never mutated between calls.
+                matched_rule = dict(rule)
+
                 # Extract primary planets involved
                 primary_planets = set()
-                planet_map = {"Sat": "Saturn", "Ket": "Ketu", "Mer": "Mercury", "Mon": "Moon", "Jup": "Jupiter", "Sun": "Sun", "Rah": "Rahu", "Ven": "Venus", "Mar": "Mars"}
                 for key in rule.keys():
                     if key.startswith("natal_") or key.startswith("annual_"):
                         for part in key.split("_"):
                             abbr = part.capitalize()
-                            if abbr in planet_map:
-                                primary_planets.add(planet_map[abbr])
+                            if abbr in self.PLANET_MAP:
+                                primary_planets.add(self.PLANET_MAP[abbr])
                     elif key == "ven_mer_return":
                         primary_planets.update(["Venus", "Mercury"])
-                        
+
                 is_blocked = False
                 is_premature = False
                 sustenance_factor = 1.0
                 complex_states = {}
-                
+
                 for p in primary_planets:
                     h = annual_pos.get(p)
                     if h:
-                        # Use DormancyEngine for complex state
-                        state = self.dormancy_engine.get_complex_state(p, h, annual_pos)
+                        # Use UnifiedAstrologicalContext for complex state
+                        state = context.get_complex_state(p)
                         complex_states[p] = state
-                        
-                        if not state["is_awake"]:
+
+                        if not state.is_awake:
                             is_blocked = True
-                            rule["desc"] = f"[SUPPRESSED: DORMANT] {rule.get('desc')}"
+                            matched_rule["desc"] = f"[SUPPRESSED: DORMANT] {matched_rule.get('desc')}"
                             break
-                        
+
                         # 180-Degree enemy block
-                        if self._has_180_degree_block(p, h, annual_pos):
+                        if context.has_180_degree_block(p):
                             is_blocked = True
-                            rule["desc"] = f"[SUPPRESSED: 180-DEG ENEMY] {rule.get('desc')}"
+                            matched_rule["desc"] = f"[SUPPRESSED: 180-DEG ENEMY] {matched_rule.get('desc')}"
                             break
-                        
+
                         # Apply sustenance factor (Leakage Principle)
                         # We take the minimum sustenance among involved planets for safety
-                        sustenance_factor = min(sustenance_factor, state["sustenance_factor"])
-                        
-                        if state["is_startled"]:
-                            rule["desc"] = f"[STARTLED] {rule.get('desc')}"
-                            
+                        sustenance_factor = min(sustenance_factor, state.sustenance_factor)
+
+                        if state.is_startled:
+                            matched_rule["desc"] = f"[STARTLED] {matched_rule.get('desc')}"
+
                 for p in primary_planets:
-                    if not self._check_maturity_age(p, age):
+                    if not context.check_maturity_age(p):
                         is_premature = True
-                        rule["desc"] = f"[PREMATURE: {p} < Maturity] {rule.get('desc')}"
-                        
-                rule["is_blocked"] = is_blocked
-                rule["is_premature"] = is_premature
-                rule["sustenance_factor"] = sustenance_factor
-                matches.append(rule)
+                        matched_rule["desc"] = f"[PREMATURE: {p} < Maturity] {matched_rule.get('desc')}"
+
+                matched_rule["is_blocked"] = is_blocked
+                matched_rule["is_premature"] = is_premature
+                matched_rule["sustenance_factor"] = sustenance_factor
+                matches.append(matched_rule)
                 
         return matches
 
-    def get_timing_confidence(self, natal_chart: Dict[str, Any], annual_chart: Dict[str, Any], age: int, domain: str) -> Dict[str, Any]:
+    def get_timing_confidence(self, context: UnifiedAstrologicalContext, domain: str) -> Dict[str, Any]:
         """
         Main entry point. Assembles age gates, special destruction, and Varshphal triggers.
         Returns a confidence score and metadata.
         """
-        is_prohibited, reason = self.check_age_gates(natal_chart, age, domain)
+        is_prohibited, reason = self.check_age_gates(context, domain)
         if is_prohibited:
             return {
                 "confidence": "None",
@@ -297,8 +318,11 @@ class VarshphalTimingEngine:
                 "warnings": []
             }
             
-        warnings = self.evaluate_special_destruction(natal_chart, annual_chart)
-        triggers = self.evaluate_varshphal_triggers(natal_chart, annual_chart, age, domain)
+        warnings = self.evaluate_special_destruction(context)
+        geometric_triggers = self.evaluate_varshphal_triggers(context, domain)
+        rashi_phal_triggers = self.evaluate_rashi_phal_triggers(context, domain)
+        
+        triggers = geometric_triggers + rashi_phal_triggers
         
         valid_triggers = [t for t in triggers if not t.get("is_blocked")]
         
@@ -319,6 +343,17 @@ class VarshphalTimingEngine:
         if has_leakage and confidence == "High":
             confidence = "Medium"
             
+        # ── SYSTEM FRICTION (LEADGER TRAUMA) ─────────────────────────────
+        # If the cumulative trauma in the ledger is high, reduce confidence.
+        friction_signal = None
+        if context.ledger:
+            # Average leakage across all 9 planets
+            net_multiplier = sum(context.ledger.get_leakage_multiplier(p) for p in context.ledger.planets) / 9.0
+            if net_multiplier < 0.5:
+                confidence = "Low"
+                friction_signal = f"SYSTEM FRICTION: High cumulative trauma (Net: {net_multiplier:.2f})"
+        # ─────────────────────────────────────────────────────────────
+            
         # Add sustenance warnings
         for t in valid_triggers:
             sf = t.get("sustenance_factor", 1.0)
@@ -330,11 +365,15 @@ class VarshphalTimingEngine:
             if t.get("is_premature"):
                 warnings.append(f"Premature Activation Trap: {t['desc']}")
             
+        if friction_signal:
+            warnings.append(friction_signal)
+            
         return {
             "confidence": confidence,
             "prohibited": False,
-            "reason": f"Age gates passed. Effective Trigger Score: {effective_count:.2f}",
+            "reason": f"Age gates passed. Effective Trigger Score: {effective_count:.2f}" + (f" | {friction_signal}" if friction_signal else ""),
             "triggers": [t["desc"] for t in valid_triggers],
             "warnings": warnings,
-            "raw_matches": valid_triggers
+            "raw_matches": valid_triggers,
+            "friction_signal": friction_signal
         }
