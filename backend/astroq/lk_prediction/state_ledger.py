@@ -21,6 +21,8 @@ class PlanetaryState:
     is_leaking: bool = False
     is_burst: bool = False
     remedy_nexus: Optional[RemedyNexus] = None
+    scapegoat_hit_count: int = 0
+    SCAPEGOAT_EXHAUSTION_THRESHOLD: int = 3
 
 class StateLedger:
     def __init__(self):
@@ -75,6 +77,21 @@ class StateLedger:
             return nexus.recoil_multiplier
             
         return 1.0
+
+    def record_scapegoat_hit(self, scapegoat_planet: str) -> None:
+        """Records absorbed scapegoat hit + minor trauma (0.3 pts)."""
+        base = scapegoat_planet.replace("Masnui ", "") if scapegoat_planet.startswith("Masnui ") else scapegoat_planet
+        if base in self.planets:
+            self.planets[base].scapegoat_hit_count += 1
+            self.apply_trauma(base, 0.3)
+
+    def is_scapegoat_exhausted(self, scapegoat_planet: str) -> bool:
+        """True if scapegoat absorbed >= SCAPEGOAT_EXHAUSTION_THRESHOLD hits."""
+        base = scapegoat_planet.replace("Masnui ", "") if scapegoat_planet.startswith("Masnui ") else scapegoat_planet
+        state = self.planets.get(base)
+        if not state:
+            return False
+        return state.scapegoat_hit_count >= state.SCAPEGOAT_EXHAUSTION_THRESHOLD
 
     def _update_thresholds(self, planet: str):
         """Updates Leaking and Burst status based on cumulative trauma and dynamic thresholds."""
