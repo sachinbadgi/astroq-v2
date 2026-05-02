@@ -13,6 +13,8 @@ from astroq.lk_prediction.config import ModelConfig
 from astroq.lk_prediction.grammar_analyser import GrammarAnalyser
 from astroq.lk_prediction.strength_engine import StrengthEngine
 from astroq.lk_prediction.rules_engine import RulesEngine
+from astroq.lk_prediction.astrological_context import UnifiedAstrologicalContext
+from astroq.lk_prediction.data_contracts import EnrichedChart
 
 @pytest.fixture
 def env_setup(tmp_path):
@@ -177,10 +179,11 @@ class TestGrammarDepth:
                 "Sun": {"house": 4}
             }
         }
-        hits = rules_engine.evaluate_chart(chart)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart))
+        hits = rules_engine.evaluate_chart(context)
         hit_ids = [h.rule_id for h in hits]
         assert "RULE_SUN_H4" in hit_ids
-        
+
         # Scenario for RULE_TAK_MOON_VEN (Confrontation)
         # We need aspects to trigger confrontation in RuleEngine
         chart_confront = {
@@ -189,7 +192,8 @@ class TestGrammarDepth:
                 "Venus": {"house": 7}
             }
         }
-        hits_cf = rules_engine.evaluate_chart(chart_confront)
+        context_cf = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_confront))
+        hits_cf = rules_engine.evaluate_chart(context_cf)
         hit_ids_cf = [h.rule_id for h in hits_cf]
         assert "RULE_TAK_MOON_VEN" in hit_ids_cf
 
@@ -198,6 +202,7 @@ class TestGrammarDepth:
         cfg, _, _, rules_engine = env_setup
         # Place Sun in House 5 (Rule is for House 4)
         chart = {"planets_in_houses": {"Sun": {"house": 5}}}
-        hits = rules_engine.evaluate_chart(chart)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart))
+        hits = rules_engine.evaluate_chart(context)
         hit_ids = [h.rule_id for h in hits]
         assert "RULE_SUN_H4" not in hit_ids

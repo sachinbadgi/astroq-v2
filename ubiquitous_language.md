@@ -25,5 +25,9 @@ This document defines the core terminology used across the AstroQ-v2 codebase an
 | **Shifting Option** | A specific house/planet combination proposed as a remedy. | System | `ShiftingOption` contract |
 | **Sudden Strike** | A specific clash (Takkar) between houses (e.g., 1/8, 2/12) that triggers immediate events. | Astrology | `SUDDEN_STRIKE_HOUSE_SETS` |
 | **Timing Engine** | The core logic responsible for mapping triggers to specific ages/years. | System | `VarshphalTimingEngine` |
+| **Startled State** | An explosive or sudden activation of a planet due to a specific strike (e.g., Rahu to Sun). | Astrology | `ContextualAssembler` |
+| **Awake State** | The normal, steady state of a planet that is not dormant. | Astrology | `StateLedger` |
+| **Leaking State** | A condition where a planet's energy is being drained by a malefic conjunction. | Astrology | `synthesis_vocabulary.json` |
+| **Timing Confidence** | A high-fidelity score (High/Medium/Low) determining the certainty of a predicted event occurring in a specific year. | System | `VarshphalTimingEngine` |
 | **Ubiquitous Language** | This document; the mandatory terminology for AI-Human collaboration. | Process | `ubiquitous_language.md` |
 | **Varshphal** | The Annual Chart that rotates planetary positions based on current age. | Astrology | `VarshphalTimingEngine` |

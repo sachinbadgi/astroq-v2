@@ -30,6 +30,10 @@ Usage:
     # JSON output
     python run_lk_engine.py --figure "Steve Jobs" --json
 
+    # JSON output WITH full natal chart + all 75 annual chart positions
+    python run_lk_engine.py --figure "Steve Jobs" --json --charts
+    python run_lk_engine.py --dob 1977-11-28 --tob 18:30 --place "Sangli, India" --name sachin --charts
+
     # List all known figures
     python run_lk_engine.py --list
 """
@@ -202,76 +206,7 @@ def render(name, dob, tob, place, natal, fate_entries, rule_preds,
     print(f"\n{'═'*W}\n")
 
 
-# ── Lifecycle timeline renderer ────────────────────────────────────────────────
-
-def render_lifecycle(name: str, dob: str, lifecycle_by_age: dict):
-    """
-    Print and return a string summary of the 75-year lifecycle sweep.
-    lifecycle_by_age: {age: [LKPrediction, ...]}
-    """
-    W = 112
-    lines = []
-    lines.append(f"\n{'═'*W}")
-    lines.append(f"  LAL KITAB ENGINE — 75-YEAR LIFECYCLE TIMELINE")
-    lines.append(f"  {name}  │  DOB: {dob}")
-    lines.append(f"  Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    lines.append(f"{'═'*W}")
-    lines.append(f"  {'Age':<5}  {'Domain':<16}  {'Pol':<3}  {'Mag':>5}  Prediction")
-    lines.append(f"  {'─'*5}  {'─'*16}  {'─'*3}  {'─'*5}  {'─'*70}")
-
-    for age in sorted(lifecycle_by_age.keys()):
-        preds = lifecycle_by_age[age]
-        if not preds:
-            continue
-        lines.append(f"")
-        lines.append(f"  ▸ AGE {age}")
-        for p in sorted(preds, key=lambda x: -abs(x.magnitude))[:10]:
-            pol = "+" if p.polarity == "benefic" else "−"
-            tc  = f"[{p.timing_confidence[:4].upper()}]" if p.timing_confidence else "     "
-            lines.append(
-                f"  {age:<5}  {p.domain:<16}  {pol:<3}  {p.magnitude:>5.2f}  "
-                f"{tc} {p.prediction_text[:68]}"
-            )
-
-    lines.append(f"\n{'═'*W}\n")
-    return "\n".join(lines)
-
-
-def save_lifecycle_report(name: str, dob: str, lifecycle_by_age: dict, slug: str, date_tag: str) -> str:
-    """Save lifecycle timeline to output/<slug>_lifecycle_<date>.txt"""
-    output_dir = os.path.join(ROOT, "output")
-    os.makedirs(output_dir, exist_ok=True)
-    path = os.path.join(output_dir, f"{slug}_lifecycle_{date_tag}.txt")
-
-    # Also save as JSON
-    json_path = os.path.join(output_dir, f"{slug}_lifecycle_{date_tag}.json")
-    lifecycle_json = {
-        "meta": {"name": name, "dob": dob, "generated_at": datetime.now().isoformat()},
-        "annual_charts": {
-            str(age): [
-                {
-                    "domain": p.domain,
-                    "polarity": p.polarity,
-                    "magnitude": round(p.magnitude, 3),
-                    "timing_confidence": p.timing_confidence,
-                    "text": p.prediction_text,
-                    "timing_signals": p.timing_signals,
-                }
-                for p in preds
-            ]
-            for age, preds in sorted(lifecycle_by_age.items())
-        }
-    }
-    with open(json_path, "w", encoding="utf-8") as f:
-        json.dump(lifecycle_json, f, indent=2, ensure_ascii=False)
-
-    text = render_lifecycle(name, dob, lifecycle_by_age)
-    with open(path, "w", encoding="utf-8") as f:
-        f.write(text)
-
-    return path, json_path
-
-
+# ── Auto-save ─────────────────────────────────────────────────────────────────
 
 def _safe_filename(name: str) -> str:
     """Convert a person's name to a safe filename slug."""
@@ -280,15 +215,68 @@ def _safe_filename(name: str) -> str:
     return slug
 
 
+def _build_natal_chart_json(natal: dict) -> dict:
+    """Serialise the full natal chart with per-planet detail."""
+    planets_detail = {}
+    for planet, data in natal.get("planets_in_houses", {}).items():
+        planets_detail[planet] = {
+            "house":       data.get("house"),
+            "house_natal": data.get("house_natal", data.get("house")),
+            "states":      data.get("states", []),
+        }
+    return {
+        "chart_type":   natal.get("chart_type", "Birth"),
+        "chart_system": natal.get("chart_system", "vedic"),
+        "birth_time":   natal.get("birth_time", ""),
+        "planets":      planets_detail,
+    }
+
+
+def _build_annual_charts_json(full_payload: dict) -> dict:
+    """
+    Serialise all annual charts (age 1-75) from the full payload.
+    Each entry is keyed by age and contains planet positions + period dates.
+    """
+    annual = {}
+    for age in range(1, 76):
+        key = f"chart_{age}"
+        chart = full_payload.get(key)
+        if not chart:
+            continue
+        planets = {}
+        for planet, data in chart.get("planets_in_houses", {}).items():
+            planets[planet] = {
+                "house":  data.get("house"),
+                "states": data.get("states", []),
+            }
+        annual[str(age)] = {
+            "period_start": chart.get("period_start", ""),
+            "period_end":   chart.get("period_end", ""),
+            "planets":      planets,
+        }
+    return annual
+
+
 def save_chart(
     name: str, dob: str, tob: str, place: str,
     natal: dict, fate_entries: list, rule_preds, annual_preds,
-    age, include_neither: bool
+    age, include_neither: bool,
+    full_payload: dict | None = None,
+    include_charts: bool = False,
 ):
     """
     Write the chart output to backend/output/<slug>_<date>.txt  (plain text)
     and                         backend/output/<slug>_<date>.json (structured).
     Returns the paths of the two saved files.
+
+    Parameters
+    ----------
+    full_payload : dict | None
+        The complete chart payload (chart_0 + chart_1..chart_75).  Required
+        when include_charts=True.
+    include_charts : bool
+        When True, the JSON will include ``natal_chart`` (full planet detail)
+        and ``annual_charts`` (positions for all 75 years).
     """
     output_dir = os.path.join(ROOT, "output")
     os.makedirs(output_dir, exist_ok=True)
@@ -333,6 +321,11 @@ def save_chart(
             for p in (rule_preds or [])
         ],
     }
+
+    if include_charts and full_payload:
+        out["natal_chart"]    = _build_natal_chart_json(natal)
+        out["annual_charts"]  = _build_annual_charts_json(full_payload)
+
     json_path = base + ".json"
     with open(json_path, "w", encoding="utf-8") as f:
         json.dump(out, f, indent=2, ensure_ascii=False)
@@ -361,11 +354,12 @@ Examples:
     parser.add_argument("--dob",         type=str)
     parser.add_argument("--tob",         type=str, default="12:00")
     parser.add_argument("--place",       type=str, default="New Delhi, India")
-    parser.add_argument("--age",         type=int, default=None, help="Run annual chart for this specific age")
-    parser.add_argument("--lifecycle",   action="store_true", help="Sweep all 75 annual charts and save a timeline report")
+    parser.add_argument("--age",         type=int, default=None, help="Run annual chart for this age too")
     parser.add_argument("--no-neither",  action="store_true")
     parser.add_argument("--domain-only", action="store_true", help="Skip rule engine, only domain fate view")
     parser.add_argument("--json",        action="store_true")
+    parser.add_argument("--charts",      action="store_true",
+                        help="Include full natal + annual (1-75) chart planet positions in JSON output")
     parser.add_argument("--list",        action="store_true")
     args = parser.parse_args()
 
@@ -394,7 +388,8 @@ Examples:
         tob   = input("  TOB (HH:MM)     : ").strip() or "12:00"
         place = input("  Place           : ").strip() or "New Delhi, India"
 
-    print(f"\n  Building natal chart for {name} ({dob} {tob}, {place})...")
+    print(f"\n  Building natal chart for {name} ({dob} {tob}, {place})...",
+          file=sys.stderr if args.json else sys.stdout)
     
     db_path = os.path.join(ROOT, "data", "rules.db")
     cfg_file = os.path.join(ROOT, "data", "model_defaults.json")
@@ -418,6 +413,7 @@ Examples:
         print(f"  ⚠️  Rule engine error: {results['pipeline_error']} — continuing with domain fate only.")
 
     natal = results["natal_chart"]
+    full_payload = results["full_payload"]
     fate_entries = results["fate_entries"]
     rule_preds = results["rule_predictions"]
     annual_preds = results["annual_predictions"]
@@ -444,51 +440,24 @@ Examples:
                 for p in (rule_preds or [])
             ],
         }
+        if args.charts:
+            out["natal_chart"]   = _build_natal_chart_json(natal)
+            out["annual_charts"] = _build_annual_charts_json(full_payload)
         print(json.dumps(out, indent=2))
     else:
         render(name, dob, tob, place, natal, fate_entries, rule_preds,
                annual_preds, args.age, include_neither=include_neither)
 
     # ── Auto-save (always runs, regardless of --json flag) ────────────────────
-    slug = _safe_filename(name)
-    date_tag = datetime.now().strftime("%Y-%m-%d_%H%M%S")
-
     txt_path, json_path = save_chart(
         name, dob, tob, place, natal, fate_entries, rule_preds,
-        annual_preds, args.age, include_neither=include_neither
+        annual_preds, args.age, include_neither=include_neither,
+        full_payload=full_payload,
+        include_charts=args.charts,
     )
-    print(f"  💾  Saved → {txt_path}")
-    print(f"  💾  Saved → {json_path}")
-
-    # ── Lifecycle sweep ───────────────────────────────────────────────────────
-    if args.lifecycle and not args.domain_only:
-        pipe = runner.build_pipeline()
-        if not pipe:
-            print("  ⚠️  rules.db not found — cannot run lifecycle sweep.")
-        else:
-            full_payload = results["full_payload"]
-            print(f"\n  ⏳  Running 75-year lifecycle sweep for {name}...")
-            pipe.load_natal_baseline(natal)
-            lifecycle_by_age = {}
-            for age_n in range(1, 76):
-                annual_chart = full_payload.get(f"chart_{age_n}")
-                if annual_chart:
-                    try:
-                        preds = pipe.generate_predictions(annual_chart)
-                        lifecycle_by_age[age_n] = preds or []
-                    except Exception as lc_err:
-                        lifecycle_by_age[age_n] = []
-                else:
-                    lifecycle_by_age[age_n] = []
-
-            lc_txt, lc_json = save_lifecycle_report(name, dob, lifecycle_by_age, slug, date_tag)
-            # Print summary to terminal
-            text = render_lifecycle(name, dob, lifecycle_by_age)
-            print(text)
-            print(f"  💾  Lifecycle saved → {lc_txt}")
-            print(f"  💾  Lifecycle saved → {lc_json}\n")
-    else:
-        print()
+    _out = sys.stderr if args.json else sys.stdout
+    print(f"  [saved]  {txt_path}", file=_out)
+    print(f"  [saved]  {json_path}\n", file=_out)
 
 
 if __name__ == "__main__":

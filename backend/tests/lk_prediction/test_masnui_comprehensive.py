@@ -40,8 +40,10 @@ def test_masnui_formation_all_rules(analyser, parents, result_name):
     enriched = {p: {"house": 1, "strength_total": 10.0} for p in parents}
     
     # Detect Masnui
-    masnuis = analyser.detect_masnui(chart)
-    chart["masnui_grahas_formed"] = masnuis
+    from astroq.lk_prediction.grammar.modules.entanglement_module import EntanglementModule
+    ent_mod = EntanglementModule(analyser._cfg)
+    ent_mod.detect(chart)
+    masnuis = chart.get("masnui_grahas_formed", [])
     
     # Run integration
     analyser.apply_grammar_rules(chart, enriched)
@@ -64,6 +66,7 @@ def test_masnui_formation_all_rules(analyser, parents, result_name):
         has_feedback = any("Masnui Feedback" in s for s in states)
         assert has_feedback, f"Planet {p} missing feedback state. States: {states}"
         
-        # Verify that aspects were calculated for the new planet
+        # Verify that the Masnui planet was populated in enriched
         if result_name in enriched:
-            assert "aspects" in enriched[result_name]
+            assert "strength_total" in enriched[result_name]
+            assert enriched[result_name].get("is_masnui") is True

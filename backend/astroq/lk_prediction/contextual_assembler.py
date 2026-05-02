@@ -58,13 +58,26 @@ class ContextualAssembler:
         self.timing_engine = timing_engine or VarshphalTimingEngine()
 
     def assemble(
-        self, 
-        rule_hits: List[RuleHit], 
-        context: UnifiedAstrologicalContext
+        self,
+        rule_hits: List[RuleHit],
+        context: UnifiedAstrologicalContext = None,
+        **kwargs
     ) -> List[LKPrediction]:
         """
         Assembles rule hits into high-fidelity predictions with timing and remedies.
+
+        Backward-compatible: also accepts old-style (chart=..., ledger=...) kwargs.
         """
+        # Backward compat: auto-wrap old-style chart + ledger
+        if context is None:
+            from .data_contracts import EnrichedChart
+            chart = kwargs.get("chart", {})
+            ledger = kwargs.get("ledger", StateLedger())
+            context = UnifiedAstrologicalContext(
+                enriched=EnrichedChart(source=chart),
+                ledger=ledger,
+            )
+
         predictions = []
         for hit in rule_hits:
             # 1. Resolve State from Context

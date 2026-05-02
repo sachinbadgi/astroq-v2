@@ -61,6 +61,14 @@ class TestGrammarAnalyser:
         cfg = ModelConfig(db_path=tmp_db, defaults_path=tmp_defaults)
         return GrammarAnalyser(cfg)
 
+    def _make_module(self, module_cls, tmp_defaults, tmp_db):
+        from astroq.lk_prediction.config import ModelConfig
+        cfg = ModelConfig(db_path=tmp_db, defaults_path=tmp_defaults)
+        try:
+            return module_cls(cfg)
+        except TypeError:
+            return module_cls()
+
     # -- 1. Sleeping Planets --
     def test_sleeping_planet_flag_set(self, tmp_defaults, tmp_db):
         """Planets passed in as sleeping should get the flag and modifier."""
@@ -371,9 +379,10 @@ class TestGrammarAnalyser:
 
     def test_detector_dharmi_teva_true(self, tmp_defaults, tmp_db):
         """Saturn and Jupiter together in ANY house make the Kundli Dharmi."""
-        analyser = self._make_analyser(tmp_defaults, tmp_db)
+        from astroq.lk_prediction.grammar.modules.structural_module import StructuralModule
         chart = _make_minimal_chart({"Saturn": {"house": 2}, "Jupiter": {"house": 2}})
-        assert analyser.detect_dharmi_kundli(chart) is True
+        StructuralModule().detect(chart)
+        assert chart.get("dharmi_kundli_status") == "Dharmi Teva"
 
     def test_detector_sathi_exchange(self, tmp_defaults, tmp_db):
         analyser = self._make_analyser(tmp_defaults, tmp_db)
@@ -411,7 +420,6 @@ class TestGrammarAnalyser:
           - Does Sun aspect Mars? Sun(H1) → [7], Mars in H4 → H4 not in [7] → R2 fires (+1)
          = Total increments: R1+R2+R3 = 3, decrements: 0
         """
-        analyser = self._make_analyser(tmp_defaults, tmp_db)
         chart = _make_minimal_chart({
             "Mars":    {"house": 4, "aspects": [{"aspecting_planet": "Sun"}]},
             "Sun":     {"house": 1},
@@ -423,7 +431,10 @@ class TestGrammarAnalyser:
             "Ketu":    {"house": 12}, # Not H1/H8 → R6/R7 don't fire
             "Jupiter": {"house": 9},
         })
-        counter = analyser.detect_mangal_badh(chart)
+        from astroq.lk_prediction.grammar.modules.mangal_badh_module import MangalBadhModule
+        mangal_mod = self._make_module(MangalBadhModule, tmp_defaults, tmp_db)
+        mangal_mod.detect(chart)
+        counter = chart.get("mangal_badh_count", 0)
         # R1(Sun+Sat conjunct)=+1, R2(Sun no aspect Mars)=+1, R3(Moon no aspect Mars)=+1
         # Sun H1 aspects H7; Mars in H4, NOT H7 → Sun doesn't aspect Mars → R2 fires
         # Moon H5 aspects H9; Mars in H4, NOT H9 → Moon doesn't aspect Mars → R3 fires
@@ -432,7 +443,7 @@ class TestGrammarAnalyser:
 
     def test_detector_masnui_forms_combinations(self, tmp_defaults, tmp_db):
         """Test Masnui combinations (Sun+Venus=Jupiter etc) in the same house."""
-        analyser = self._make_analyser(tmp_defaults, tmp_db)
+        from astroq.lk_prediction.grammar.modules.entanglement_module import EntanglementModule
         # We test 3 configurations at once
         chart = _make_minimal_chart({
             "Sun": {"house": 5},
@@ -446,7 +457,9 @@ class TestGrammarAnalyser:
         })
         chart["house_status"] = {str(i): "Occupied" for i in [5, 7, 11]}
 
-        masnui = analyser.detect_masnui(chart)
+        ent_mod = self._make_module(EntanglementModule, tmp_defaults, tmp_db)
+        ent_mod.detect(chart)
+        masnui = chart.get("masnui_grahas_formed", [])
         # Should detect these 3 artificial planets
         assert len(masnui) == 3
         names = [m["masnui_graha_name"] for m in masnui]
@@ -460,8 +473,8 @@ class TestGrammarAnalyser:
         assert jup_formation["formed_in_house"] == 5
 
     def test_detector_dhoka_graha_type_1_age_based(self, tmp_defaults, tmp_db):
-        analyser = self._make_analyser(tmp_defaults, tmp_db)
-        
+        from astroq.lk_prediction.grammar.modules.interaction_module import InteractionModule
+
         # Age 1 (target_age = 1 -> index 0 config). Sequence: Sun, Moon, Ketu...
         # Sun is target
         chart = _make_minimal_chart({
@@ -470,49 +483,58 @@ class TestGrammarAnalyser:
         })
         chart["chart_type"] = "Yearly"
         chart["chart_period"] = 1
-        
-        # In the real legacy system, Type 1 returns a single string like "Sun"
-        # We wrapped it into a unified dictionary structure
-        res = analyser.detect_dhoka(chart)
+
+        int_mod = self._make_module(InteractionModule, tmp_defaults, tmp_db)
+        hits = int_mod.detect(chart)
+        dhoka_hits = [h for h in hits if h.rule_id == "DHOKA"]
+        res = [h.metadata for h in dhoka_hits]
         type1s = [d for d in res if d["type"] == 1]
         assert len(type1s) == 1
         assert type1s[0]["planet"] == "Sun"
 
     def test_detector_dhoka_graha_type_4_annual_h10(self, tmp_defaults, tmp_db):
-        analyser = self._make_analyser(tmp_defaults, tmp_db)
-        # Type 4: Look at Annual H10. 
+        from astroq.lk_prediction.grammar.modules.interaction_module import InteractionModule
+        # Type 4: Look at Annual H10.
         # If Saturn is in H10, and enemy is in H8, it's Manda.
         chart = _make_minimal_chart({
             "Saturn": {"house": 10},
             "Mars": {"house": 8} # Mars is enemy of Saturn -> Manda (Enemy in H8)
         })
         chart["chart_type"] = "Yearly"
-        res = analyser.detect_dhoka(chart)
+        int_mod = self._make_module(InteractionModule, tmp_defaults, tmp_db)
+        hits = int_mod.detect(chart)
+        dhoka_hits = [h for h in hits if h.rule_id == "DHOKA"]
+        res = [h.metadata for h in dhoka_hits]
         type4s = [d for d in res if d["type"] == 4]
         assert len(type4s) == 1
         assert type4s[0]["planet"] == "Saturn"
         assert "Manda" in type4s[0]["effect"]
 
     def test_detector_achanak_chot(self, tmp_defaults, tmp_db):
-        analyser = self._make_analyser(tmp_defaults, tmp_db)
+        from astroq.lk_prediction.grammar.modules.interaction_module import InteractionModule
         # Potential pairs: {1, 3}, {2, 4}, {4, 6}, {5, 7}, {7, 9}, {8, 10}, {10, 12}, {1, 11}
         # Birth chart pairs: Mars H1, Venus H3 -> valid potential pair {1,3}
         birth_chart = _make_minimal_chart({
             "Mars": {"house": 1},
             "Venus": {"house": 3}
         })
-        
+
         # Annual chart: same planets aspecting each other at 100%
         annual_chart = _make_minimal_chart({
             "Mars": {"house": 4, "aspects": [{"aspecting_planet": "Venus", "aspect_type": "100 Percent"}]},
             "Venus": {"house": 10, "aspects": []} # Only need one direction to trigger
         })
         annual_chart["chart_type"] = "Yearly"
-        
+
         # Pass birth chart in as a mock context
         annual_chart["_mock_birth_chart"] = birth_chart # Simplified passing for the detector test
 
-        res = analyser.detect_achanak_chot_triggers(annual_chart)
+        int_mod = self._make_module(InteractionModule, tmp_defaults, tmp_db)
+        hits = int_mod.detect(annual_chart)
+        res = [
+            {"planets": h.affected_planets, **h.metadata}
+            for h in hits if h.rule_id == "ACHANAK_CHOT"
+        ]
         # Should be exactly 1 trigger
         assert len(res) == 1
         assert set(res[0]["planets"]) == {"Mars", "Venus"}
@@ -548,42 +570,50 @@ class TestGrammarAnalyser:
 
     def test_detector_rin_pitri(self, tmp_defaults, tmp_db):
         """Ancestral Debt (Pitra Rin): Venus/Mercury/Rahu in 2/5/9/12."""
-        analyser = self._make_analyser(tmp_defaults, tmp_db)
+        from astroq.lk_prediction.grammar.modules.debt_module import DebtModule
         chart = _make_minimal_chart({
             "Venus": {"house": 2},
             "Sun": {"house": 1}
         })
-        res = analyser.detect_rin(chart)
+        debt_mod = self._make_module(DebtModule, tmp_defaults, tmp_db)
+        debt_mod.detect(chart)
+        res = chart.get("lal_kitab_debts", [])
         assert any(d["debt_name"] == "Ancestral Debt (Pitra Rin)" for d in res)
 
     def test_detector_rin_stri(self, tmp_defaults, tmp_db):
         """Stri Rin: Sun/Rahu/Ketu in 2/7."""
-        analyser = self._make_analyser(tmp_defaults, tmp_db)
+        from astroq.lk_prediction.grammar.modules.debt_module import DebtModule
         chart = _make_minimal_chart({
             "Sun": {"house": 7},
             "Jupiter": {"house": 1}
         })
-        res = analyser.detect_rin(chart)
+        debt_mod = self._make_module(DebtModule, tmp_defaults, tmp_db)
+        debt_mod.detect(chart)
+        res = chart.get("lal_kitab_debts", [])
         assert any(d["debt_name"] == "Family/Wife/Woman Debt (Stri Rin)" for d in res)
 
     def test_detector_disposition_sun_saturn(self, tmp_defaults, tmp_db):
         """Sun-Saturn conflict affecting Venus (if aspects exist)."""
-        analyser = self._make_analyser(tmp_defaults, tmp_db)
+        from astroq.lk_prediction.grammar.modules.interaction_module import InteractionModule
         # H1 aspects H7 (100% aspect)
         chart = _make_minimal_chart({
             "Sun": {"house": 1, "aspects": [{"aspecting_planet": "Saturn", "aspect_type": "100 Percent"}]},
             "Saturn": {"house": 7, "aspects": [{"aspecting_planet": "Sun", "aspect_type": "100 Percent"}]}
         })
-        res = analyser.detect_dispositions(chart)
+        int_mod = self._make_module(InteractionModule, tmp_defaults, tmp_db)
+        hits = int_mod.detect(chart)
+        res = [h.metadata for h in hits if h.rule_id == "DISPOSITION"]
         assert any("Sun(H1)-Saturn(H7) Conflict" in r["rule_name"] for r in res)
 
     def test_detector_disposition_mercury_destructive(self, tmp_defaults, tmp_db):
         """Mercury in H3 destroys H9/H11."""
-        analyser = self._make_analyser(tmp_defaults, tmp_db)
+        from astroq.lk_prediction.grammar.modules.interaction_module import InteractionModule
         chart = _make_minimal_chart({
             "Mercury": {"house": 3},
             "Jupiter": {"house": 9}
         })
-        res = analyser.detect_dispositions(chart)
+        int_mod = self._make_module(InteractionModule, tmp_defaults, tmp_db)
+        hits = int_mod.detect(chart)
+        res = [h.metadata for h in hits if h.rule_id == "DISPOSITION"]
         assert any("Mercury(H3) Destructive" in r["rule_name"] for r in res)
 

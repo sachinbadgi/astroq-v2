@@ -203,8 +203,37 @@ class NatalFateView:
             else:
                 dignity_details[planet] = f"Off-domain H{house}"
 
-        # Step 3: are primary houses occupied at all?
+        # Step 3: check for structural activity
         primary_occupied = any(h in occupied_positions for h in primary_houses)
+        any_key_planet_present = any(p in positions for p in key_planets)
+
+        # Step 3.5: Conjunction bonus — multiple key planets co-located in primary houses
+        # amplify the signal strength and can upgrade the classification.
+        key_planets_in_primary = [
+            p for p in key_planets
+            if p in positions and positions[p] in primary_houses
+        ]
+        if len(key_planets_in_primary) >= 2:
+            conjunction_house = positions[key_planets_in_primary[0]]
+            if all(positions[p] == conjunction_house for p in key_planets_in_primary):
+                gp_signals.append(
+                    f"Conjunction: {', '.join(key_planets_in_primary)} co-located in H{conjunction_house} — amplified signal"
+                )
+
+        # Step 3.6: Domain-specific supporting-house dignity boost
+        # For marriage, Venus or Mercury in H2 (supporting house) with dignity
+        # is a strong enough signal to count toward GRAHA_PHAL independently.
+        if entry["domain"] == "marriage":
+            for planet in ["Venus", "Mercury"]:
+                house = positions.get(planet)
+                if house is not None and house in supporting_houses:
+                    if (PLANET_PAKKA_GHAR.get(planet) == house or
+                        house in PLANET_EXALTATION.get(planet, []) or
+                        house in PUCCA_GHARS_EXTENDED.get(planet, [])):
+                        if not any(planet in s for s in gp_signals):
+                            gp_signals.append(
+                                f"{planet} in supporting H{house} with dignity — marriage domain boost"
+                            )
 
         # Step 4: classify
         if gp_signals and not rp_penalties:
@@ -213,12 +242,14 @@ class NatalFateView:
         elif gp_signals and rp_penalties:
             fate_type = "HYBRID"
             evidence = gp_signals + rp_penalties + ["Mixed dignity — promise exists but conditional guard active"]
-        elif primary_occupied:
+        elif primary_occupied or any_key_planet_present:
             fate_type = "RASHI_PHAL"
             evidence = [entry["rp_condition"]] + rp_penalties
+            if any_key_planet_present and not primary_occupied:
+                evidence.append(f"Karaka planet {key_planets} present in chart but not in primary houses {primary_houses}. Fate is conditional (Rashi Phal).")
         else:
             fate_type = "NEITHER"
-            evidence = [f"No planet in primary houses {primary_houses} or key planets absent"]
+            evidence = [f"No planet in primary houses {primary_houses} and all key planets {key_planets} absent from chart"]
 
         # Step 4.5: Check for Dormancy (Soyi Hui)
         # If any planet in primary houses or key_planets is dormant, add to evidence
@@ -227,7 +258,7 @@ class NatalFateView:
         for planet in key_planets:
             if planet in positions:
                 state = self.dormancy_engine.get_complex_state(planet, positions[planet], natal_chart)
-                if not state["is_awake"]:
+                if not state.is_awake:
                     is_any_dormant = True
                     dormant_planets.append(planet)
         
@@ -264,8 +295,13 @@ class NatalFateView:
             if planet in ("Lagna", "Asc"):
                 continue
             h = data.get("house")
-            if h:
-                out[planet] = h
+            if isinstance(h, list) and len(h) > 0:
+                h = h[0]
+            if h is not None:
+                try:
+                    out[planet] = int(h)
+                except ValueError:
+                    pass
         return out
 
     @staticmethod

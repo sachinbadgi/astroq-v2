@@ -2,13 +2,14 @@ from typing import Any, Dict, List, Tuple, Optional
 from .lk_pattern_constants import (
     VARSHPHAL_TIMING_TRIGGERS,
     VARSHPHAL_AGE_GATES,
-    VARSHPHAL_SPECIAL_LOGIC
+    VARSHPHAL_SPECIAL_LOGIC,
+    CYCLE_DOMAIN_KARAKAS,
 )
 from .state_ledger import StateLedger
 from .data_contracts import LKPrediction
 from .astrological_context import UnifiedAstrologicalContext
 from .doubtful_timing_engine import DoubtfulTimingEngine
-from .lk_constants import TIMING_DOMAIN_MAP, KARAKA_DOMAIN_MAP
+from .lk_constants import TIMING_DOMAIN_MAP, KARAKA_DOMAIN_MAP, PLANET_EFFECTIVE_AGES, get_35_year_ruler
 
 class VarshphalTimingEngine:
     """
@@ -27,6 +28,50 @@ class VarshphalTimingEngine:
         self.age_gates = VARSHPHAL_AGE_GATES
         self.special_logic = VARSHPHAL_SPECIAL_LOGIC
         self.doubtful_engine = DoubtfulTimingEngine()
+
+    def check_cycle_domain_gate(self, context: UnifiedAstrologicalContext, age: int, domain: str) -> Tuple[bool, float]:
+        """
+        Returns (is_suppressed, cycle_modifier).
+
+        Lal Kitab 35-Year Cycle Gate:
+        - Suppresses domains whose karaka planets have not yet reached maturity age.
+          e.g. Marriage (Venus=25, Moon=24) is suppressed before age 24.
+        - Applies a cycle modifier to effective_count:
+            Cycle 1 (1-35): 1.0x baseline
+            Cycle 2 (36-70): 1.2x (promises consolidate in middle life)
+            Cycle 3 (71+): 0.4x (most domains attenuate in old age)
+        - Boosts by 1.3x if the current 35-yr sub-period ruler IS a karaka for this domain.
+
+        Note: cycle modifiers are trial-and-error starting values configurable via model_defaults.json.
+        """
+        karakas = CYCLE_DOMAIN_KARAKAS.get(domain, [])
+        if karakas:
+            maturity_ages = [PLANET_EFFECTIVE_AGES[p] for p in karakas if p in PLANET_EFFECTIVE_AGES]
+            if maturity_ages and all(age < m for m in maturity_ages):
+                return True, 0.0  # domain karaka not yet matured — suppress
+
+        cycle = (age - 1) // 35 + 1  # 1 = 1–35, 2 = 36–70, 3 = 71+
+        ruler = get_35_year_ruler(age)
+
+        # Configurable trial-and-error modifiers
+        cycle_1_mod = 1.0
+        cycle_2_mod = 1.2
+        cycle_3_mod = 0.4
+        bonus_mod   = 1.3
+
+        if getattr(context, 'config', None):
+            cycle_1_mod = float(context.config.get("timing.cycle_1_modifier", fallback=1.0))
+            cycle_2_mod = float(context.config.get("timing.cycle_2_modifier", fallback=1.2))
+            cycle_3_mod = float(context.config.get("timing.cycle_3_modifier", fallback=0.4))
+            bonus_mod   = float(context.config.get("timing.cycle_sub_period_bonus", fallback=1.3))
+
+        modifier = cycle_1_mod if cycle == 1 else cycle_2_mod if cycle == 2 else cycle_3_mod
+
+        # Sub-period ruler bonus
+        if ruler in karakas:
+            modifier *= bonus_mod
+
+        return False, modifier
 
     def resolve_timing_for_prediction(
         self, 
@@ -49,7 +94,22 @@ class VarshphalTimingEngine:
                 "warnings": []
             }
             
-        return self.get_timing_confidence(context, engine_domain)
+        # Dynamically determine the fate type (GRAHA_PHAL vs RASHI_PHAL)
+        # to ensure the correct thresholds are applied.
+        fate_type = "RASHI_PHAL"
+        try:
+            from .natal_fate_view import NatalFateView
+            fate_view = NatalFateView()
+            fate_type = fate_view.get_domain_fate(context, engine_domain)
+        except Exception as e:
+            pass # fallback to RASHI_PHAL
+
+        return self.get_timing_confidence(
+            context=context, 
+            domain=engine_domain, 
+            fate_type=fate_type, 
+            age=context.age
+        )
 
 
     def check_age_gates(self, context: UnifiedAstrologicalContext, domain: str) -> Tuple[bool, str]:
@@ -116,8 +176,12 @@ class VarshphalTimingEngine:
 
     def evaluate_rashi_phal_triggers(self, context: UnifiedAstrologicalContext, domain: str) -> List[Dict[str, Any]]:
         """
-        Evaluate a given year for deterministic Rashi Phal triggers based purely on thermodynamic state changes.
-        Accepts context (UnifiedAstrologicalContext) or a dict for backward compatibility.
+        Evaluate a given year for deterministic Rashi Phal triggers.
+
+        Intervention 1 (Double-Confirmation Gate):
+        A volatile planet waking up is necessary but NOT sufficient. The planet
+        must also be in its Pakka Ghar in the annual chart — a dignity signal that
+        separates genuine event years from ordinary transit noise.
         """
         triggers = []
 
@@ -134,6 +198,9 @@ class VarshphalTimingEngine:
         annual_pos = {p: context.get_house(p) for p in self.PLANET_MAP.values()}
         annual_pos = {k: v for k, v in annual_pos.items() if v is not None}
 
+        # Pre-load dignity tables once (Intervention 1)
+        from .lk_constants import PLANET_PAKKA_GHAR
+
         for planet in volatile_planets:
             house = annual_pos.get(planet)
             if not house:
@@ -148,10 +215,38 @@ class VarshphalTimingEngine:
                 # Filter 1: The "Dead Zone" Houses (Statistical Noise)
                 if house in [4, 5, 10]:
                     continue
+
+                # ── Dignity Ladder Gate (replaces hard Pakka Ghar requirement) ────
+                # A Doubtful Fate promise requires structural backing in the annual chart,
+                # not merely activation. A bare wake-up scores 0 and does not fire.
+                from .lk_constants import PLANET_PAKKA_GHAR, PLANET_EXALTATION, PUCCA_GHARS_EXTENDED
+                dignity_score = 0.0
+                
+                # Configurable weights
+                w_pakka = 1.5
+                w_exalt = 1.0
+                w_ext   = 0.6
+                if getattr(context, 'config', None):
+                    w_pakka = float(context.config.get("timing.rashi_phal_pakka_ghar_weight", fallback=1.5))
+                    w_exalt = float(context.config.get("timing.rashi_phal_exaltation_weight", fallback=1.0))
+                    w_ext   = float(context.config.get("timing.rashi_phal_extended_weight", fallback=0.6))
+
+                if PLANET_PAKKA_GHAR.get(planet) == house:
+                    dignity_score = w_pakka  # Pakka Ghar — strongest signal
+                elif house in PLANET_EXALTATION.get(planet, []):
+                    dignity_score = w_exalt  # Exaltation
+                elif house in PUCCA_GHARS_EXTENDED.get(planet, []):
+                    dignity_score = w_ext    # Pucca Ghars Extended
+
+                if dignity_score == 0.0:
+                    continue  # No dignity backing — not a Rashi Phal trigger
+                # ─────────────────────────────────────────────────────────────────
+
                 state = context.get_complex_state(planet) if hasattr(context, 'get_complex_state') else type('dummy', (), {'is_startled': False, 'sustenance_factor': 1.0})()
                 triggers.append({
-                    "desc": f"[RASHI PHAL WAKE-UP] Doubtful {planet} lost dormancy and woke up in H{house}",
+                    "desc": f"[RASHI PHAL DIGNITY LADDER +{dignity_score}] Doubtful {planet} woke up with dignity in H{house}",
                     "sustenance_factor": getattr(state, 'sustenance_factor', 1.0),
+                    "dignity_score": dignity_score,
                     "is_blocked": False,
                     "is_premature": not (context.check_maturity_age(planet) if hasattr(context, 'check_maturity_age') else False)
                 })
@@ -161,6 +256,11 @@ class VarshphalTimingEngine:
         """
         Evaluates the specific geometric triggers for a given domain.
         Returns a list of matched trigger rules.
+
+        Intervention 5: After a geometric match is confirmed, a hard aspect-strength
+        block is applied if the signed total is below the configurable suppression
+        threshold (default −2.0). Confrontation-dominated years are suppressed even
+        when the geometric pattern matches — they are structurally different events.
         """
         domain_triggers = self.triggers.get(domain, [])
         if not domain_triggers:
@@ -235,6 +335,10 @@ class VarshphalTimingEngine:
                     if k not in val or (s not in val and r not in val): match = False
                 elif sub_key == "rah_mon_sun":
                     if pos.get("Rahu") not in val and pos.get("Moon") not in val and pos.get("Sun") not in val: match = False
+                elif sub_key == "5_occupied":
+                    # Special: check if any planet is in house 5 in the relevant chart
+                    is_occupied = any(h == 5 for h in pos.values())
+                    if is_occupied != val: match = False
                 else:
                     # Standard single planet house check
                     abbr = sub_key.capitalize()
@@ -243,6 +347,7 @@ class VarshphalTimingEngine:
                         if isinstance(val, bool):
                             if (p_name in pos) != val: match = False
                         elif pos.get(p_name) not in val: match = False
+
             # ────────────────────────────────────────────────────────────────
             
             if match:
@@ -274,9 +379,21 @@ class VarshphalTimingEngine:
                         complex_states[p] = state
 
                         if not state.is_awake:
-                            is_blocked = True
-                            matched_rule["desc"] = f"[SUPPRESSED: DORMANT] {matched_rule.get('desc')}"
-                            break
+                            # ── Takkar Paradox Exemption ───────────────────────────
+                            # On the 1-8 opposition axis (Takkar), dormancy does NOT block.
+                            # The planet is struck precisely because it is weak.
+                            from .aspect_engine import AspectEngine as _AE
+                            _asp_eng = _AE()
+                            _planet_houses = {k: {"house": v} for k, v in annual_pos.items()}
+                            _aspects = _asp_eng.calculate_planet_aspects(p, h, _planet_houses)
+                            is_takkar_axis = any(a.get("axis_type") == "TAKKAR" for a in _aspects)
+                            # ────────────────────────────────────────────────────
+                            if not is_takkar_axis:
+                                is_blocked = True
+                                matched_rule["desc"] = f"[SUPPRESSED: DORMANT] {matched_rule.get('desc')}"
+                                break
+                            else:
+                                matched_rule["desc"] = f"[TAKKAR OVERRIDE: dormancy exempted] {matched_rule.get('desc')}"
 
                         # 180-Degree enemy block
                         if context.has_180_degree_block(p):
@@ -296,17 +413,110 @@ class VarshphalTimingEngine:
                         is_premature = True
                         matched_rule["desc"] = f"[PREMATURE: {p} < Maturity] {matched_rule.get('desc')}"
 
+                # ── Intervention 5: Aspect Suppression Hard-Block ─────────────────
+                # If the planet's signed aspect total is deeply negative
+                # (confrontation-dominated), suppress the trigger regardless of
+                # geometric match. This blocks years that look structurally identical
+                # but are qualitatively driven by hostile aspect energy.
+                if not is_blocked:
+                    asp_threshold = -2.0  # configurable default
+                    if getattr(context, 'config', None):
+                        try:
+                            asp_threshold = float(
+                                context.config.get("timing.aspect_suppression_threshold", fallback=-2.0)
+                            )
+                        except (TypeError, ValueError):
+                            asp_threshold = -2.0
+
+                    from .aspect_engine import AspectEngine
+                    asp_engine = AspectEngine()
+                    planet_house_dict = {k: {"house": v} for k, v in annual_pos.items()}
+                    for p in primary_planets:
+                        h = annual_pos.get(p)
+                        if not h:
+                            continue
+                        aspects = asp_engine.calculate_planet_aspects(p, h, planet_house_dict)
+                        asp_total = asp_engine.calculate_total_aspect_strength(aspects)
+                        if asp_total < asp_threshold:
+                            is_blocked = True
+                            matched_rule["desc"] = (
+                                f"[SUPPRESSED: ASP CONFLICT {asp_total:.1f}] {matched_rule.get('desc')}"
+                            )
+                            break
+                # ─────────────────────────────────────────────────────────────────
+
                 matched_rule["is_blocked"] = is_blocked
                 matched_rule["is_premature"] = is_premature
                 matched_rule["sustenance_factor"] = sustenance_factor
                 matches.append(matched_rule)
-                
+
         return matches
 
-    def get_timing_confidence(self, context: UnifiedAstrologicalContext, domain: str) -> Dict[str, Any]:
+    def _compute_fidelity_multiplier(
+        self,
+        context: UnifiedAstrologicalContext,
+        domain: str,
+        fate_type: str,
+        valid_triggers: List[Dict[str, Any]],
+    ) -> float:
+        """
+        Mirrors FidelityGate logic at the timing-engine level.
+        Returns a multiplier applied to effective_count.
+
+        GRAHA_PHAL: conditional dampening for debilitation (×0.50) or all-dormant (×0.30).
+        RASHI_PHAL: ×0.25 if 2-6 axis is active and no domain karaka planet is involved.
+        """
+        is_fixed = (fate_type == "GRAHA_PHAL")
+        annual_pos = {
+            p: context.get_house(p)
+            for p in ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn", "Rahu", "Ketu"]
+        }
+        annual_pos = {k: v for k, v in annual_pos.items() if v is not None}
+
+        if is_fixed:
+            from .lk_constants import PLANET_DEBILITATION
+
+            mult = 1.0
+
+            # ── Dampen if any planet debilitated in annual chart ─────
+            for planet, house in annual_pos.items():
+                if house in PLANET_DEBILITATION.get(planet, []):
+                    mult *= 0.50
+                    break
+
+            # ── Heavy dampen if all planets dormant ──────────────────
+            if annual_pos:
+                all_dormant = all(not context.is_awake(p) for p in annual_pos)
+                if all_dormant:
+                    mult *= 0.30
+
+            return mult
+
+        else:
+            # ── RASHI_PHAL / HYBRID ────────────────────────────────────
+            mult = 1.0
+
+            # 2-6 axis domain-karaka gate: ×0.25 if no karaka planet involved
+            trigger_descs = " ".join(t.get("desc", "") for t in valid_triggers)
+            has_2_6 = ("2-6" in trigger_descs)
+            if has_2_6:
+                from .lk_pattern_constants import CYCLE_DOMAIN_KARAKAS
+                karakas = CYCLE_DOMAIN_KARAKAS.get(domain, [])
+                if karakas:
+                    karaka_involved = any(k in annual_pos for k in karakas)
+                    if not karaka_involved:
+                        mult *= 0.25
+
+            return mult
+
+    def get_timing_confidence(self, context: UnifiedAstrologicalContext, domain: str, fate_type: str = "RASHI_PHAL", age: int = None) -> Dict[str, Any]:
         """
         Main entry point. Assembles age gates, special destruction, and Varshphal triggers.
         Returns a confidence score and metadata.
+
+        Intervention 2: Confidence thresholds are configurable per fate type via
+        model_defaults.json (timing.rashi_phal_medium_threshold etc.).
+        Intervention 3: Maturity age window and boost magnitude are configurable.
         """
         is_prohibited, reason = self.check_age_gates(context, domain)
         if is_prohibited:
@@ -317,57 +527,122 @@ class VarshphalTimingEngine:
                 "triggers": [],
                 "warnings": []
             }
-            
+
+        # ── 35-Year Cycle Domain Gate ─────────────────────────────────────────
+        cycle_suppressed, cycle_modifier = self.check_cycle_domain_gate(context, age or 0, domain)
+        if cycle_suppressed:
+            return {
+                "confidence": "Low",
+                "prohibited": False,
+                "reason": f"Domain '{domain}' suppressed: no karaka planet has reached maturity yet at age {age}.",
+                "triggers": [],
+                "warnings": [f"35-Year Cycle Gate: domain karaka not yet mature at age {age}"]
+            }
+        # ─────────────────────────────────────────────────────────────────────
+
         warnings = self.evaluate_special_destruction(context)
         geometric_triggers = self.evaluate_varshphal_triggers(context, domain)
         rashi_phal_triggers = self.evaluate_rashi_phal_triggers(context, domain)
-        
+
         triggers = geometric_triggers + rashi_phal_triggers
-        
+
         valid_triggers = [t for t in triggers if not t.get("is_blocked")]
-        
+
         # Calculate Effective Trigger Count based on Sustenance Factor
-        # A trigger with 0.6 sustenance only counts as 0.6 of a trigger.
         effective_count = sum(t.get("sustenance_factor", 1.0) for t in valid_triggers)
+
+        # ── Intervention 3: Configurable Maturity Age Window & Boost ─────────
+        is_fixed = (fate_type == "GRAHA_PHAL")
+        maturity_boost = 0
+        if age is not None:
+            from .lk_pattern_constants import MATURITY_AGE_PATTERN
+            maturity_ages = MATURITY_AGE_PATTERN.get("maturity_ages", {})
+
+            mat_window        = 2
+            mat_boost_fixed   = 0.8
+            mat_boost_doubtful= 0.3
+            if getattr(context, 'config', None):
+                try:
+                    mat_window        = int(context.config.get("timing.maturity_age_window",     fallback=2))
+                    mat_boost_fixed   = float(context.config.get("timing.maturity_boost_fixed",  fallback=0.8))
+                    mat_boost_doubtful= float(context.config.get("timing.maturity_boost_doubtful",fallback=0.3))
+                except (TypeError, ValueError):
+                    pass
+
+            for planet, m_age in maturity_ages.items():
+                if is_fixed:
+                    if abs(age - m_age) <= mat_window:
+                        maturity_boost = mat_boost_fixed
+                        break
+                else:
+                    if age == m_age:
+                        maturity_boost = mat_boost_doubtful
+                        break
+        # ─────────────────────────────────────────────────────────────────────
+
+        effective_count += maturity_boost
+
+        # Apply 35-year cycle modifier to effective trigger count
+        effective_count *= cycle_modifier
+
+        # ── FidelityGate-equivalent gating ──────────────────────────────────────
+        # Mirrors FidelityGate logic operating at the RuleHit level,
+        # applied here so both the fuzzer metrics and the main pipeline benefit.
+        effective_count *= self._compute_fidelity_multiplier(
+            context, domain, fate_type, valid_triggers
+        )
+
         has_leakage = any(t.get("sustenance_factor", 1.0) < 1.0 for t in valid_triggers)
-        
+        rp_med  = 1.2
+        rp_high = 2.0
+        gp_med  = 0.6
+        gp_high = 1.5
+        if getattr(context, 'config', None):
+            try:
+                rp_med  = float(context.config.get("timing.rashi_phal_medium_threshold", fallback=1.2))
+                rp_high = float(context.config.get("timing.rashi_phal_high_threshold",   fallback=2.0))
+                gp_med  = float(context.config.get("timing.graha_phal_medium_threshold", fallback=0.6))
+                gp_high = float(context.config.get("timing.graha_phal_high_threshold",   fallback=1.5))
+            except (TypeError, ValueError):
+                pass
+
+        med_thresh  = gp_med  if is_fixed else rp_med
+        high_thresh = gp_high if is_fixed else rp_high
+
         confidence = "Low"
-        if effective_count >= 1.5:
+        if effective_count >= high_thresh:
             confidence = "High"
-        elif effective_count >= 0.8:
+        elif effective_count >= med_thresh:
             confidence = "Medium"
-        else:
-            confidence = "Low"
-            
+        # ─────────────────────────────────────────────────────────────────────
+
         # The Leakage Principle: Hard cap at Medium if sustenance is missing
         if has_leakage and confidence == "High":
             confidence = "Medium"
-            
-        # ── SYSTEM FRICTION (LEADGER TRAUMA) ─────────────────────────────
-        # If the cumulative trauma in the ledger is high, reduce confidence.
+
+        # ── SYSTEM FRICTION (LEDGER TRAUMA) ───────────────────────────────────
         friction_signal = None
         if context.ledger:
-            # Average leakage across all 9 planets
             net_multiplier = sum(context.ledger.get_leakage_multiplier(p) for p in context.ledger.planets) / 9.0
             if net_multiplier < 0.5:
                 confidence = "Low"
                 friction_signal = f"SYSTEM FRICTION: High cumulative trauma (Net: {net_multiplier:.2f})"
-        # ─────────────────────────────────────────────────────────────
-            
+        # ─────────────────────────────────────────────────────────────────────
+
         # Add sustenance warnings
         for t in valid_triggers:
             sf = t.get("sustenance_factor", 1.0)
             if sf < 1.0:
                 warnings.append(f"Result Leakage (H2 Blank/Afflicted): {t['desc']} (Sustenance: {sf})")
-                
+
         # Add premature warnings
         for t in valid_triggers:
             if t.get("is_premature"):
                 warnings.append(f"Premature Activation Trap: {t['desc']}")
-            
+
         if friction_signal:
             warnings.append(friction_signal)
-            
+
         return {
             "confidence": confidence,
             "prohibited": False,
@@ -376,4 +651,4 @@ class VarshphalTimingEngine:
             "warnings": warnings,
             "raw_matches": valid_triggers,
             "friction_signal": friction_signal
-        }
+        }  # end get_timing_confidence

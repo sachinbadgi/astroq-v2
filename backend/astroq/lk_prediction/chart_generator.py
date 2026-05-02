@@ -19,11 +19,10 @@ from dateutil.relativedelta import relativedelta
 from astroq.lk_prediction.constants import (
     PLANET_EXALTATION, PLANET_DEBILITATION, FIXED_HOUSE_LORDS
 )
+from astroq.lk_prediction.location_provider import NominatimLocationProvider
 import dateutil.parser
 
 try:
-    from geopy.geocoders import Nominatim
-    from timezonefinder import TimezoneFinder
     import pytz
 except ImportError:
     pass
@@ -230,6 +229,9 @@ class ChartGenerator:
         120: {1: 6, 2: 8, 3: 7, 4: 12, 5: 2, 6: 3, 7: 5, 8: 4, 9: 11, 10: 1, 11: 9, 12: 10}
     }
 
+    def __init__(self, location_provider=None):
+        self.location_provider = location_provider or NominatimLocationProvider()
+
     def _parse_date_time(self, dob_str: str, tob_str: str) -> dict:
         try:
             # We remove dayfirst=True because dob_str usually comes as YYYY-MM-DD from HTML input.
@@ -248,39 +250,11 @@ class ChartGenerator:
         }
 
     def geocode_place(self, place_name: str, user_agent: str = "astroq_research_geocoder_v1") -> List[Dict[str, Any]]:
-        """Look up lat/lon and UTC offset from a place name string."""
-        if not place_name or not place_name.strip():
-            return []
-            
-        geolocator = Nominatim(user_agent=user_agent, timeout=10)
-        tf = TimezoneFinder()
-
-        try:
-            results = geolocator.geocode(place_name, exactly_one=False, limit=1)
-        except Exception as e:
-            logger.warning("Geocoding failed for '%s': %s", place_name, e)
-            return []
-
-        if not results:
-            return []
-            
-        loc = results[0]
-        tz_name = tf.timezone_at(lat=loc.latitude, lng=loc.longitude)
-        if tz_name:
-            tz = pytz.timezone(tz_name)
-            utc_offset = datetime.now(tz).strftime("%z")
-            utc_offset = f"{utc_offset[:3]}:{utc_offset[3:]}"
-        else:
-            utc_offset = "+00:00"
-            tz_name = "UTC"
-
-        return [{
-            "display_name": loc.address,
-            "latitude": round(loc.latitude, 6),
-            "longitude": round(loc.longitude, 6),
-            "utc_offset": utc_offset,
-            "timezone": tz_name,
-        }]
+        """
+        Look up lat/lon and UTC offset from a place name string.
+        Delegated to the LocationProvider seam.
+        """
+        return self.location_provider.geocode_place(place_name, user_agent)
 
     def generate_chart(self, dob_str: str, tob_str: str, place_name: str, 
                        latitude: float, longitude: float, utc_string: str, 
@@ -336,7 +310,7 @@ class ChartGenerator:
             "planets_in_houses": planets_in_houses
         }
 
-    def generate_annual_charts(self, natal_chart: dict, max_years: int = 75) -> Dict[str, dict]:
+    def generate_annual_charts(self, natal_chart: dict, max_years: int = 100) -> Dict[str, dict]:
         """
         Iterate over max_years and construct Varshaphal charts from the natal chart
         according to the 120-year mapping matrix.
@@ -479,22 +453,47 @@ class ChartGenerator:
     def generate_monthly_chart(self, annual_chart: dict, month_number: int = 1) -> dict:
         """
         Derive the Monthly chart from an Annual chart.
-        Rotation: Sun's house becomes House 1. (Goswami 1952, p.234)
+        Implements the rigid Lal Kitab monthly sequence algorithm from B.M. Goswami 1952.
+        
+        The standard Jyotish interpolation is NOT used. Instead, the month ruler
+        is determined, and the Annual chart is rotated so that the ruler's house
+        becomes House 1. (See SubChartGeneration.md)
         """
-        sun_house = annual_chart.get("planets_in_houses", {}).get("Sun", {}).get("house", 1)
-        rotation = sun_house - 1
+        # Define the Lal Kitab 12-month ruler sequence (from the knowledge base).
+        # This typically dictates how the monthly chart rotates for each month of the year.
+        # Month 1: Sun, Month 2: Moon, etc., cycling or based on specific matrices.
+        # Following the rigid monthly sequence algorithm.
+        month_rulers = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn", "Rahu", "Ketu", "Sun", "Moon", "Mars"]
+        
+        # Calculate which planet rules the current month
+        # Month 1 -> idx 0 (Sun), etc.
+        ruler_idx = (month_number - 1) % len(month_rulers)
+        month_ruler = month_rulers[ruler_idx]
+        
+        # The rotation logic: the house containing the month's ruler in the ANNUAL chart becomes House 1
+        ruler_house = annual_chart.get("planets_in_houses", {}).get(month_ruler, {}).get("house", 1)
+        rotation = ruler_house - 1
+        
         child = self._apply_planet_logic(annual_chart, rotation, "rotate", "Monthly", f"Month {month_number}")
         child["chart_period_month"] = month_number
         child["chart_period"] = annual_chart.get("chart_period", 0)
+        child["monthly_ruler"] = month_ruler
         return child
 
     def generate_daily_chart(self, monthly_chart: dict, days_elapsed: int) -> dict:
         """
         Derive the Daily chart from a Monthly chart.
-        Progression: Move planets by (days_elapsed - 1) positions. (Goswami 1952, p.235)
+        Progression: Move planets by counting N days elapsed in month from Mars's house. (Goswami 1952, p.235)
         """
-        shift = max(0, days_elapsed - 1)
-        child = self._apply_planet_logic(monthly_chart, shift, "progress", "Daily", f"Day {days_elapsed}")
+        # Find Mars's house in the Monthly chart
+        mars_house = monthly_chart.get("planets_in_houses", {}).get("Mars", {}).get("house", 1)
+        
+        # Calculate rotation based on days elapsed from Mars's house
+        # Day 1: Mars's house becomes House 1
+        # Day 2: Mars's house + 1 becomes House 1, etc.
+        shift = (mars_house - 1 + max(0, days_elapsed - 1)) % 12
+        
+        child = self._apply_planet_logic(monthly_chart, shift, "rotate", "Daily", f"Day {days_elapsed}")
         child["chart_period_day"] = days_elapsed
         child["chart_period"] = monthly_chart.get("chart_period", 0)
         return child

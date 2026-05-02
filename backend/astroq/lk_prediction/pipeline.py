@@ -23,6 +23,7 @@ from astroq.lk_prediction.chart_enricher import ChartEnricher
 from astroq.lk_prediction.astrological_context import UnifiedAstrologicalContext
 from astroq.lk_prediction.synthesis_reporter import SynthesisReporter
 from astroq.lk_prediction.state_ledger import StateLedger
+from astroq.lk_prediction.fidelity_gate import FidelityGate
 
 from astroq.lk_prediction.narrative_engine import NarrativeEngine
 from astroq.lk_prediction.remedy_engine import RemedyEngine
@@ -35,23 +36,24 @@ class LKPredictionPipeline:
 
     def __init__(self, config: ModelConfig):
         self.cfg = config
-        self.grammar = GrammarAnalyser(config)
+        self.grammar_analyser = GrammarAnalyser(config)
         self.strengths = StrengthEngine(config)
         self.rules = RulesEngine(config)
-        
+
         # Instantiate dependencies for the ContextualAssembler
         self.narrative = NarrativeEngine()
         self.remedies = RemedyEngine()
         self.timing_engine = VarshphalTimingEngine()
-        
+
         self.assembler = ContextualAssembler(
             narrative_engine=self.narrative,
             remedy_engine=self.remedies,
             timing_engine=self.timing_engine
         )
         self.lifecycle = LifecycleEngine()
-        # Deep Module: ChartEnricher now handles both Grammar and Strengths coordination
-        self.enricher = ChartEnricher(self.grammar, self.strengths)
+        # Deep Module: ChartEnricher orchestrates Grammar + Strengths coordination
+        self.enricher = ChartEnricher(self.grammar_analyser.registry, self.strengths)
+        self.gate = FidelityGate()  # Hammer & Anvil noise reducer
         self.natal_chart: Optional[ChartData] = None
         self.ledger_history: Dict[int, Any] = {}
 
@@ -70,9 +72,7 @@ class LKPredictionPipeline:
         age = chart.get("chart_period", 0)
         
         # 1. Enrichment (Grammar, Strengths, Masnui)
-        # DEEP MODULE: The pipeline now uses a single unified enrichment call.
-        # It no longer needs to know the internal sequence of Grammar vs Strength.
-        self.enricher.enrich_chart(chart, self.natal_chart)
+        enriched = self.enricher.enrich(chart, self.natal_chart)
 
         # 2. Hydrate Context (The Deep Module interface)
         # M-5 FIX: For Birth charts, use a fresh StateLedger so that 75-year lifecycle
@@ -82,16 +82,20 @@ class LKPredictionPipeline:
             year_ledger = self.ledger_history.get(age)
         else:
             year_ledger = StateLedger()
-        
+
         context = UnifiedAstrologicalContext(
-            chart=chart, 
-            natal_chart=self.natal_chart, 
+            enriched=enriched,
+            natal_chart=self.natal_chart,
             ledger=year_ledger,
             config=self.cfg
         )
 
         # 3. Rule Evaluation
         rule_hits = self.rules.evaluate_chart(context)
+
+        # 3.5 Fidelity Gate: drop/adjust low-fidelity hits (annual charts only)
+        # Birth charts pass through unchanged (gate is a no-op for chart_type != "Yearly")
+        rule_hits = self.gate.filter(rule_hits, context)
         
         # 4. Synthesis
         predictions = self.assembler.assemble(rule_hits=rule_hits, context=context)

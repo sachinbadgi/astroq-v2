@@ -7,6 +7,9 @@ sys.path.append(os.path.join(os.getcwd(), "backend"))
 
 from astroq.lk_prediction.chart_generator import ChartGenerator
 from astroq.lk_prediction.varshphal_timing_engine import VarshphalTimingEngine
+from astroq.lk_prediction.astrological_context import UnifiedAstrologicalContext
+from astroq.lk_prediction.config import ModelConfig
+from astroq.lk_prediction.natal_fate_view import NatalFateView
 
 # Quick geocode dictionary for public figures
 GEO_MAP = {
@@ -40,6 +43,12 @@ def run_public_figures_timing_fuzzer():
     
     generator = ChartGenerator()
     engine = VarshphalTimingEngine()
+    fate_view = NatalFateView()
+    
+    # Load configuration
+    db_path = os.path.join("backend", "data", "config.db")
+    defaults_path = os.path.join("backend", "data", "model_defaults.json")
+    config = ModelConfig(db_path, defaults_path)
     
     data_path = os.path.join("backend", "data", "public_figures_ground_truth.json")
     
@@ -88,6 +97,9 @@ def run_public_figures_timing_fuzzer():
             print(f"  Could not find Natal Chart!")
             continue
             
+        # Pre-calculate Natal Fate View for the figure
+        fate_entries = fate_view.evaluate(natal_chart)
+            
         for event in fig.get("events", []):
             age = event.get("age")
             year = event.get("year")
@@ -109,8 +121,13 @@ def run_public_figures_timing_fuzzer():
                 print(f"  [Event Age {age}] {desc} - Could not find Annual Chart!")
                 continue
                 
+            # Find fate type for this domain
+            domain_entry = next((e for e in fate_entries if e["domain"] == engine_domain), None)
+            fate_type = domain_entry["fate_type"] if domain_entry else "RASHI_PHAL"
+
             # Evaluate event year
-            result = engine.get_timing_confidence(natal_chart, annual_chart, age, engine_domain)
+            context = UnifiedAstrologicalContext(chart=annual_chart, natal_chart=natal_chart, config=config)
+            result = engine.get_timing_confidence(context, engine_domain, fate_type=fate_type, age=age)
             score = _confidence_score(result["confidence"])
             
             # Boolean logic: Medium (2) or High (3) is a hit. Low (1) or None (0) is a miss.
@@ -130,7 +147,8 @@ def run_public_figures_timing_fuzzer():
                 n_chart = get_annual(n_age)
                 if n_chart:
                     total_noise_years += 1
-                    n_res = engine.get_timing_confidence(natal_chart, n_chart, n_age, engine_domain)
+                    n_context = UnifiedAstrologicalContext(chart=n_chart, natal_chart=natal_chart, config=config)
+                    n_res = engine.get_timing_confidence(n_context, engine_domain, fate_type=fate_type, age=n_age)
                     if _confidence_score(n_res["confidence"]) > 1:
                         noise_hits += 1
 

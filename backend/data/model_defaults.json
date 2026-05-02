@@ -43,7 +43,7 @@
 
     "probability.tvp.alpha": 2.5,
 
-    "rules.boost_scaling": 0.04,
+    "rules.boost_scaling": 0.05,
     "rules.penalty_scaling": 0.15,
     "rules.penalty_cap": 0.80,
     "rules.dharmi_penalty_reduction": 0.50,
@@ -66,6 +66,22 @@
         "age_2_3": 0.20,
         "age_4_5": 0.50
     },
+
+    "timing.rashi_phal_medium_threshold": 1.2,
+    "timing.rashi_phal_high_threshold": 2.0,
+    "timing.graha_phal_medium_threshold": 0.6,
+    "timing.graha_phal_high_threshold": 1.5,
+    "timing.maturity_age_window": 2,
+    "timing.maturity_boost_fixed": 0.8,
+    "timing.maturity_boost_doubtful": 0.3,
+    "timing.aspect_suppression_threshold": -2.0,
+    "timing.cycle_1_modifier": 1.0,
+    "timing.cycle_2_modifier": 1.2,
+    "timing.cycle_3_modifier": 0.4,
+    "timing.cycle_sub_period_bonus": 1.3,
+    "timing.rashi_phal_pakka_ghar_weight": 1.5,
+    "timing.rashi_phal_exaltation_weight": 1.0,
+    "timing.rashi_phal_extended_weight": 0.6,
 
     "classifier.threshold_absolute": 0.85,
     "classifier.threshold_delta": 0.25,

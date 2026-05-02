@@ -572,6 +572,30 @@ LIFE_AREA_PLANETS: dict[str, list[str]] = {
     "Relationships & Joy": ["Venus", "Moon", "Jupiter"],
 }
 
+#: Maps canonical domains to timing engine domains.
+TIMING_DOMAIN_MAP: dict[str, str] = {
+    "marriage": "marriage", 
+    "finance": "finance", 
+    "career": "career_travel",
+    "health": "health", 
+    "progeny": "progeny", 
+    "property": "real_estate",
+    "money": "finance"
+}
+
+#: Maps planets to their strict karaka domains for timing analysis.
+KARAKA_DOMAIN_MAP: dict[str, list[str]] = {
+    "Venus": ["marriage"],
+    "Jupiter": ["career_travel", "progeny", "finance"],
+    "Mercury": ["career_travel", "finance"],
+    "Sun": ["career_travel", "health"],
+    "Moon": ["health", "marriage"],
+    "Mars": ["health", "career_travel"],
+    "Saturn": ["career_travel", "health"],
+    "Rahu": ["health", "career_travel"],
+    "Ketu": ["progeny", "health"]
+}
+
 
 # ============================================================================
 # SECTION 12: REMEDY — GOSWAMI RULES

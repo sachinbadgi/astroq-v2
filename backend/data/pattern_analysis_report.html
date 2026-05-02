@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lal Kitab Pattern Analysis</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --accent-glow: rgba(56, 189, 248, 0.4);
+            --success: #10b981;
+        }
+        
+        .metric-excellent { color: #10b981; font-weight: 800; text-shadow: 0 0 8px rgba(16,185,129,0.3); }
+        .metric-good { color: #34d399; font-weight: 600; }
+        .metric-avg { color: #fbbf24; font-weight: 600; }
+        .metric-bad { color: #f87171; font-weight: 600; }
+        .metric-neutral { color: #cbd5e1; font-weight: 600; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at top left, #1e293b, var(--bg-color));
+            color: var(--text-main);
+            margin: 0;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 3.5rem;
+            text-align: center;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 40px var(--accent-glow);
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 50px;
+            font-size: 1.2rem;
+            font-weight: 300;
+        }
+        
+        .category-header {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2rem;
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+            padding-bottom: 10px;
+            margin-top: 60px;
+            margin-bottom: 30px;
+            color: #e2e8f0;
+        }
+        
+        .fate-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 50px;
+        }
+        
+        .fate-card {
+            background: rgba(30, 41, 59, 0.4);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .fate-domain {
+        .fate-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            font-size: 0.85rem;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        
+        .fate-table th, .fate-table td {
+            padding: 10px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .fate-table th {
+            background: rgba(0, 0, 0, 0.2);
+            font-weight: 600;
+            color: var(--accent);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+        }
+        
+        .fate-table tr:hover td {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .domain-rowgroup td {
+            border-top: 2px solid rgba(56, 189, 248, 0.3);
+        }
+        
+        .domain-cell {
+            font-weight: 600;
+            color: #fff;
+            text-transform: capitalize;
+            background: rgba(255, 255, 255, 0.02);
+            vertical-align: top;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+        }
+        
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px var(--accent-glow);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+        }
+        
+        .pattern-name {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.4rem;
+            color: var(--accent);
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        
+        .pattern-desc {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            min-height: 65px;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-box {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #fff;
+        }
+        
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 5px;
+        }
+        
+        .precision {
+            color: var(--success);
+        }
+        
+        .examples-title {
+            font-size: 0.85rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid rgba(56, 189, 248, 0.2);
+            padding-bottom: 5px;
+        }
+        
+        .example-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            font-size: 0.85rem;
+        }
+        
+        .example-item {
+            padding: 6px 0;
+            border-bottom: 1px dashed rgba(255,255,255,0.05);
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .example-item:last-child {
+            border-bottom: none;
+        }
+        
+        .ex-name { font-weight: 600; }
+        .ex-detail { color: var(--text-muted); font-size: 0.8rem; }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AstroQ Lal Kitab Analytics</h1>
+        <div class="subtitle">Empirical validation of 100,000+ geometric patterns over 488 historical lifecycles.<br>Generated 2026-05-02</div>
+<h2 class="category-header">Natal Fate Distribution & Timing Accuracy</h2>
+<div style="overflow-x: auto;">
+<table class="fate-table">
+<thead><tr><th>Domain</th><th>Fate Type</th><th>Natal Chart Count</th><th>Event Hits</th><th>Missed Events</th><th>Noise Triggers</th><th>Silence on Noise</th><th>Recall (Sensitivity)</th><th>Specificity</th></tr></thead>
+<tbody>
+<tr class="domain-rowgroup"><td rowspan="3" class="domain-cell">career travel</td>
+                <td>Fixed (Graha)</td>
+                <td>306 (62.7%)</td>
+                <td style="color: var(--success);">-</td>
+                <td style="color: #cbd5e1;">-</td>
+                <td style="color: #cbd5e1;">-</td>
+                <td style="color: var(--success);">-</td>
+                <td class="metric-neutral">-</td>
+                <td class="metric-neutral">-</td>
+            </tr>
+            <tr class="">
+                <td>Doubtful (Rashi)</td>
+                <td>92 (18.9%)</td>
+                <td style="color: var(--success);">13</td>
+                <td style="color: #cbd5e1;">835</td>
+                <td style="color: #cbd5e1;">144</td>
+                <td style="color: var(--success);">8047</td>
+                <td class="metric-bad">1.5%</td>
+                <td class="metric-excellent">98.2%</td>
+            </tr>
+            <tr class="">
+                <td>Hybrid</td>
+                <td>90 (18.4%)</td>
+                <td style="color: var(--success);">-</td>
+                <td style="color: #cbd5e1;">-</td>
+                <td style="color: #cbd5e1;">-</td>
+                <td style="color: var(--success);">-</td>
+                <td class="metric-neutral">-</td>
+                <td class="metric-neutral">-</td>
+            </tr>
+            <tr class="domain-rowgroup"><td rowspan="3" class="domain-cell">finance</td>
+                <td>Fixed (Graha)</td>
+                <td>230 (47.1%)</td>
+                <td style="color: var(--success);">-</td>
+                <td style="color: #cbd5e1;">-</td>
+                <td style="color: #cbd5e1;">-</td>
+                <td style="color: var(--success);">-</td>
+                <td class="metric-neutral">-</td>
+                <td class="metric-neutral">-</td>
+            </tr>
+            <tr class="">
+                <td>Doubtful (Rashi)</td>
+                <td>190 (38.9%)</td>
+                <td style="color: var(--success);">1</td>
+                <td style="color: #cbd5e1;">6</td>
+                <td style="color: #cbd5e1;">1</td>
+                <td style="color: var(--success);">67</td>
+                <td class="metric-avg">14.3%</td>
+                <td class="metric-excellent">98.5%</td>
+            </tr>
+            <tr class="">
+                <td>Hybrid</td>
+                <td>68 (13.9%)</td>
+                <td style="color: var(--success);">-</td>
+                <td style="color: #cbd5e1;">-</td>
+                <td style="color: #cbd5e1;">-</td>
+                <td style="color: var(--success);">-</td>
+                <td class="metric-neutral">-</td>
+                <td class="metric-neutral">-</td>
+            </tr>
+            <tr class="domain-rowgroup"><td rowspan="3" class="domain-cell">marriage</td>
+                <td>Fixed (Graha)</td>
+                <td>102 (20.9%)</td>
+                <td style="color: var(--success);">1</td>
+                <td style="color: #cbd5e1;">4</td>
+                <td style="color: #cbd5e1;">15</td>
+                <td style="color: var(--success);">34</td>
+                <td class="metric-avg">20.0%</td>
+                <td class="metric-bad">69.4%</td>
+            </tr>
+            <tr class="">
+                <td>Doubtful (Rashi)</td>
+                <td>353 (72.3%)</td>
+                <td style="color: var(--success);">0</td>
+                <td style="color: #cbd5e1;">15</td>
+                <td style="color: #cbd5e1;">8</td>
+                <td style="color: var(--success);">138</td>
+                <td class="metric-bad">0.0%</td>
+                <td class="metric-good">94.5%</td>
+            </tr>
+            <tr class="">
+                <td>Hybrid</td>
+                <td>33 (6.8%)</td>
+                <td style="color: var(--success);">0</td>
+                <td style="color: #cbd5e1;">2</td>
+                <td style="color: #cbd5e1;">2</td>
+                <td style="color: var(--success);">18</td>
+                <td class="metric-bad">0.0%</td>
+                <td class="metric-good">90.0%</td>
+            </tr>
+            <tr class="domain-rowgroup"><td rowspan="3" class="domain-cell">progeny</td>
+                <td>Fixed (Graha)</td>
+                <td>268 (54.9%)</td>
+                <td style="color: var(--success);">0</td>
+                <td style="color: #cbd5e1;">1</td>
+                <td style="color: #cbd5e1;">4</td>
+                <td style="color: var(--success);">6</td>
+                <td class="metric-bad">0.0%</td>
+                <td class="metric-bad">60.0%</td>
+            </tr>
+            <tr class="">
+                <td>Doubtful (Rashi)</td>
+                <td>193 (39.5%)</td>
+                <td style="color: var(--success);">0</td>
+                <td style="color: #cbd5e1;">1</td>
+                <td style="color: #cbd5e1;">1</td>
+                <td style="color: var(--success);">9</td>
+                <td class="metric-bad">0.0%</td>
+                <td class="metric-good">90.0%</td>
+            </tr>
+            <tr class="">
+                <td>Hybrid</td>
+                <td>27 (5.5%)</td>
+                <td style="color: var(--success);">-</td>
+                <td style="color: #cbd5e1;">-</td>
+                <td style="color: #cbd5e1;">-</td>
+                <td style="color: var(--success);">-</td>
+                <td class="metric-neutral">-</td>
+                <td class="metric-neutral">-</td>
+            </tr>
+            <tr class="domain-rowgroup"><td rowspan="3" class="domain-cell">health</td>
+                <td>Fixed (Graha)</td>
+                <td>250 (51.2%)</td>
+                <td style="color: var(--success);">16</td>
+                <td style="color: #cbd5e1;">41</td>
+                <td style="color: #cbd5e1;">82</td>
+                <td style="color: var(--success);">219</td>
+                <td class="metric-good">28.1%</td>
+                <td class="metric-avg">72.8%</td>
+            </tr>
+            <tr class="">
+                <td>Doubtful (Rashi)</td>
+                <td>195 (40.0%)</td>
+                <td style="color: var(--success);">1</td>
+                <td style="color: #cbd5e1;">32</td>
+                <td style="color: #cbd5e1;">2</td>
+                <td style="color: var(--success);">174</td>
+                <td class="metric-bad">3.0%</td>
+                <td class="metric-excellent">98.9%</td>
+            </tr>
+            <tr class="">
+                <td>Hybrid</td>
+                <td>43 (8.8%)</td>
+                <td style="color: var(--success);">0</td>
+                <td style="color: #cbd5e1;">6</td>
+                <td style="color: #cbd5e1;">0</td>
+                <td style="color: var(--success);">27</td>
+                <td class="metric-bad">0.0%</td>
+                <td class="metric-excellent">100.0%</td>
+            </tr>
+            </tbody>
+</table>
+</div>
+<h2 class="category-header">Pattern Signatures by Domain & Fate</h2>
+<div style="overflow-x: auto;">
+<table class="fate-table">
+<thead><tr><th>Domain</th><th>Fate Type</th><th>Pattern Signature</th><th>Rule Description</th><th>Event Hits</th><th>Noise Triggers</th><th>Precision</th><th>Specificity</th></tr></thead>
+<tbody>
+<tr class="domain-rowgroup"><td rowspan="7" class="domain-cell">career travel</td><td rowspan="7" style="vertical-align: top; color: var(--text-main); font-weight: 500; border-right: 1px solid rgba(255,255,255,0.05);">Doubtful (Rashi)</td>
+                    <td>Conditional Precision</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">4-10 axis for RASHI_PHAL + Target Low</td>
+                    <td style="color: var(--success);">70</td>
+                    <td style="color: var(--warning);">814</td>
+                    <td class="metric-bad">7.9%</td>
+                    <td class="metric-good">90.1%</td>
+                </tr>
+                <tr class="">
+                    <td>Doubtful Resolution (2-6)</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">2-6 axis for RASHI_PHAL/HYBRID</td>
+                    <td style="color: var(--success);">842</td>
+                    <td style="color: var(--warning);">7,790</td>
+                    <td class="metric-bad">9.8%</td>
+                    <td class="metric-bad">4.9%</td>
+                </tr>
+                <tr class="">
+                    <td>Doubtful Resolution (6-12)</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">6-12 axis for RASHI_PHAL/HYBRID</td>
+                    <td style="color: var(--success);">413</td>
+                    <td style="color: var(--warning);">4,185</td>
+                    <td class="metric-bad">9.0%</td>
+                    <td class="metric-bad">48.9%</td>
+                </tr>
+                <tr class="">
+                    <td>Gali Sweet Spot</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">2-6 axis with Source High / Target Medium</td>
+                    <td style="color: var(--success);">134</td>
+                    <td style="color: var(--warning);">1,232</td>
+                    <td class="metric-bad">9.8%</td>
+                    <td class="metric-avg">85.0%</td>
+                </tr>
+                <tr class="">
+                    <td>Strong Shield</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">Target High dignity + Aspect Silence</td>
+                    <td style="color: var(--success);">4,423</td>
+                    <td style="color: var(--warning);">42,913</td>
+                    <td class="metric-bad">9.3%</td>
+                    <td class="metric-bad">0.0%</td>
+                </tr>
+                <tr class="">
+                    <td>Takkar Paradox</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">1-8 axis with Source Low / Target Low</td>
+                    <td style="color: var(--success);">2</td>
+                    <td style="color: var(--warning);">57</td>
+                    <td class="metric-bad">3.4%</td>
+                    <td class="metric-excellent">99.3%</td>
+                </tr>
+                <tr class="">
+                    <td>Weak Anvil</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">Target Low dignity + Aspect Hit</td>
+                    <td style="color: var(--success);">2,117</td>
+                    <td style="color: var(--warning);">22,032</td>
+                    <td class="metric-bad">8.8%</td>
+                    <td class="metric-bad">0.0%</td>
+                </tr>
+                <tr class="domain-rowgroup"><td rowspan="6" class="domain-cell">finance</td><td rowspan="6" style="vertical-align: top; color: var(--text-main); font-weight: 500; border-right: 1px solid rgba(255,255,255,0.05);">Doubtful (Rashi)</td>
+                    <td>Conditional Precision</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">4-10 axis for RASHI_PHAL + Target Low</td>
+                    <td style="color: var(--success);">0</td>
+                    <td style="color: var(--warning);">4</td>
+                    <td class="metric-bad">0.0%</td>
+                    <td class="metric-good">94.1%</td>
+                </tr>
+                <tr class="">
+                    <td>Doubtful Resolution (2-6)</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">2-6 axis for RASHI_PHAL/HYBRID</td>
+                    <td style="color: var(--success);">12</td>
+                    <td style="color: var(--warning);">42</td>
+                    <td class="metric-avg">22.2%</td>
+                    <td class="metric-bad">38.2%</td>
+                </tr>
+                <tr class="">
+                    <td>Doubtful Resolution (6-12)</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">6-12 axis for RASHI_PHAL/HYBRID</td>
+                    <td style="color: var(--success);">3</td>
+                    <td style="color: var(--warning);">44</td>
+                    <td class="metric-bad">6.4%</td>
+                    <td class="metric-bad">35.3%</td>
+                </tr>
+                <tr class="">
+                    <td>Gali Sweet Spot</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">2-6 axis with Source High / Target Medium</td>
+                    <td style="color: var(--success);">2</td>
+                    <td style="color: var(--warning);">6</td>
+                    <td class="metric-good">25.0%</td>
+                    <td class="metric-good">91.2%</td>
+                </tr>
+                <tr class="">
+                    <td>Strong Shield</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">Target High dignity + Aspect Silence</td>
+                    <td style="color: var(--success);">40</td>
+                    <td style="color: var(--warning);">347</td>
+                    <td class="metric-avg">10.3%</td>
+                    <td class="metric-bad">0.0%</td>
+                </tr>
+                <tr class="">
+                    <td>Weak Anvil</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">Target Low dignity + Aspect Hit</td>
+                    <td style="color: var(--success);">12</td>
+                    <td style="color: var(--warning);">215</td>
+                    <td class="metric-bad">5.3%</td>
+                    <td class="metric-bad">0.0%</td>
+                </tr>
+                <tr class="domain-rowgroup"><td rowspan="20" class="domain-cell">health</td><td rowspan="7" style="vertical-align: top; color: var(--text-main); font-weight: 500; border-right: 1px solid rgba(255,255,255,0.05);">Fixed (Graha)</td>
+                    <td>Fixed Fate Freeze (1-7)</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">1-7 axis for GRAHA_PHAL</td>
+                    <td style="color: var(--success);">76</td>
+                    <td style="color: var(--warning);">266</td>
+                    <td class="metric-avg">22.2%</td>
+                    <td class="metric-bad">11.6%</td>
+                </tr>
+                <tr class="">
+                    <td>Fixed Fate Freeze (3-11)</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">3-11 axis for GRAHA_PHAL</td>
+                    <td style="color: var(--success);">68</td>
+                    <td style="color: var(--warning);">322</td>
+                    <td class="metric-avg">17.4%</td>
+                    <td class="metric-bad">0.0%</td>
+                </tr>
+                <tr class="">
+                    <td>Fixed Wealth Correlation</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">8-2 axis for GRAHA_PHAL</td>
+                    <td style="color: var(--success);">64</td>
+                    <td style="color: var(--warning);">294</td>
+                    <td class="metric-avg">17.9%</td>
+                    <td class="metric-bad">2.3%</td>
+                </tr>
+                <tr class="">
+                    <td>Gali Sweet Spot</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">2-6 axis with Source High / Target Medium</td>
+                    <td style="color: var(--success);">4</td>
+                    <td style="color: var(--warning);">46</td>
+                    <td class="metric-bad">8.0%</td>
+                    <td class="metric-avg">84.7%</td>
+                </tr>
+                <tr class="">
+                    <td>Strong Shield</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">Target High dignity + Aspect Silence</td>
+                    <td style="color: var(--success);">248</td>
+                    <td style="color: var(--warning);">1,573</td>
+                    <td class="metric-avg">13.6%</td>
+                    <td class="metric-bad">0.0%</td>
+                </tr>
+                <tr class="">
+                    <td>Takkar Paradox</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">1-8 axis with Source Low / Target Low</td>
+                    <td style="color: var(--success);">0</td>
+                    <td style="color: var(--warning);">2</td>
+                    <td class="metric-bad">0.0%</td>
+                    <td class="metric-excellent">99.3%</td>
+                </tr>
+                <tr class="">
+                    <td>Weak Anvil</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">Target Low dignity + Aspect Hit</td>
+                    <td style="color: var(--success);">143</td>
+                    <td style="color: var(--warning);">825</td>
+                    <td class="metric-avg">14.8%</td>
+                    <td class="metric-bad">0.0%</td>
+                </tr>
+                <tr class=""><td rowspan="6" style="vertical-align: top; color: var(--text-main); font-weight: 500; border-right: 1px solid rgba(255,255,255,0.05);">Hybrid</td>
+                    <td>Doubtful Resolution (2-6)</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">2-6 axis for RASHI_PHAL/HYBRID</td>
+                    <td style="color: var(--success);">16</td>
+                    <td style="color: var(--warning);">22</td>
+                    <td class="metric-good">42.1%</td>
+                    <td class="metric-bad">18.5%</td>
+                </tr>
+                <tr class="">
+                    <td>Doubtful Resolution (6-12)</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">6-12 axis for RASHI_PHAL/HYBRID</td>
+                    <td style="color: var(--success);">7</td>
+                    <td style="color: var(--warning);">6</td>
+                    <td class="metric-excellent">53.8%</td>
+                    <td class="metric-avg">77.8%</td>
+                </tr>
+                <tr class="">
+                    <td>Gali Sweet Spot</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">2-6 axis with Source High / Target Medium</td>
+                    <td style="color: var(--success);">0</td>
+                    <td style="color: var(--warning);">4</td>
+                    <td class="metric-bad">0.0%</td>
+                    <td class="metric-good">85.2%</td>
+                </tr>
+                <tr class="">
+                    <td>Strong Shield</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">Target High dignity + Aspect Silence</td>
+                    <td style="color: var(--success);">33</td>
+                    <td style="color: var(--warning);">149</td>
+                    <td class="metric-avg">18.1%</td>
+                    <td class="metric-bad">0.0%</td>
+                </tr>
+                <tr class="">
+                    <td>Takkar Paradox</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">1-8 axis with Source Low / Target Low</td>
+                    <td style="color: var(--success);">0</td>
+                    <td style="color: var(--warning);">1</td>
+                    <td class="metric-bad">0.0%</td>
+                    <td class="metric-excellent">96.3%</td>
+                </tr>
+                <tr class="">
+                    <td>Weak Anvil</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">Target Low dignity + Aspect Hit</td>
+                    <td style="color: var(--success);">12</td>
+                    <td style="color: var(--warning);">54</td>
+                    <td class="metric-avg">18.2%</td>
+                    <td class="metric-bad">0.0%</td>
+                </tr>
+                <tr class=""><td rowspan="7" style="vertical-align: top; color: var(--text-main); font-weight: 500; border-right: 1px solid rgba(255,255,255,0.05);">Doubtful (Rashi)</td>
+                    <td>Conditional Precision</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">4-10 axis for RASHI_PHAL + Target Low</td>
+                    <td style="color: var(--success);">4</td>
+                    <td style="color: var(--warning);">24</td>
+                    <td class="metric-avg">14.3%</td>
+                    <td class="metric-good">86.4%</td>
+                </tr>
+                <tr class="">
+                    <td>Doubtful Resolution (2-6)</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">2-6 axis for RASHI_PHAL/HYBRID</td>
+                    <td style="color: var(--success);">28</td>
+                    <td style="color: var(--warning);">196</td>
+                    <td class="metric-avg">12.5%</td>
+                    <td class="metric-bad">0.0%</td>
+                </tr>
+                <tr class="">
+                    <td>Doubtful Resolution (6-12)</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">6-12 axis for RASHI_PHAL/HYBRID</td>
+                    <td style="color: var(--success);">23</td>
+                    <td style="color: var(--warning);">82</td>
+                    <td class="metric-avg">21.9%</td>
+                    <td class="metric-bad">53.4%</td>
+                </tr>
+                <tr class="">
+                    <td>Gali Sweet Spot</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">2-6 axis with Source High / Target Medium</td>
+                    <td style="color: var(--success);">6</td>
+                    <td style="color: var(--warning);">28</td>
+                    <td class="metric-avg">17.6%</td>
+                    <td class="metric-avg">84.1%</td>
+                </tr>
+                <tr class="">
+                    <td>Strong Shield</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">Target High dignity + Aspect Silence</td>
+                    <td style="color: var(--success);">222</td>
+                    <td style="color: var(--warning);">897</td>
+                    <td class="metric-avg">19.8%</td>
+                    <td class="metric-bad">0.0%</td>
+                </tr>
+                <tr class="">
+                    <td>Takkar Paradox</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">1-8 axis with Source Low / Target Low</td>
+                    <td style="color: var(--success);">0</td>
+                    <td style="color: var(--warning);">1</td>
+                    <td class="metric-bad">0.0%</td>
+                    <td class="metric-excellent">99.4%</td>
+                </tr>
+                <tr class="">
+                    <td>Weak Anvil</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">Target Low dignity + Aspect Hit</td>
+                    <td style="color: var(--success);">115</td>
+                    <td style="color: var(--warning);">455</td>
+                    <td class="metric-avg">20.2%</td>
+                    <td class="metric-bad">0.0%</td>
+                </tr>
+                <tr class="domain-rowgroup"><td rowspan="18" class="domain-cell">marriage</td><td rowspan="6" style="vertical-align: top; color: var(--text-main); font-weight: 500; border-right: 1px solid rgba(255,255,255,0.05);">Fixed (Graha)</td>
+                    <td>Fixed Fate Freeze (1-7)</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">1-7 axis for GRAHA_PHAL</td>
+                    <td style="color: var(--success);">14</td>
+                    <td style="color: var(--warning);">56</td>
+                    <td class="metric-avg">20.0%</td>
+                    <td class="metric-bad">0.0%</td>
+                </tr>
+                <tr class="">
+                    <td>Fixed Fate Freeze (3-11)</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">3-11 axis for GRAHA_PHAL</td>
+                    <td style="color: var(--success);">2</td>
+                    <td style="color: var(--warning);">40</td>
+                    <td class="metric-bad">4.8%</td>
+                    <td class="metric-bad">18.4%</td>
+                </tr>
+                <tr class="">
+                    <td>Fixed Wealth Correlation</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">8-2 axis for GRAHA_PHAL</td>
+                    <td style="color: var(--success);">8</td>
+                    <td style="color: var(--warning);">42</td>
+                    <td class="metric-avg">16.0%</td>
+                    <td class="metric-bad">14.3%</td>
+                </tr>
+                <tr class="">
+                    <td>Gali Sweet Spot</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">2-6 axis with Source High / Target Medium</td>
+                    <td style="color: var(--success);">2</td>
+                    <td style="color: var(--warning);">6</td>
+                    <td class="metric-good">25.0%</td>
+                    <td class="metric-good">87.8%</td>
+                </tr>
+                <tr class="">
+                    <td>Strong Shield</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">Target High dignity + Aspect Silence</td>
+                    <td style="color: var(--success);">33</td>
+                    <td style="color: var(--warning);">249</td>
+                    <td class="metric-avg">11.7%</td>
+                    <td class="metric-bad">0.0%</td>
+                </tr>
+                <tr class="">
+                    <td>Weak Anvil</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">Target Low dignity + Aspect Hit</td>
+                    <td style="color: var(--success);">13</td>
+                    <td style="color: var(--warning);">124</td>
+                    <td class="metric-bad">9.5%</td>
+                    <td class="metric-bad">0.0%</td>
+                </tr>
+                <tr class=""><td rowspan="5" style="vertical-align: top; color: var(--text-main); font-weight: 500; border-right: 1px solid rgba(255,255,255,0.05);">Hybrid</td>
+                    <td>Doubtful Resolution (2-6)</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">2-6 axis for RASHI_PHAL/HYBRID</td>
+                    <td style="color: var(--success);">6</td>
+                    <td style="color: var(--warning);">10</td>
+                    <td class="metric-good">37.5%</td>
+                    <td class="metric-bad">50.0%</td>
+                </tr>
+                <tr class="">
+                    <td>Doubtful Resolution (6-12)</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">6-12 axis for RASHI_PHAL/HYBRID</td>
+                    <td style="color: var(--success);">0</td>
+                    <td style="color: var(--warning);">14</td>
+                    <td class="metric-bad">0.0%</td>
+                    <td class="metric-bad">30.0%</td>
+                </tr>
+                <tr class="">
+                    <td>Gali Sweet Spot</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">2-6 axis with Source High / Target Medium</td>
+                    <td style="color: var(--success);">0</td>
+                    <td style="color: var(--warning);">4</td>
+                    <td class="metric-bad">0.0%</td>
+                    <td class="metric-avg">80.0%</td>
+                </tr>
+                <tr class="">
+                    <td>Strong Shield</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">Target High dignity + Aspect Silence</td>
+                    <td style="color: var(--success);">7</td>
+                    <td style="color: var(--warning);">104</td>
+                    <td class="metric-bad">6.3%</td>
+                    <td class="metric-bad">0.0%</td>
+                </tr>
+                <tr class="">
+                    <td>Weak Anvil</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">Target Low dignity + Aspect Hit</td>
+                    <td style="color: var(--success);">14</td>
+                    <td style="color: var(--warning);">42</td>
+                    <td class="metric-good">25.0%</td>
+                    <td class="metric-bad">0.0%</td>
+                </tr>
+                <tr class=""><td rowspan="7" style="vertical-align: top; color: var(--text-main); font-weight: 500; border-right: 1px solid rgba(255,255,255,0.05);">Doubtful (Rashi)</td>
+                    <td>Conditional Precision</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">4-10 axis for RASHI_PHAL + Target Low</td>
+                    <td style="color: var(--success);">2</td>
+                    <td style="color: var(--warning);">22</td>
+                    <td class="metric-bad">8.3%</td>
+                    <td class="metric-avg">84.9%</td>
+                </tr>
+                <tr class="">
+                    <td>Doubtful Resolution (2-6)</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">2-6 axis for RASHI_PHAL/HYBRID</td>
+                    <td style="color: var(--success);">28</td>
+                    <td style="color: var(--warning);">154</td>
+                    <td class="metric-avg">15.4%</td>
+                    <td class="metric-bad">0.0%</td>
+                </tr>
+                <tr class="">
+                    <td>Doubtful Resolution (6-12)</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">6-12 axis for RASHI_PHAL/HYBRID</td>
+                    <td style="color: var(--success);">3</td>
+                    <td style="color: var(--warning);">78</td>
+                    <td class="metric-bad">3.7%</td>
+                    <td class="metric-bad">46.6%</td>
+                </tr>
+                <tr class="">
+                    <td>Gali Sweet Spot</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">2-6 axis with Source High / Target Medium</td>
+                    <td style="color: var(--success);">2</td>
+                    <td style="color: var(--warning);">24</td>
+                    <td class="metric-bad">7.7%</td>
+                    <td class="metric-avg">83.6%</td>
+                </tr>
+                <tr class="">
+                    <td>Strong Shield</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">Target High dignity + Aspect Silence</td>
+                    <td style="color: var(--success);">87</td>
+                    <td style="color: var(--warning);">691</td>
+                    <td class="metric-avg">11.2%</td>
+                    <td class="metric-bad">0.0%</td>
+                </tr>
+                <tr class="">
+                    <td>Takkar Paradox</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">1-8 axis with Source Low / Target Low</td>
+                    <td style="color: var(--success);">1</td>
+                    <td style="color: var(--warning);">0</td>
+                    <td class="metric-excellent">100.0%</td>
+                    <td class="metric-excellent">100.0%</td>
+                </tr>
+                <tr class="">
+                    <td>Weak Anvil</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">Target Low dignity + Aspect Hit</td>
+                    <td style="color: var(--success);">46</td>
+                    <td style="color: var(--warning);">419</td>
+                    <td class="metric-bad">9.9%</td>
+                    <td class="metric-bad">0.0%</td>
+                </tr>
+                <tr class="domain-rowgroup"><td rowspan="10" class="domain-cell">progeny</td><td rowspan="6" style="vertical-align: top; color: var(--text-main); font-weight: 500; border-right: 1px solid rgba(255,255,255,0.05);">Fixed (Graha)</td>
+                    <td>Fixed Fate Freeze (1-7)</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">1-7 axis for GRAHA_PHAL</td>
+                    <td style="color: var(--success);">0</td>
+                    <td style="color: var(--warning);">12</td>
+                    <td class="metric-bad">0.0%</td>
+                    <td class="metric-bad">0.0%</td>
+                </tr>
+                <tr class="">
+                    <td>Fixed Fate Freeze (3-11)</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">3-11 axis for GRAHA_PHAL</td>
+                    <td style="color: var(--success);">0</td>
+                    <td style="color: var(--warning);">4</td>
+                    <td class="metric-bad">0.0%</td>
+                    <td class="metric-bad">60.0%</td>
+                </tr>
+                <tr class="">
+                    <td>Fixed Wealth Correlation</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">8-2 axis for GRAHA_PHAL</td>
+                    <td style="color: var(--success);">2</td>
+                    <td style="color: var(--warning);">4</td>
+                    <td class="metric-good">33.3%</td>
+                    <td class="metric-bad">60.0%</td>
+                </tr>
+                <tr class="">
+                    <td>Gali Sweet Spot</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">2-6 axis with Source High / Target Medium</td>
+                    <td style="color: var(--success);">0</td>
+                    <td style="color: var(--warning);">6</td>
+                    <td class="metric-bad">0.0%</td>
+                    <td class="metric-bad">40.0%</td>
+                </tr>
+                <tr class="">
+                    <td>Strong Shield</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">Target High dignity + Aspect Silence</td>
+                    <td style="color: var(--success);">1</td>
+                    <td style="color: var(--warning);">56</td>
+                    <td class="metric-bad">1.8%</td>
+                    <td class="metric-bad">0.0%</td>
+                </tr>
+                <tr class="">
+                    <td>Weak Anvil</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">Target Low dignity + Aspect Hit</td>
+                    <td style="color: var(--success);">4</td>
+                    <td style="color: var(--warning);">24</td>
+                    <td class="metric-avg">14.3%</td>
+                    <td class="metric-bad">0.0%</td>
+                </tr>
+                <tr class=""><td rowspan="4" style="vertical-align: top; color: var(--text-main); font-weight: 500; border-right: 1px solid rgba(255,255,255,0.05);">Doubtful (Rashi)</td>
+                    <td>Doubtful Resolution (2-6)</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">2-6 axis for RASHI_PHAL/HYBRID</td>
+                    <td style="color: var(--success);">0</td>
+                    <td style="color: var(--warning);">4</td>
+                    <td class="metric-bad">0.0%</td>
+                    <td class="metric-bad">60.0%</td>
+                </tr>
+                <tr class="">
+                    <td>Doubtful Resolution (6-12)</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">6-12 axis for RASHI_PHAL/HYBRID</td>
+                    <td style="color: var(--success);">0</td>
+                    <td style="color: var(--warning);">6</td>
+                    <td class="metric-bad">0.0%</td>
+                    <td class="metric-bad">40.0%</td>
+                </tr>
+                <tr class="">
+                    <td>Strong Shield</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">Target High dignity + Aspect Silence</td>
+                    <td style="color: var(--success);">6</td>
+                    <td style="color: var(--warning);">54</td>
+                    <td class="metric-avg">10.0%</td>
+                    <td class="metric-bad">0.0%</td>
+                </tr>
+                <tr class="">
+                    <td>Weak Anvil</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 300px;">Target Low dignity + Aspect Hit</td>
+                    <td style="color: var(--success);">0</td>
+                    <td style="color: var(--warning);">18</td>
+                    <td class="metric-bad">0.0%</td>
+                    <td class="metric-bad">0.0%</td>
+                </tr>
+                </tbody>
+</table>
+</div>
+
+    </div>
+</body>
+</html>

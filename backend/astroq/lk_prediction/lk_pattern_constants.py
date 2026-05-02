@@ -165,6 +165,21 @@ MATURITY_AGE_PATTERN: Dict[str, Any] = {
 }
 
 # ============================================================================
+# PATTERN 7b: CYCLE DOMAIN KARAKAS (35-YEAR CYCLE GATE)
+# Maps each engine domain to its canonical Lal Kitab karaka planets.
+# The domain is gated until at least one of its karakas has reached maturity age.
+# Sub-period ruler from CYCLE_35_YEAR_RANGES also gets a 1.3x boost if it is
+# a karaka for the active domain.
+# ============================================================================
+CYCLE_DOMAIN_KARAKAS: Dict[str, list] = {
+    "marriage":      ["Venus", "Moon"],       # Venus=25, Moon=24 → gate before 24
+    "progeny":       ["Jupiter", "Ketu"],     # Jupiter=16, Ketu=48 → gate before 16
+    "finance":       ["Mercury", "Jupiter"],  # Mercury=34, Jupiter=16 → gate before 16
+    "health":        ["Sun", "Saturn", "Mars"],   # Sun=22, Mars=28 → gate before 22
+    "career_travel": ["Sun", "Saturn", "Mercury", "Mars"],  # Sun=22 → gate before 22
+}
+
+# ============================================================================
 # LLM PREDICTION AUTO-FORMULATOR INSTRUCTIONS
 # ============================================================================
 LLM_FORMULATION_GUIDE = """
@@ -203,7 +218,14 @@ VARSHPHAL_TIMING_TRIGGERS: Dict[str, List[Dict[str, Any]]] = {
         {"desc": "Annual Saturn in House 1", "annual_sat": [1]},
         {"desc": "Venus/Mercury returns to Natal House, No enemies in 2,7", "ven_mer_return": True, "annual_enemies_in_2_7": False},
         {"desc": "Natal H2, H7 blank, Annual Jupiter/Venus in 2,7", "natal_2_7_blank": True, "annual_jup_ven": [2, 7]},
-        {"desc": "Annual Venus or Mercury in 2 or 7", "annual_ven_mer": [2, 7]}
+        {"desc": "Annual Venus or Mercury in 2 or 7", "annual_ven_mer": [2, 7]},
+        # ── NEW: Expanded marriage triggers (Intervention 6) ─────────────────
+        # Single-planet triggers that fire in ~1/12 of all years, dramatically
+        # improving the marriage domain's 0% Rashi Phal recall.
+        {"desc": "Annual Jupiter in H7 (Partnership Expansion)", "annual_jup": [7]},
+        {"desc": "Annual Moon in H7 (Emotional Readiness for Partnership)", "annual_mon": [7]},
+        {"desc": "Annual Rahu in H1 or H7 (Fated Partnership Axis)", "annual_rah": [1, 7]},
+        {"desc": "Annual Ketu in H1 or H7 (Destiny Partnership Axis)", "annual_ket": [1, 7]},
     ],
     "finance": [
         {"desc": "Saturn 3,5 in Natal AND Ketu+Saturn/Rahu 1,3 in Annual", "natal_sat": [3, 5], "annual_ket_sat_rah": [1, 3], "polarity": "benefic"},
@@ -212,8 +234,22 @@ VARSHPHAL_TIMING_TRIGGERS: Dict[str, List[Dict[str, Any]]] = {
         {"desc": "Saturn 6 in Natal AND Mars 1-8 in Annual", "natal_sat": [6], "annual_mar": [1,2,3,4,5,6,7,8], "polarity": "benefic"},
         {"desc": "Mercury 3 in Natal AND Ketu 11 in Annual", "natal_mer": [3], "annual_ket": [11], "polarity": "malefic"},
         {"desc": "Jup+Moon 10 in Natal AND Jup+Moon 10 in Annual", "natal_jup_mon": [10], "annual_jup_mon": [10], "polarity": "malefic"},
-        {"desc": "Moon 10 in Natal AND Saturn 1 in Annual", "natal_mon": [10], "annual_sat": [1], "polarity": "malefic"}
+        {"desc": "Moon 10 in Natal AND Saturn 1 in Annual", "natal_mon": [10], "annual_sat": [1], "polarity": "malefic"},
+        # ── NEW: Canonical Goswami finance triggers (Intervention 4) ──────────
+        # Jupiter in H2 or H11 in annual = primary wealth activation (Pakka Ghar trigger)
+        {"desc": "Annual Jupiter in H2 or H11 (Wealth Activation)", "annual_jup": [2, 11], "polarity": "benefic"},
+        # Venus + Mercury in H2 annual = partnership wealth (business/marriage capital)
+        {"desc": "Annual Venus and Mercury both in H2 (Partnership Wealth)", "annual_ven": [2], "annual_mer": [2], "polarity": "benefic"},
+        # Saturn annual in H11 (steady gains) with natal Saturn not in H6/12 (not debt)
+        {"desc": "Annual Saturn in H11 (Steady Gain)", "annual_sat": [11], "polarity": "benefic"},
+        # Mars annual in H2/H11 with natal Jupiter (ambition meets fortune)
+        {"desc": "Annual Mars in H2 or H11 with natal Jupiter active", "annual_mar": [2, 11], "natal_jup": True, "polarity": "benefic"},
+        # Rahu in H2 annual = speculative/sudden windfall (also covers loss)
+        {"desc": "Annual Rahu in H2 (Speculative Finance)", "annual_rah": [2], "polarity": "malefic"},
+        # Sun annual in H2 = authority-linked income (govt, leadership)
+        {"desc": "Annual Sun in H2 (Authority Income)", "annual_sun": [2], "polarity": "benefic"},
     ],
+
     "health": [
         {"desc": "Moon and Venus conjunct in Annual", "annual_mon_ven_conjoined": True, "target": "progeny"},
         {"desc": "Jup+Sat 2 in Natal AND Jup+Sat 2 in Annual", "natal_jup_sat": [2], "annual_jup_sat": [2], "target": "self"},
@@ -231,8 +267,22 @@ VARSHPHAL_TIMING_TRIGGERS: Dict[str, List[Dict[str, Any]]] = {
     "progeny": [
         {"desc": "Mercury 12 in Natal AND Saturn 2 in Annual", "natal_mer": [12], "annual_sat": [2]},
         {"desc": "Jupiter 5 in Natal AND Venus 9 in Annual", "natal_jup": [5], "annual_ven": [9]},
-        {"desc": "Mercury in Natal AND Ketu 1 in Annual", "natal_mer": True, "annual_ket": [1]}
+        {"desc": "Mercury in Natal AND Ketu 1 in Annual", "natal_mer": True, "annual_ket": [1]},
+        # ── NEW: Canonical Goswami progeny triggers (Intervention 4) ──────────
+        # Jupiter in H5 annual = primary progeny karaka in child house (universal signal)
+        {"desc": "Annual Jupiter in H5 (Progeny Karaka Activated)", "annual_jup": [5]},
+        # Moon + Jupiter both in H5 annual = auspicious double confirmation for birth
+        {"desc": "Annual Moon and Jupiter both in H5 (Progeny Blessing)", "annual_mon": [5], "annual_jup": [5]},
+        # Sun + Jupiter in H5 = soul + wisdom entering the progeny house
+        {"desc": "Annual Sun and Jupiter both in H5 (Soul + Wisdom)", "annual_sun": [5], "annual_jup": [5]},
+        # Jupiter in H9 annual = dharma/destiny house activating ancestral line
+        {"desc": "Annual Jupiter in H9 (Dharma Progeny Blessing)", "annual_jup": [9]},
+        # Venus in H7 + Jupiter in H5 = partnership activating progeny (marriage-birth link)
+        {"desc": "Annual Venus in H7 AND Jupiter in H5 (Marriage-Birth Pair)", "annual_ven": [7], "annual_jup": [5]},
+        # Natal H5 occupied + Annual Jupiter returns to H5 (natal confirmation)
+        {"desc": "Natal H5 occupied AND Annual Jupiter in H5 (Natal Confirmation)", "natal_5_occupied": True, "annual_jup": [5]},
     ]
+
 }
 
 # ============================================================================
@@ -865,3 +915,66 @@ EVENT_DOMAIN_CATALOGUE: List[Dict] = [
         "rp_condition": "H7 occupied but Mercury/Venus not dignified; legal outcomes conditional",
     },
 ]
+
+# ============================================================================
+# PATTERN 8: THE HAMMER AND ANVIL (ASPECT DIGNITY DYNAMICS)
+# Defined from Fuzzer Discovery (May 2026). Explains how planetary dignity 
+# heavily filters the likelihood of a transit event materializing.
+# ============================================================================
+HAMMER_AND_ANVIL_PATTERNS = {
+    "WEAK_ANVIL": {
+        "description": "Predictive hits are driven primarily by the Target (Aspected) Planet's dignity. A Low-dignity Target is highly susceptible to triggers (e.g. 83% for 1-8, 85% for 4-10).",
+        "condition": "Target Dignity == Low",
+        "outcome": "Triggers Event"
+    },
+    "STRONG_SHIELD": {
+        "description": "Engine silence (preventing false positives) is driven by High Target dignity. The planet 'resists' the annual trigger, jumping silence rate to 71.3% for 1-7 aspects.",
+        "condition": "Target Dignity == High",
+        "outcome": "Suppresses Event"
+    },
+    "TAKKAR_PARADOX": {
+        "description": "The Takkar (1-8) confrontation is most accurate when BOTH planets are Low strength. High-strength Takkars are noisy.",
+        "axis": "1-8",
+        "condition": "Source Dignity == Low AND Target Dignity == Low",
+        "outcome": "High Confidence Hit"
+    },
+    "GALI_SWEET_SPOT": {
+        "description": "The Blocked/Gali (2-6) aspect peaks (89.7% hit rate) when the Target is Medium and Source is High. 'Strong Hammer hitting a Steady Anvil'.",
+        "axis": "2-6",
+        "condition": "Source Dignity == High AND Target Dignity == Medium",
+        "outcome": "Peak Event Trigger"
+    }
+}
+
+# ============================================================================
+# PATTERN 9: MECHANICS OF FATE (AXIS-FATE CORRELATIONS)
+# Defined from Fuzzer Discovery (May 2026). Explains how different natal fate
+# promises (Graha Phal vs Rashi Phal) react differently to specific geometric axes.
+# ============================================================================
+MECHANICS_OF_FATE_PATTERNS = {
+    "DOUBTFUL_RESOLUTION": {
+        "description": "Doubtful Fate (Mashkooq) is extremely sensitive to 6-12 and 2-6 axes (100% accuracy on 6-12). They are waiting for a trigger to resolve uncertainty.",
+        "fate_type": ["RASHI_PHAL", "HYBRID"],
+        "axes": ["6-12", "2-6"],
+        "outcome": "Deterministic Resolution Hit"
+    },
+    "FIXED_FATE_FREEZE": {
+        "description": "For Fixed Fate (Graha Phal), aspects act as Stabilizers, not Triggers. 1-7 and 3-11 have low hit rates (16-20%) but high silence (83-87%).",
+        "fate_type": ["GRAHA_PHAL"],
+        "axes": ["1-7", "3-11"],
+        "outcome": "Structural Resistance (Silence)"
+    },
+    "CONDITIONAL_PRECISION": {
+        "description": "For Conditional/Rashi Phal, the most reliable trigger is a 4-10 (Square) hitting a Low-dignity Target (68.8% Hit, 74.3% Silence).",
+        "fate_type": ["RASHI_PHAL"],
+        "axes": ["4-10"],
+        "condition": "Target Dignity == Low",
+        "outcome": "High Fidelity Signal"
+    },
+    "FIXED_WEALTH_CORRELATION": {
+        "description": "The 8-2 axis is uniquely strong for Fixed Fate individuals (61.9% Hit / 81.4% Silence), aligning with LK focus on House 2 and 8.",
+        "fate_type": ["GRAHA_PHAL"],
+        "axes": ["8-2"],
+        "outcome": "Destiny/Inheritance Trigger"
+    }
+}

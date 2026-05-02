@@ -48,6 +48,14 @@ def _make_analyser(tmp_defaults, tmp_db):
     return GrammarAnalyser(cfg)
 
 
+def _detect_mangal_badh(chart, tmp_defaults, tmp_db):
+    from astroq.lk_prediction.config import ModelConfig
+    from astroq.lk_prediction.grammar.modules.mangal_badh_module import MangalBadhModule
+    cfg = ModelConfig(db_path=tmp_db, defaults_path=tmp_defaults)
+    MangalBadhModule(cfg).detect(chart)
+    return chart.get("mangal_badh_count", 0)
+
+
 # ---------------------------------------------------------------------------
 # 1. Complete Mangal Badh — 17-Rule System
 # ---------------------------------------------------------------------------
@@ -63,7 +71,7 @@ class TestMangalBadhComplete:
             "Moon": {"house": 11}, "Mercury": {"house": 3}, "Venus": {"house": 2},
             "Jupiter": {"house": 9}, "Rahu": {"house": 2}, "Ketu": {"house": 8},
         })
-        counter = analyser.detect_mangal_badh(chart)
+        counter = _detect_mangal_badh(chart, tmp_defaults, tmp_db)
         assert counter >= 1, f"R1 (Sun+Saturn conjunct) must increment counter, got {counter}"
 
     def test_r5_mars_mercury_conjunct_increments(self, tmp_defaults, tmp_db):
@@ -75,7 +83,7 @@ class TestMangalBadhComplete:
             "Venus": {"house": 6}, "Saturn": {"house": 10}, "Rahu": {"house": 12},
             "Ketu": {"house": 6}, "Jupiter": {"house": 11},
         })
-        counter = analyser.detect_mangal_badh(chart)
+        counter = _detect_mangal_badh(chart, tmp_defaults, tmp_db)
         assert counter >= 1, f"R5 (Mars+Mercury conjunct) must increment counter, got {counter}"
 
     def test_r5_mars_ketu_conjunct_increments(self, tmp_defaults, tmp_db):
@@ -87,7 +95,7 @@ class TestMangalBadhComplete:
             "Mercury": {"house": 7}, "Venus": {"house": 6},
             "Saturn": {"house": 10}, "Rahu": {"house": 8}, "Jupiter": {"house": 11},
         })
-        counter = analyser.detect_mangal_badh(chart)
+        counter = _detect_mangal_badh(chart, tmp_defaults, tmp_db)
         assert counter >= 1, f"R5 (Mars+Ketu conjunct) must increment counter, got {counter}"
 
     def test_r6_ketu_in_h1_increments(self, tmp_defaults, tmp_db):
@@ -99,7 +107,7 @@ class TestMangalBadhComplete:
             "Mercury": {"house": 7}, "Venus": {"house": 6},
             "Saturn": {"house": 10}, "Rahu": {"house": 7}, "Jupiter": {"house": 11},
         })
-        counter = analyser.detect_mangal_badh(chart)
+        counter = _detect_mangal_badh(chart, tmp_defaults, tmp_db)
         assert counter >= 1, f"R6 (Ketu in H1) must increment counter, got {counter}"
 
     def test_r7_ketu_in_h8_increments(self, tmp_defaults, tmp_db):
@@ -111,7 +119,7 @@ class TestMangalBadhComplete:
             "Mercury": {"house": 7}, "Venus": {"house": 6},
             "Saturn": {"house": 10}, "Rahu": {"house": 12}, "Jupiter": {"house": 11},
         })
-        counter = analyser.detect_mangal_badh(chart)
+        counter = _detect_mangal_badh(chart, tmp_defaults, tmp_db)
         assert counter >= 1, f"R7 (Ketu in H8) must increment counter, got {counter}"
 
     def test_r8_mars_in_h3_increments(self, tmp_defaults, tmp_db):
@@ -123,7 +131,7 @@ class TestMangalBadhComplete:
             "Venus": {"house": 2}, "Saturn": {"house": 10}, "Rahu": {"house": 12},
             "Ketu": {"house": 6}, "Jupiter": {"house": 11},
         })
-        counter = analyser.detect_mangal_badh(chart)
+        counter = _detect_mangal_badh(chart, tmp_defaults, tmp_db)
         assert counter >= 1, f"R8 (Mars in H3) must increment counter, got {counter}"
 
     def test_r9_venus_in_h9_increments(self, tmp_defaults, tmp_db):
@@ -135,7 +143,7 @@ class TestMangalBadhComplete:
             "Mercury": {"house": 7}, "Saturn": {"house": 10}, "Rahu": {"house": 12},
             "Ketu": {"house": 6}, "Jupiter": {"house": 11},
         })
-        counter = analyser.detect_mangal_badh(chart)
+        counter = _detect_mangal_badh(chart, tmp_defaults, tmp_db)
         assert counter >= 1, f"R9 (Venus in H9) must increment counter, got {counter}"
 
     def test_r10_sun_in_h6_increments(self, tmp_defaults, tmp_db):
@@ -147,7 +155,7 @@ class TestMangalBadhComplete:
             "Venus": {"house": 2}, "Saturn": {"house": 8}, "Rahu": {"house": 11},
             "Ketu": {"house": 5}, "Jupiter": {"house": 9},
         })
-        counter = analyser.detect_mangal_badh(chart)
+        counter = _detect_mangal_badh(chart, tmp_defaults, tmp_db)
         assert counter >= 1, f"R10 (Sun in H6) must increment counter, got {counter}"
 
     def test_r11_mars_in_h6_increments(self, tmp_defaults, tmp_db):
@@ -159,7 +167,7 @@ class TestMangalBadhComplete:
             "Venus": {"house": 2}, "Saturn": {"house": 10}, "Rahu": {"house": 12},
             "Ketu": {"house": 6}, "Jupiter": {"house": 11},
         })
-        counter = analyser.detect_mangal_badh(chart)
+        counter = _detect_mangal_badh(chart, tmp_defaults, tmp_db)
         assert counter >= 1, f"R11 (Mars in H6) must increment counter, got {counter}"
 
     def test_r12_mercury_in_h1_h3_h8_increments(self, tmp_defaults, tmp_db):
@@ -172,7 +180,7 @@ class TestMangalBadhComplete:
                 "Venus": {"house": 2}, "Saturn": {"house": 10}, "Rahu": {"house": 12},
                 "Ketu": {"house": 6}, "Jupiter": {"house": 11},
             })
-            counter = analyser.detect_mangal_badh(chart)
+            counter = _detect_mangal_badh(chart, tmp_defaults, tmp_db)
             assert counter >= 1, f"R12 (Mercury in H{merc_h}) must increment counter, got {counter}"
 
     def test_r13_rahu_in_h5_increments(self, tmp_defaults, tmp_db):
@@ -184,7 +192,7 @@ class TestMangalBadhComplete:
             "Venus": {"house": 6}, "Saturn": {"house": 10}, "Ketu": {"house": 11},
             "Jupiter": {"house": 3},
         })
-        counter = analyser.detect_mangal_badh(chart)
+        counter = _detect_mangal_badh(chart, tmp_defaults, tmp_db)
         assert counter >= 1, f"R13 (Rahu in H5) must increment counter, got {counter}"
 
     def test_d1_sun_mercury_conjunct_decrements(self, tmp_defaults, tmp_db):
@@ -201,8 +209,8 @@ class TestMangalBadhComplete:
             "Moon": {"house": 4}, "Venus": {"house": 2}, "Saturn": {"house": 8},
             "Rahu": {"house": 3}, "Ketu": {"house": 9}, "Jupiter": {"house": 11},
         })
-        c_with = analyser.detect_mangal_badh(chart_with_d1)
-        c_without = analyser.detect_mangal_badh(chart_without_d1)
+        c_with = _detect_mangal_badh(chart_with_d1, tmp_defaults, tmp_db)
+        c_without = _detect_mangal_badh(chart_without_d1, tmp_defaults, tmp_db)
         assert c_with < c_without, \
             f"D1 (Sun+Mercury conjunct) must decrement: {c_with} should be < {c_without}"
 
@@ -222,8 +230,8 @@ class TestMangalBadhComplete:
                 "Venus": {"house": 6}, "Saturn": {"house": 10}, "Rahu": {"house": 12},
                 "Ketu": {"house": 6}, "Jupiter": {"house": 11},
             })
-            c_with = analyser.detect_mangal_badh(chart_with)
-            c_without = analyser.detect_mangal_badh(chart_without)
+            c_with = _detect_mangal_badh(chart_with, tmp_defaults, tmp_db)
+            c_without = _detect_mangal_badh(chart_without, tmp_defaults, tmp_db)
             assert c_with < c_without, \
                 f"D4 (Moon in H{moon_h}) should decrement: {c_with} should be < {c_without}"
 
@@ -236,7 +244,7 @@ class TestMangalBadhComplete:
             "Mercury": {"house": 7}, "Venus": {"house": 2}, "Saturn": {"house": 10},
             "Rahu": {"house": 12}, "Ketu": {"house": 6}, "Jupiter": {"house": 11},
         })
-        counter = analyser.detect_mangal_badh(chart)
+        counter = _detect_mangal_badh(chart, tmp_defaults, tmp_db)
         assert counter >= 1, "Need at least 1 counter for this test"
 
         enriched = {"Mars": _make_enriched_planet(3, 10.0)}

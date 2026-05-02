@@ -34,3 +34,4 @@ reference-docs/*.xlsx
 .agent/
 artifacts/
 brain/
+backend/output/

@@ -1,5 +1,6 @@
 import pytest
 from astroq.lk_prediction.grammar_analyser import GrammarAnalyser
+from astroq.lk_prediction.grammar.modules.entanglement_module import EntanglementModule
 from astroq.lk_prediction.config import ModelConfig
 from tests.lk_prediction.conftest import MODEL_DEFAULTS_PATH
 
@@ -18,10 +19,11 @@ def test_masnui_jupiter_strength_and_feedback(tmp_path):
         },
         "house_status": {"1": "Occupied"}
     }
-    
+
     # 1. Detect Masnui
-    masnuis = analyser.detect_masnui(chart)
-    chart["masnui_grahas_formed"] = masnuis
+    ent_mod = EntanglementModule(cfg)
+    ent_mod.detect(chart)
+    masnuis = chart.get("masnui_grahas_formed", [])
     
     # 2. Apply Grammar (Integration)
     # Give parents some base strength to see the delta

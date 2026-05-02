@@ -1,0 +1,1596 @@
+==================================================================
+           QUANTUM ENGINE FORENSIC TIMING REPORT                  
+==================================================================
+
+FIGURE: Amitabh Bachchan | EVENT: Zanjeer release (stardom) and Marriage to Jaya
+  -> Ground Truth Age: 31 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [2, 5, 7, 24, 29, 31, 32, 36, 41, 43, 51, 54, 55, 62, 72, 73]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Amitabh Bachchan | EVENT: Coolie accident - nearly fatal injury
+  -> Ground Truth Age: 40 | Domain: health | Karakas: ['Sun', 'Mars', 'Saturn']
+  -> Natal Promise: YES (Primary karaka Mars dignified in house 8)
+  -> Predicted Trigger Ages: [2, 4, 8, 20, 28, 32, 33, 40, 45, 46, 51, 56, 58, 66, 68, 70, 73, 74]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Amitabh Bachchan | EVENT: KBC premiere and massive career comeback
+  -> Ground Truth Age: 58 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [2, 5, 7, 24, 29, 31, 32, 36, 41, 43, 51, 54, 55, 62, 72, 73]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Amitabh Bachchan | EVENT: Financial collapse of ABCL
+  -> Ground Truth Age: 57 | Domain: finance | Karakas: ['Jupiter', 'Venus', 'Mercury']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [19, 24, 25, 26, 40, 48, 52, 54, 60, 66]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Sachin Tendulkar | EVENT: International cricket debut
+  -> Ground Truth Age: 16 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [24, 39, 40, 41, 51, 54, 64, 66, 67, 71, 73]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Sachin Tendulkar | EVENT: Marriage to Anjali
+  -> Ground Truth Age: 22 | Domain: marriage | Karakas: ['Venus', 'Mercury']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [27, 61]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Sachin Tendulkar | EVENT: Cricket World Cup victory
+  -> Ground Truth Age: 38 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [24, 39, 40, 41, 51, 54, 64, 66, 67, 71, 73]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Sachin Tendulkar | EVENT: Retirement from cricket
+  -> Ground Truth Age: 40 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [24, 39, 40, 41, 51, 54, 64, 66, 67, 71, 73]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Narendra Modi | EVENT: Sworn in as CM
+  -> Ground Truth Age: 51 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [2, 3, 14, 15, 17, 32, 35, 42, 43, 45, 50, 51, 55, 58, 63, 66, 73, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Narendra Modi | EVENT: Sworn in as PM
+  -> Ground Truth Age: 64 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [2, 3, 14, 15, 17, 32, 35, 42, 43, 45, 50, 51, 55, 58, 63, 66, 73, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Narendra Modi | EVENT: Second PM term
+  -> Ground Truth Age: 69 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [2, 3, 14, 15, 17, 32, 35, 42, 43, 45, 50, 51, 55, 58, 63, 66, 73, 75]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Narendra Modi | EVENT: Article 370 revocation.
+  -> Ground Truth Age: 69 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [2, 3, 14, 15, 17, 32, 35, 42, 43, 45, 50, 51, 55, 58, 63, 66, 73, 75]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Steve Jobs | EVENT: Founding of Apple
+  -> Ground Truth Age: 21 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [1, 2, 17, 19, 28, 29, 31, 32, 37, 42, 43, 50, 52, 55, 62, 63, 73]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Steve Jobs | EVENT: Fired from Apple
+  -> Ground Truth Age: 30 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [1, 2, 17, 19, 28, 29, 31, 32, 37, 42, 43, 50, 52, 55, 62, 63, 73]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Steve Jobs | EVENT: Return to Apple and NeXT acquisition
+  -> Ground Truth Age: 42 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [1, 2, 17, 19, 28, 29, 31, 32, 37, 42, 43, 50, 52, 55, 62, 63, 73]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Steve Jobs | EVENT: Death due to pancreatic cancer
+  -> Ground Truth Age: 56 | Domain: health | Karakas: ['Sun', 'Mars', 'Saturn']
+  -> Natal Promise: YES (Primary karaka Mars dignified in house 8)
+  -> Predicted Trigger Ages: [3, 28, 32, 33, 39, 45, 46, 51, 56, 66, 68, 70, 72, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Bill Gates | EVENT: Microsoft founded
+  -> Ground Truth Age: 20 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: YES (Primary karaka Jupiter dignified in house 2)
+  -> Predicted Trigger Ages: [4, 21, 22, 38, 45, 57, 74]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Bill Gates | EVENT: Windows 1.0 release
+  -> Ground Truth Age: 30 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: YES (Primary karaka Jupiter dignified in house 2)
+  -> Predicted Trigger Ages: [4, 21, 22, 38, 45, 57, 74]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Bill Gates | EVENT: Marriage
+  -> Ground Truth Age: 39 | Domain: marriage | Karakas: ['Venus', 'Mercury']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [34, 70]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Bill Gates | EVENT: Gates Foundation.
+  -> Ground Truth Age: 45 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Rahu dignified in house 6)
+  -> Predicted Trigger Ages: [4, 5, 8, 10, 11, 14, 16, 17, 19, 21, 22, 23, 26, 28, 34, 36, 37, 38, 40, 44, 45, 48, 49, 50, 52, 53, 55, 57, 58, 60, 61, 62, 63, 64, 67, 68, 69, 71, 72, 73, 74, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Princess Diana | EVENT: Royal Wedding
+  -> Ground Truth Age: 20 | Domain: marriage | Karakas: ['Venus', 'Mercury']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: []
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Princess Diana | EVENT: Prince William birth
+  -> Ground Truth Age: 21 | Domain: progeny | Karakas: ['Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [13, 31, 43, 55, 67]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Princess Diana | EVENT: Divorce final
+  -> Ground Truth Age: 35 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Jupiter dignified in house 2)
+  -> Predicted Trigger Ages: [7, 12, 16, 19, 21, 29, 35, 43, 44, 46, 47, 52, 53, 65, 66, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Princess Diana | EVENT: Passing.
+  -> Ground Truth Age: 36 | Domain: health | Karakas: ['Sun', 'Mars', 'Saturn']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [68]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Shah Rukh Khan | EVENT: Marriage
+  -> Ground Truth Age: 26 | Domain: marriage | Karakas: ['Venus', 'Mercury']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [69]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Shah Rukh Khan | EVENT: Deewana
+  -> Ground Truth Age: 27 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [3, 4, 5, 6, 11, 14, 15, 17, 19, 20, 22, 23, 25, 27, 28, 32, 33, 38, 39, 40, 42, 43, 44, 45, 49, 50, 51, 52, 54, 55, 56, 57, 58, 62, 63, 66, 68, 69, 73, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Shah Rukh Khan | EVENT: DDLJ release
+  -> Ground Truth Age: 30 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [3, 4, 6, 17, 19, 20, 22, 28, 32, 38, 39, 40, 42, 50, 52, 54, 55, 56, 57, 58, 62, 63, 66, 68, 75]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Shah Rukh Khan | EVENT: Pathaan release.
+  -> Ground Truth Age: 58 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [3, 4, 6, 17, 19, 20, 22, 28, 32, 38, 39, 40, 42, 50, 52, 54, 55, 56, 57, 58, 62, 63, 66, 68, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Michael Jackson | EVENT: Jackson 5 signing with Motown
+  -> Ground Truth Age: 11 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [3, 4, 6, 16, 20, 21, 23, 26, 27, 32, 38, 39, 40, 45, 52, 54, 56, 57, 62, 64, 66, 67, 68, 75]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Michael Jackson | EVENT: Thriller release (peak fame)
+  -> Ground Truth Age: 24 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [3, 4, 6, 16, 20, 21, 23, 26, 27, 32, 38, 39, 40, 45, 52, 54, 56, 57, 62, 64, 66, 67, 68, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Michael Jackson | EVENT: Death
+  -> Ground Truth Age: 51 | Domain: health | Karakas: ['Sun', 'Mars', 'Saturn']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [4, 7, 9, 16, 19, 28, 31, 40, 41, 43, 49, 54, 55, 65, 66, 67, 74]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Indira Gandhi | EVENT: 1st PM term
+  -> Ground Truth Age: 49 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Rahu dignified in house 6)
+  -> Predicted Trigger Ages: [4, 5, 8, 10, 11, 13, 14, 16, 17, 19, 23, 25, 26, 28, 32, 33, 34, 36, 40, 42, 43, 44, 47, 48, 49, 50, 52, 53, 55, 56, 58, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 71, 72, 74, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Indira Gandhi | EVENT: Bangladesh liberation
+  -> Ground Truth Age: 54 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Rahu dignified in house 6)
+  -> Predicted Trigger Ages: [4, 5, 8, 10, 11, 13, 14, 16, 17, 19, 23, 25, 26, 28, 32, 33, 34, 36, 40, 42, 43, 44, 47, 48, 49, 50, 52, 53, 55, 56, 58, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 71, 72, 74, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Indira Gandhi | EVENT: Emergency
+  -> Ground Truth Age: 58 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Rahu dignified in house 6)
+  -> Predicted Trigger Ages: [4, 5, 8, 10, 11, 13, 14, 16, 17, 19, 23, 25, 26, 28, 32, 33, 34, 36, 40, 42, 43, 44, 47, 48, 49, 50, 52, 53, 55, 56, 58, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 71, 72, 74, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Indira Gandhi | EVENT: Passing.
+  -> Ground Truth Age: 67 | Domain: health | Karakas: ['Sun', 'Mars', 'Saturn']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: []
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Elon Musk | EVENT: X.com founded
+  -> Ground Truth Age: 28 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [2, 3, 11, 14, 23, 28, 32, 33, 35, 36, 37, 43, 47, 49, 51, 58, 59, 61, 63, 68, 71, 73]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Elon Musk | EVENT: SpaceX founded
+  -> Ground Truth Age: 31 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [2, 3, 11, 14, 23, 28, 32, 33, 35, 36, 37, 43, 47, 49, 51, 58, 59, 61, 63, 68, 71, 73]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Elon Musk | EVENT: Tesla founded
+  -> Ground Truth Age: 32 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [2, 3, 11, 14, 23, 28, 32, 33, 35, 36, 37, 43, 47, 49, 51, 58, 59, 61, 63, 68, 71, 73]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Elon Musk | EVENT: Crew Dragon launch.
+  -> Ground Truth Age: 49 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [2, 3, 11, 14, 15, 18, 20, 23, 28, 30, 31, 32, 33, 35, 36, 37, 39, 42, 43, 47, 49, 51, 54, 58, 59, 60, 61, 63, 66, 68, 71, 72, 73, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Mahatma Gandhi | EVENT: Arrival in South Africa
+  -> Ground Truth Age: 24 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [10, 12, 17, 19, 22, 24, 27, 28, 32, 33, 34, 36, 39, 42, 43, 44, 45, 46, 48, 50, 51, 52, 53, 54, 55, 56, 57, 58, 60, 63, 64, 66, 68, 69, 70, 72, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Mahatma Gandhi | EVENT: Dandi March
+  -> Ground Truth Age: 61 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [10, 12, 17, 19, 22, 24, 27, 28, 32, 33, 34, 36, 39, 42, 43, 44, 45, 46, 48, 50, 51, 52, 53, 54, 55, 56, 57, 58, 60, 63, 64, 66, 68, 69, 70, 72, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Mahatma Gandhi | EVENT: Indian Independence
+  -> Ground Truth Age: 78 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [10, 12, 17, 19, 22, 24, 27, 28, 32, 33, 34, 36, 39, 42, 43, 44, 45, 46, 48, 50, 51, 52, 53, 54, 55, 56, 57, 58, 60, 63, 64, 66, 68, 69, 70, 72, 75]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Mahatma Gandhi | EVENT: Passing.
+  -> Ground Truth Age: 79 | Domain: health | Karakas: ['Sun', 'Mars', 'Saturn']
+  -> Natal Promise: YES (Primary karaka Sun dignified in house 1)
+  -> Predicted Trigger Ages: [1, 2, 3, 12, 13, 23, 24, 25, 35, 36, 37, 38, 39, 47, 48, 49, 59, 60, 61, 71, 72, 73, 75]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Jawaharlal Nehru | EVENT: Left for schooling at Harrow, England
+  -> Ground Truth Age: 16 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [17, 23, 33, 53, 71, 74, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Jawaharlal Nehru | EVENT: Returned to India (Career start)
+  -> Ground Truth Age: 23 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [17, 23, 33, 53, 71, 74, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Jawaharlal Nehru | EVENT: Became first Prime Minister of India
+  -> Ground Truth Age: 58 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [17, 23, 33, 53, 71, 74, 75]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Jawaharlal Nehru | EVENT: Signed Delhi Pact
+  -> Ground Truth Age: 61 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [17, 23, 33, 53, 71, 74, 75]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Osho (Rajneesh) | EVENT: Founded commune in Oregon, US
+  -> Ground Truth Age: 50 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [2, 5, 7, 18, 24, 29, 31, 32, 41, 43, 46, 51, 54, 55, 62, 70, 72]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Osho (Rajneesh) | EVENT: Arrested and extradited from US
+  -> Ground Truth Age: 54 | Domain: health | Karakas: ['Sun', 'Mars', 'Saturn']
+  -> Natal Promise: YES (Primary karaka Mars dignified in house 8)
+  -> Predicted Trigger Ages: [2, 8, 17, 20, 28, 32, 33, 44, 45, 46, 51, 56, 58, 66, 68, 70, 73]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Osho (Rajneesh) | EVENT: Died in Pune, India
+  -> Ground Truth Age: 59 | Domain: health | Karakas: ['Sun', 'Mars', 'Saturn']
+  -> Natal Promise: YES (Primary karaka Mars dignified in house 8)
+  -> Predicted Trigger Ages: [2, 8, 17, 20, 28, 32, 33, 44, 45, 46, 51, 56, 58, 66, 68, 70, 73]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Jiddu Krishnamurti | EVENT: Discovered by C.W. Leadbeater
+  -> Ground Truth Age: 14 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: YES (Primary karaka Saturn dignified in house 10)
+  -> Predicted Trigger Ages: [5, 6, 17, 23, 37, 38, 51, 53, 59, 69, 74]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Jiddu Krishnamurti | EVENT: Death of brother Nitya
+  -> Ground Truth Age: 30 | Domain: marriage | Karakas: ['Venus', 'Mercury']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [34, 70]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Jiddu Krishnamurti | EVENT: Dissolved Order of the Star
+  -> Ground Truth Age: 34 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: YES (Primary karaka Saturn dignified in house 10)
+  -> Predicted Trigger Ages: [5, 6, 17, 23, 37, 38, 51, 53, 59, 69, 74]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Jiddu Krishnamurti | EVENT: Died in Ojai, California
+  -> Ground Truth Age: 91 | Domain: health | Karakas: ['Sun', 'Mars', 'Saturn']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [2, 5, 28, 30, 42, 47, 52, 56, 58, 64, 66, 67, 70]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Salman Khan | EVENT: Hit-and-run case incident
+  -> Ground Truth Age: 37 | Domain: health | Karakas: ['Sun', 'Mars', 'Saturn']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [23, 57]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Salman Khan | EVENT: Diagnosed with trigeminal neuralgia
+  -> Ground Truth Age: 46 | Domain: health | Karakas: ['Sun', 'Mars', 'Saturn']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [23, 57]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Salman Khan | EVENT: Sentenced to 5 years
+  -> Ground Truth Age: 50 | Domain: health | Karakas: ['Sun', 'Mars', 'Saturn']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [23, 57]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Lata Mangeshkar | EVENT: Death of father Deenanath Mangeshkar
+  -> Ground Truth Age: 13 | Domain: marriage | Karakas: ['Venus', 'Mercury']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [35]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Lata Mangeshkar | EVENT: First major hit 'Dil Mera Toda'
+  -> Ground Truth Age: 19 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [4, 6, 20, 22, 38, 40, 52, 56, 57, 62, 64, 66, 67, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Lata Mangeshkar | EVENT: Awarded Bharat Ratna
+  -> Ground Truth Age: 72 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [4, 6, 20, 22, 38, 40, 52, 56, 57, 62, 64, 66, 67, 75]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Lata Mangeshkar | EVENT: Died in Mumbai
+  -> Ground Truth Age: 93 | Domain: health | Karakas: ['Sun', 'Mars', 'Saturn']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [4, 5, 7, 16, 19, 22, 28, 29, 31, 33, 40, 41, 43, 49, 55, 63, 64, 65, 67, 74]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Priyanka Chopra | EVENT: Won Miss World title
+  -> Ground Truth Age: 18 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [16, 20, 22, 36, 39, 41, 52, 54, 56, 57, 58, 72, 75]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Priyanka Chopra | EVENT: Death of father Dr. Ashok Chopra
+  -> Ground Truth Age: 31 | Domain: marriage | Karakas: ['Venus', 'Mercury']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [69]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Priyanka Chopra | EVENT: Marriage to Nick Jonas
+  -> Ground Truth Age: 36 | Domain: marriage | Karakas: ['Venus', 'Mercury']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [69]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Donald Trump | EVENT: Trump Tower completion
+  -> Ground Truth Age: 37 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Jupiter dignified in house 2)
+  -> Predicted Trigger Ages: [2, 6, 7, 12, 16, 19, 21, 28, 31, 35, 40, 42, 44, 52, 53, 59, 64, 66, 67, 71, 73, 74, 75]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Donald Trump | EVENT: Presidential bid
+  -> Ground Truth Age: 69 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Jupiter dignified in house 2)
+  -> Predicted Trigger Ages: [2, 6, 7, 12, 16, 19, 21, 28, 31, 35, 40, 42, 44, 52, 53, 59, 64, 66, 67, 71, 73, 74, 75]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Donald Trump | EVENT: Election victory
+  -> Ground Truth Age: 70 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Jupiter dignified in house 2)
+  -> Predicted Trigger Ages: [2, 6, 7, 12, 16, 19, 21, 28, 31, 35, 40, 42, 44, 52, 53, 59, 64, 66, 67, 71, 73, 74, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Donald Trump | EVENT: Inauguration.
+  -> Ground Truth Age: 71 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Jupiter dignified in house 2)
+  -> Predicted Trigger Ages: [2, 6, 7, 12, 16, 19, 21, 28, 31, 35, 40, 42, 44, 52, 53, 59, 64, 66, 67, 71, 73, 74, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Barack Obama | EVENT: US Senate win
+  -> Ground Truth Age: 43 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [5, 20, 29, 31, 32, 40, 43, 55, 56, 62]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Barack Obama | EVENT: Elected President
+  -> Ground Truth Age: 47 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [5, 20, 29, 31, 32, 40, 43, 55, 56, 62]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Barack Obama | EVENT: Nobel Peace Prize
+  -> Ground Truth Age: 48 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [5, 20, 29, 31, 32, 40, 43, 55, 56, 62]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Barack Obama | EVENT: Re-election.
+  -> Ground Truth Age: 51 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [5, 20, 21, 29, 30, 31, 32, 38, 40, 43, 46, 51, 55, 56, 62, 64, 67, 70, 72, 74]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Joe Biden | EVENT: Death of wife and daughter in car accident
+  -> Ground Truth Age: 30 | Domain: marriage | Karakas: ['Venus', 'Mercury']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [6, 18, 30, 31, 39, 42, 53, 56, 65, 67]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Joe Biden | EVENT: Suffered major brain aneurysm
+  -> Ground Truth Age: 46 | Domain: health | Karakas: ['Sun', 'Mars', 'Saturn']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [4, 7, 16, 19, 22, 28, 31, 40, 41, 43, 49, 54, 55, 58, 65, 66, 67, 74]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Joe Biden | EVENT: Death of son Beau Biden
+  -> Ground Truth Age: 73 | Domain: marriage | Karakas: ['Venus', 'Mercury']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [6, 18, 30, 31, 39, 42, 53, 56, 65, 67]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Joe Biden | EVENT: Elected President of the United States
+  -> Ground Truth Age: 78 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [3, 4, 6, 16, 17, 19, 20, 26, 31, 32, 38, 39, 40, 51, 52, 53, 54, 55, 56, 58, 62, 64, 66, 67, 68, 75]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Queen Elizabeth II | EVENT: Marriage to Prince Philip
+  -> Ground Truth Age: 21 | Domain: marriage | Karakas: ['Venus', 'Mercury']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [69]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Queen Elizabeth II | EVENT: Accession to the throne
+  -> Ground Truth Age: 26 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: YES (Primary karaka Saturn dignified in house 10)
+  -> Predicted Trigger Ages: [5, 6, 20, 23, 37, 38, 51, 56, 59, 69, 74]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Queen Elizabeth II | EVENT: Death of Prince Philip
+  -> Ground Truth Age: 95 | Domain: marriage | Karakas: ['Venus', 'Mercury']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [69]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Queen Elizabeth II | EVENT: Died at Balmoral
+  -> Ground Truth Age: 96 | Domain: health | Karakas: ['Sun', 'Mars', 'Saturn']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [2, 5, 42, 47, 52, 56, 58, 67, 70]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: King Charles III | EVENT: Marriage to Lady Diana Spencer
+  -> Ground Truth Age: 33 | Domain: marriage | Karakas: ['Venus', 'Mercury']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [35]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: King Charles III | EVENT: Marriage to Camilla Parker Bowles
+  -> Ground Truth Age: 57 | Domain: marriage | Karakas: ['Venus', 'Mercury']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [35]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: King Charles III | EVENT: Accession to the throne
+  -> Ground Truth Age: 74 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [1, 17, 22, 37, 53, 57, 73]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Mother Teresa | EVENT: Divine call ('call within a call')
+  -> Ground Truth Age: 36 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: YES (Primary karaka Mars dignified in house 10)
+  -> Predicted Trigger Ages: [6, 15, 17, 19, 28, 30, 31, 36, 37, 38, 39, 41, 42, 50, 51, 52, 55, 56, 59, 63, 64, 67, 69, 72, 74]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Mother Teresa | EVENT: Awarded Nobel Peace Prize
+  -> Ground Truth Age: 69 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: YES (Primary karaka Mars dignified in house 10)
+  -> Predicted Trigger Ages: [6, 15, 17, 19, 28, 30, 31, 36, 37, 38, 39, 41, 42, 50, 51, 52, 55, 56, 59, 63, 64, 67, 69, 72, 74]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Mother Teresa | EVENT: Died in Calcutta
+  -> Ground Truth Age: 87 | Domain: health | Karakas: ['Sun', 'Mars', 'Saturn']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [5, 10, 20, 22, 31, 32, 41, 42, 46, 47, 52, 56, 58, 67, 68, 70]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Rajiv Gandhi | EVENT: Marriage to Sonia Maino
+  -> Ground Truth Age: 24 | Domain: marriage | Karakas: ['Venus', 'Mercury']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: []
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Rajiv Gandhi | EVENT: Became Prime Minister of India
+  -> Ground Truth Age: 40 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [20, 32, 56, 58, 68]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Rajiv Gandhi | EVENT: Assassinated in Sriperumbudur
+  -> Ground Truth Age: 47 | Domain: health | Karakas: ['Sun', 'Mars', 'Saturn']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [1, 22, 36, 37, 58, 72, 73]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Aamir Khan | EVENT: Marriage to Reena Dutta
+  -> Ground Truth Age: 21 | Domain: marriage | Karakas: ['Venus', 'Mercury']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: []
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Aamir Khan | EVENT: Oscar nomination for 'Lagaan'
+  -> Ground Truth Age: 36 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [8, 10, 20, 22, 24, 32, 34, 36, 44, 46, 48, 56, 58, 60, 68, 70, 72]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Aamir Khan | EVENT: Marriage to Kiran Rao
+  -> Ground Truth Age: 40 | Domain: marriage | Karakas: ['Venus', 'Mercury']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: []
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Vladimir Putin | EVENT: Acting President
+  -> Ground Truth Age: 47 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [3, 5, 11, 15, 16, 18, 20, 21, 28, 33, 38, 40, 47, 51, 52, 54, 56, 58, 64, 66, 72, 74]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Vladimir Putin | EVENT: 1st Inauguration
+  -> Ground Truth Age: 48 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [3, 5, 11, 15, 16, 18, 20, 21, 28, 33, 38, 40, 47, 51, 52, 54, 56, 58, 64, 66, 72, 74]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Vladimir Putin | EVENT: Return to Presidency
+  -> Ground Truth Age: 60 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [3, 5, 11, 15, 16, 18, 20, 21, 28, 33, 38, 40, 47, 51, 52, 54, 56, 58, 64, 66, 72, 74]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Vladimir Putin | EVENT: Special Military Op.
+  -> Ground Truth Age: 70 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [3, 5, 11, 15, 16, 18, 20, 21, 28, 33, 38, 40, 47, 51, 52, 54, 56, 58, 64, 66, 72, 74]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Abraham Lincoln | EVENT: Elected President
+  -> Ground Truth Age: 51 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: YES (Primary karaka Jupiter dignified in house 2)
+  -> Predicted Trigger Ages: [2, 10, 12, 19, 21, 22, 24, 29, 32, 34, 35, 36, 44, 46, 48, 53, 56, 58, 60, 65, 66, 68, 70, 72, 75]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Abraham Lincoln | EVENT: Emancipation Proclamation
+  -> Ground Truth Age: 54 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Jupiter dignified in house 2)
+  -> Predicted Trigger Ages: [2, 3, 6, 7, 9, 10, 12, 15, 16, 19, 21, 22, 24, 27, 28, 29, 30, 32, 33, 34, 35, 36, 39, 42, 44, 45, 46, 48, 51, 52, 53, 56, 57, 58, 59, 60, 63, 65, 66, 68, 69, 70, 71, 72, 73, 74, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Abraham Lincoln | EVENT: Gettysburg Address
+  -> Ground Truth Age: 54 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Jupiter dignified in house 2)
+  -> Predicted Trigger Ages: [2, 3, 6, 7, 9, 10, 12, 15, 16, 19, 21, 22, 24, 27, 28, 29, 30, 32, 33, 34, 35, 36, 39, 42, 44, 45, 46, 48, 51, 52, 53, 56, 57, 58, 59, 60, 63, 65, 66, 68, 69, 70, 71, 72, 73, 74, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Abraham Lincoln | EVENT: Passing.
+  -> Ground Truth Age: 56 | Domain: health | Karakas: ['Sun', 'Mars', 'Saturn']
+  -> Natal Promise: YES (Primary karaka Sun dignified in house 1)
+  -> Predicted Trigger Ages: [1, 6, 11, 12, 13, 23, 24, 25, 35, 36, 37, 47, 48, 49, 59, 60, 61, 68, 71, 72, 73]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Nelson Mandela | EVENT: Life imprisonment
+  -> Ground Truth Age: 46 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Saturn dignified in house 10)
+  -> Predicted Trigger Ages: [1, 5, 6, 7, 9, 12, 13, 16, 18, 23, 26, 28, 29, 30, 31, 37, 38, 40, 41, 44, 51, 53, 54, 55, 59, 62, 64, 65, 67, 68, 69, 74]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Nelson Mandela | EVENT: Prison release
+  -> Ground Truth Age: 72 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: YES (Primary karaka Saturn dignified in house 10)
+  -> Predicted Trigger Ages: [5, 6, 9, 16, 18, 29, 30, 31, 37, 38, 40, 41, 51, 54, 55, 64, 65, 67, 69, 74]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Nelson Mandela | EVENT: Inauguration as President
+  -> Ground Truth Age: 76 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Saturn dignified in house 10)
+  -> Predicted Trigger Ages: [1, 5, 6, 7, 9, 12, 13, 16, 18, 23, 26, 28, 29, 30, 31, 37, 38, 40, 41, 44, 51, 53, 54, 55, 59, 62, 64, 65, 67, 68, 69, 74]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Nelson Mandela | EVENT: Passing.
+  -> Ground Truth Age: 95 | Domain: health | Karakas: ['Sun', 'Mars', 'Saturn']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [2, 5, 32, 42, 46, 47, 56, 58, 67, 68, 70]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Mukesh Ambani | EVENT: Took over Reliance
+  -> Ground Truth Age: 45 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [2, 6, 10, 12, 15, 17, 19, 23, 28, 29, 30, 31, 32, 40, 42, 43, 44, 46, 47, 50, 52, 55, 56, 58, 62, 63, 64, 66, 67, 70, 71, 74, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Mukesh Ambani | EVENT: Reliance Jio launch
+  -> Ground Truth Age: 59 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [2, 6, 10, 12, 15, 17, 19, 23, 28, 29, 30, 31, 32, 40, 42, 43, 44, 46, 47, 50, 52, 55, 56, 58, 62, 63, 64, 66, 67, 70, 71, 74, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Mukesh Ambani | EVENT: Akash Ambani wedding
+  -> Ground Truth Age: 62 | Domain: marriage | Karakas: ['Venus', 'Mercury']
+  -> Natal Promise: YES (Primary karaka Venus dignified in house 7)
+  -> Predicted Trigger Ages: [25, 26, 37, 60, 62, 64, 73]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Mukesh Ambani | EVENT: Anant Ambani pre-wedding.
+  -> Ground Truth Age: 67 | Domain: marriage | Karakas: ['Venus', 'Mercury']
+  -> Natal Promise: YES (Primary karaka Venus dignified in house 7)
+  -> Predicted Trigger Ages: [25, 26, 37, 60, 62, 64, 73]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Ratan Tata | EVENT: Chairman of Tata Sons
+  -> Ground Truth Age: 54 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [10, 17, 18, 22, 23, 33, 36, 37, 39, 44, 46, 57, 58, 71, 72, 73]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Ratan Tata | EVENT: Corus acquisition
+  -> Ground Truth Age: 70 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [10, 17, 18, 22, 23, 33, 36, 37, 39, 44, 46, 57, 58, 71, 72, 73]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Ratan Tata | EVENT: Nano launch
+  -> Ground Truth Age: 71 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [10, 17, 18, 22, 23, 33, 36, 37, 39, 44, 46, 57, 58, 71, 72, 73]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Ratan Tata | EVENT: Retirement.
+  -> Ground Truth Age: 75 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [10, 17, 18, 22, 23, 33, 36, 37, 39, 44, 46, 57, 58, 71, 72, 73]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Jeff Bezos | EVENT: Amazon founded
+  -> Ground Truth Age: 30 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: YES (Primary karaka Mars dignified in house 10)
+  -> Predicted Trigger Ages: [5, 6, 15, 20, 28, 30, 31, 37, 38, 42, 51, 56, 59, 64, 67, 69, 74]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Jeff Bezos | EVENT: Amazon IPO
+  -> Ground Truth Age: 33 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Mars dignified in house 10)
+  -> Predicted Trigger Ages: [5, 6, 11, 14, 15, 20, 21, 28, 29, 30, 31, 37, 38, 41, 42, 43, 47, 49, 51, 54, 56, 59, 61, 64, 65, 67, 69, 74]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Jeff Bezos | EVENT: Blue Origin
+  -> Ground Truth Age: 36 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Mars dignified in house 10)
+  -> Predicted Trigger Ages: [5, 6, 11, 14, 15, 20, 21, 28, 29, 30, 31, 37, 38, 41, 42, 43, 47, 49, 51, 54, 56, 59, 61, 64, 65, 67, 69, 74]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Jeff Bezos | EVENT: Suborbital space flight.
+  -> Ground Truth Age: 57 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Mars dignified in house 10)
+  -> Predicted Trigger Ages: [5, 6, 11, 14, 15, 20, 21, 28, 29, 30, 31, 37, 38, 41, 42, 43, 47, 49, 51, 54, 56, 59, 61, 64, 65, 67, 69, 74]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Mark Zuckerberg | EVENT: Facebook launch
+  -> Ground Truth Age: 20 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [1, 2, 7, 12, 16, 23, 25, 29, 33, 37, 41, 49, 61, 65, 67, 71, 73, 74]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Mark Zuckerberg | EVENT: Facebook IPO
+  -> Ground Truth Age: 28 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [1, 2, 7, 12, 16, 23, 25, 29, 33, 37, 41, 49, 61, 65, 67, 71, 73, 74]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Mark Zuckerberg | EVENT: Marriage
+  -> Ground Truth Age: 28 | Domain: marriage | Karakas: ['Venus', 'Mercury']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: []
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Mark Zuckerberg | EVENT: Meta rebrand.
+  -> Ground Truth Age: 37 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [1, 2, 7, 12, 16, 23, 25, 29, 33, 37, 41, 49, 61, 65, 67, 71, 73, 74]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Sundar Pichai | EVENT: Joined Google
+  -> Ground Truth Age: 32 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Rahu dignified in house 6)
+  -> Predicted Trigger Ages: [2, 3, 4, 5, 8, 10, 11, 14, 16, 17, 20, 26, 28, 31, 34, 36, 40, 44, 48, 49, 50, 52, 53, 55, 58, 60, 61, 62, 63, 64, 67, 68, 69, 71, 72, 73, 74, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Sundar Pichai | EVENT: Google CEO
+  -> Ground Truth Age: 43 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [2, 17, 28, 53, 64]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Sundar Pichai | EVENT: Alphabet CEO
+  -> Ground Truth Age: 47 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [2, 17, 28, 53, 64]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Sundar Pichai | EVENT: Padma Bhushan.
+  -> Ground Truth Age: 50 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Rahu dignified in house 6)
+  -> Predicted Trigger Ages: [2, 3, 4, 5, 8, 10, 11, 14, 16, 17, 20, 26, 28, 31, 34, 36, 40, 44, 48, 49, 50, 52, 53, 55, 58, 60, 61, 62, 63, 64, 67, 68, 69, 71, 72, 73, 74, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Warren Buffett | EVENT: Berkshire control
+  -> Ground Truth Age: 35 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [11, 15, 16, 18, 20, 21, 23, 32, 33, 47, 51, 52, 54, 56, 63, 66, 68]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Warren Buffett | EVENT: Philanthropy pledge
+  -> Ground Truth Age: 76 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [11, 15, 16, 18, 20, 21, 23, 32, 33, 47, 51, 52, 54, 56, 63, 66, 68]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Warren Buffett | EVENT: Share price hit $200k
+  -> Ground Truth Age: 84 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [11, 15, 16, 18, 20, 21, 23, 32, 33, 47, 51, 52, 54, 56, 63, 66, 68]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Warren Buffett | EVENT: 2023 shareholder letter.
+  -> Ground Truth Age: 94 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [11, 15, 16, 18, 20, 21, 23, 32, 33, 47, 51, 52, 54, 56, 63, 66, 68]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Gautam Adani | EVENT: Adani Exports
+  -> Ground Truth Age: 26 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Ketu dignified in house 9)
+  -> Predicted Trigger Ages: [1, 2, 5, 7, 8, 9, 10, 13, 14, 18, 22, 23, 25, 29, 35, 37, 38, 39, 40, 41, 45, 46, 47, 48, 49, 50, 53, 54, 55, 57, 58, 59, 60, 61, 62, 64, 65, 67, 68, 70, 71, 73]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Gautam Adani | EVENT: Taj Mumbai survivor
+  -> Ground Truth Age: 46 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Ketu dignified in house 9)
+  -> Predicted Trigger Ages: [1, 2, 5, 7, 8, 9, 10, 13, 14, 18, 22, 23, 25, 29, 35, 37, 38, 39, 40, 41, 45, 46, 47, 48, 49, 50, 53, 54, 55, 57, 58, 59, 60, 61, 62, 64, 65, 67, 68, 70, 71, 73]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Gautam Adani | EVENT: Richest person in Asia
+  -> Ground Truth Age: 60 | Domain: progeny | Karakas: ['Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [4, 22, 33, 47, 52, 64, 75]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Gautam Adani | EVENT: Hindenburg report.
+  -> Ground Truth Age: 61 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Ketu dignified in house 9)
+  -> Predicted Trigger Ages: [1, 2, 5, 7, 8, 9, 10, 13, 14, 18, 22, 23, 25, 29, 35, 37, 38, 39, 40, 41, 45, 46, 47, 48, 49, 50, 53, 54, 55, 57, 58, 59, 60, 61, 62, 64, 65, 67, 68, 70, 71, 73]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Marilyn Monroe | EVENT: 1st marriage
+  -> Ground Truth Age: 16 | Domain: marriage | Karakas: ['Venus', 'Mercury']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: []
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Marilyn Monroe | EVENT: Marriage to Joe DiMaggio
+  -> Ground Truth Age: 28 | Domain: marriage | Karakas: ['Venus', 'Mercury']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: []
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Marilyn Monroe | EVENT: Happy Birthday Mr. President
+  -> Ground Truth Age: 36 | Domain: progeny | Karakas: ['Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [15, 17]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Marilyn Monroe | EVENT: Passing.
+  -> Ground Truth Age: 36 | Domain: health | Karakas: ['Sun', 'Mars', 'Saturn']
+  -> Natal Promise: YES (Primary karaka Mars dignified in house 8)
+  -> Predicted Trigger Ages: [4, 6, 23, 28, 30, 32, 33, 37, 38, 40, 45, 46, 56, 57, 66, 68, 70, 73, 74]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Leonardo DiCaprio | EVENT: Titanic release
+  -> Ground Truth Age: 23 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [2, 18, 22, 33, 37, 49, 52, 57, 58, 61, 73]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Leonardo DiCaprio | EVENT: Inception
+  -> Ground Truth Age: 36 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [2, 8, 11, 15, 18, 22, 23, 29, 33, 37, 42, 47, 49, 52, 57, 58, 61, 65, 73, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Leonardo DiCaprio | EVENT: Oscar win
+  -> Ground Truth Age: 42 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [2, 18, 22, 33, 37, 49, 52, 57, 58, 61, 73]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Leonardo DiCaprio | EVENT: Don't Look Up.
+  -> Ground Truth Age: 47 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [2, 8, 11, 15, 18, 22, 23, 29, 33, 37, 42, 47, 49, 52, 57, 58, 61, 65, 73, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Rajinikanth | EVENT: Apoorva Raagangal
+  -> Ground Truth Age: 25 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [11, 18, 20, 23, 40, 45, 51, 54, 56, 66, 67, 68, 71, 74]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Rajinikanth | EVENT: Marriage
+  -> Ground Truth Age: 31 | Domain: marriage | Karakas: ['Venus', 'Mercury']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: []
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Rajinikanth | EVENT: Chandramukhi
+  -> Ground Truth Age: 55 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [11, 18, 20, 23, 40, 45, 51, 54, 56, 66, 67, 68, 71, 74]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Rajinikanth | EVENT: Dadasaheb Phalke Award.
+  -> Ground Truth Age: 71 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [20, 23, 51, 54, 56, 66, 67, 71, 74]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: A.R. Rahman | EVENT: Roja release
+  -> Ground Truth Age: 26 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [2, 16, 19, 21, 29, 31, 32, 39, 40, 41, 43, 52, 53, 55, 62, 71, 73]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: A.R. Rahman | EVENT: Vande Mataram
+  -> Ground Truth Age: 31 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Rahu dignified in house 12)
+  -> Predicted Trigger Ages: [1, 2, 5, 9, 11, 13, 16, 17, 19, 21, 29, 30, 31, 32, 36, 38, 39, 40, 41, 42, 43, 48, 49, 50, 52, 53, 55, 62, 64, 67, 71, 72, 73]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: A.R. Rahman | EVENT: Slumdog Oscar win
+  -> Ground Truth Age: 43 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [2, 16, 19, 21, 29, 31, 32, 39, 40, 41, 43, 52, 53, 55, 62, 71, 73]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: A.R. Rahman | EVENT: 30 years in music.
+  -> Ground Truth Age: 57 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Rahu dignified in house 12)
+  -> Predicted Trigger Ages: [1, 2, 5, 9, 11, 13, 16, 17, 19, 21, 29, 30, 31, 32, 36, 38, 39, 40, 41, 42, 43, 48, 49, 50, 52, 53, 55, 62, 64, 67, 71, 72, 73]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Taylor Swift | EVENT: Debut album
+  -> Ground Truth Age: 17 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [1, 16, 18, 23, 29, 37, 41, 54, 55, 57, 65, 68, 73]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Taylor Swift | EVENT: VMA incident
+  -> Ground Truth Age: 20 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Jupiter dignified in house 9)
+  -> Predicted Trigger Ages: [1, 2, 9, 11, 14, 15, 16, 18, 22, 23, 29, 33, 35, 37, 41, 47, 49, 53, 54, 55, 57, 58, 59, 65, 68, 71, 73]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Taylor Swift | EVENT: Red (Taylor's Version)
+  -> Ground Truth Age: 32 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Jupiter dignified in house 9)
+  -> Predicted Trigger Ages: [1, 2, 9, 11, 14, 15, 16, 18, 22, 23, 29, 33, 35, 37, 41, 47, 49, 53, 54, 55, 57, 58, 59, 65, 68, 71, 73]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Taylor Swift | EVENT: Eras Tour start.
+  -> Ground Truth Age: 34 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Jupiter dignified in house 9)
+  -> Predicted Trigger Ages: [1, 2, 9, 11, 14, 15, 16, 18, 22, 23, 29, 33, 35, 37, 41, 47, 49, 53, 54, 55, 57, 58, 59, 65, 68, 71, 73]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Beyoncé | EVENT: Solo debut
+  -> Ground Truth Age: 22 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [17, 22, 36, 39, 41, 53, 57, 72, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Beyoncé | EVENT: Marriage to Jay-Z
+  -> Ground Truth Age: 27 | Domain: marriage | Karakas: ['Venus', 'Mercury']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [35, 45, 52, 68]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Beyoncé | EVENT: Blue Ivy birth
+  -> Ground Truth Age: 31 | Domain: progeny | Karakas: ['Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [4, 22, 33, 47, 52, 64, 75]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Beyoncé | EVENT: Record-breaking Grammy win.
+  -> Ground Truth Age: 42 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [17, 22, 36, 39, 41, 53, 57, 72, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Oprah Winfrey | EVENT: AM Chicago
+  -> Ground Truth Age: 30 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [5, 12, 18, 22, 23, 31, 38, 40, 44, 52, 57, 58, 67, 72, 74]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Oprah Winfrey | EVENT: Oprah Show premiere
+  -> Ground Truth Age: 32 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [5, 12, 18, 22, 23, 31, 38, 40, 44, 52, 57, 58, 67, 72, 74]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Oprah Winfrey | EVENT: OWN network
+  -> Ground Truth Age: 57 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [5, 12, 18, 22, 23, 31, 38, 40, 44, 52, 57, 58, 67, 72, 74]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Oprah Winfrey | EVENT: Meghan & Harry interview.
+  -> Ground Truth Age: 67 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [5, 12, 18, 22, 23, 31, 38, 40, 44, 52, 57, 58, 67, 72, 74]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Virat Kohli | EVENT: ODI Debut
+  -> Ground Truth Age: 20 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [5, 17, 40, 53]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Virat Kohli | EVENT: Marriage
+  -> Ground Truth Age: 29 | Domain: marriage | Karakas: ['Venus', 'Mercury']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: []
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Virat Kohli | EVENT: Vamika birth
+  -> Ground Truth Age: 33 | Domain: progeny | Karakas: ['Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [4, 22, 33, 47, 52, 64, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Virat Kohli | EVENT: Resigned Test captaincy.
+  -> Ground Truth Age: 34 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Ketu dignified in house 9)
+  -> Predicted Trigger Ages: [1, 2, 5, 7, 8, 9, 10, 13, 14, 17, 18, 20, 23, 25, 29, 35, 37, 38, 40, 41, 45, 46, 47, 48, 49, 50, 53, 54, 55, 57, 58, 59, 60, 61, 62, 65, 67, 68, 70, 71, 72, 73, 74]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Lionel Messi | EVENT: Barca debut
+  -> Ground Truth Age: 17 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [3, 11, 23, 32, 33, 35, 36, 37, 43, 47, 49, 51, 59, 61, 63, 68, 71, 73]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Lionel Messi | EVENT: Moved to PSG
+  -> Ground Truth Age: 34 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [3, 8, 9, 11, 14, 15, 18, 20, 23, 30, 31, 32, 33, 35, 36, 37, 39, 42, 43, 47, 49, 51, 54, 59, 60, 61, 63, 66, 68, 71, 72, 73]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Lionel Messi | EVENT: World Cup win
+  -> Ground Truth Age: 35 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [3, 11, 23, 32, 33, 35, 36, 37, 43, 47, 49, 51, 59, 61, 63, 68, 71, 73]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Lionel Messi | EVENT: Inter Miami debut.
+  -> Ground Truth Age: 36 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [3, 11, 23, 32, 33, 35, 36, 37, 43, 47, 49, 51, 59, 61, 63, 68, 71, 73]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Cristiano Ronaldo | EVENT: Man Utd debut
+  -> Ground Truth Age: 18 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [2, 5, 32, 41, 43, 55, 62, 72]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Cristiano Ronaldo | EVENT: Euro win
+  -> Ground Truth Age: 31 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [2, 5, 32, 41, 43, 55, 62, 72]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Cristiano Ronaldo | EVENT: Moved to Juventus
+  -> Ground Truth Age: 33 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [2, 5, 6, 7, 12, 13, 32, 36, 40, 41, 43, 44, 46, 47, 53, 55, 58, 62, 63, 72]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Cristiano Ronaldo | EVENT: Al Nassr move.
+  -> Ground Truth Age: 38 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [2, 5, 6, 7, 12, 13, 32, 36, 40, 41, 43, 44, 46, 47, 53, 55, 58, 62, 63, 72]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: MS Dhoni | EVENT: ODI Debut
+  -> Ground Truth Age: 23 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: YES (Primary karaka Mars dignified in house 10)
+  -> Predicted Trigger Ages: [6, 7, 15, 19, 21, 28, 30, 31, 35, 37, 38, 42, 44, 51, 53, 56, 59, 64, 66, 67, 69, 74, 75]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: MS Dhoni | EVENT: T20 WC win
+  -> Ground Truth Age: 26 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: YES (Primary karaka Mars dignified in house 10)
+  -> Predicted Trigger Ages: [6, 7, 15, 19, 21, 28, 30, 31, 35, 37, 38, 42, 44, 51, 53, 56, 59, 64, 66, 67, 69, 74, 75]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: MS Dhoni | EVENT: Marriage
+  -> Ground Truth Age: 29 | Domain: marriage | Karakas: ['Venus', 'Mercury']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [6, 18, 30, 31, 39, 42, 53, 56, 65, 67]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: MS Dhoni | EVENT: Retirement.
+  -> Ground Truth Age: 39 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Mars dignified in house 10)
+  -> Predicted Trigger Ages: [1, 5, 6, 7, 9, 11, 12, 14, 15, 16, 19, 21, 23, 25, 26, 28, 29, 30, 31, 34, 35, 37, 38, 40, 41, 42, 43, 44, 48, 49, 50, 51, 52, 53, 54, 56, 58, 59, 61, 64, 65, 66, 67, 69, 71, 72, 74, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Michael Jordan | EVENT: NBA Draft
+  -> Ground Truth Age: 21 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [7, 9, 12, 13, 23, 29, 37, 38, 39, 40, 41, 44, 46, 49, 65, 71, 73]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Michael Jordan | EVENT: 1st NBA Title
+  -> Ground Truth Age: 28 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [7, 9, 12, 13, 23, 29, 37, 38, 39, 40, 41, 44, 46, 49, 65, 71, 73]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Michael Jordan | EVENT: 1st Retirement
+  -> Ground Truth Age: 30 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [7, 9, 12, 13, 23, 29, 37, 38, 39, 40, 41, 44, 46, 49, 65, 71, 73]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Michael Jordan | EVENT: Final Game.
+  -> Ground Truth Age: 40 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [7, 9, 12, 13, 23, 29, 37, 38, 39, 40, 41, 44, 46, 49, 65, 71, 73]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Serena Williams | EVENT: 1st Grand Slam
+  -> Ground Truth Age: 18 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Ketu dignified in house 9)
+  -> Predicted Trigger Ages: [1, 2, 7, 8, 9, 10, 13, 14, 17, 18, 20, 23, 25, 29, 35, 36, 37, 39, 41, 45, 46, 47, 48, 49, 50, 53, 54, 55, 57, 58, 59, 60, 61, 62, 65, 67, 68, 70, 71, 72, 73, 74, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Serena Williams | EVENT: World No. 1
+  -> Ground Truth Age: 21 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Ketu dignified in house 9)
+  -> Predicted Trigger Ages: [1, 2, 7, 8, 9, 10, 13, 14, 17, 18, 20, 23, 25, 29, 35, 36, 37, 39, 41, 45, 46, 47, 48, 49, 50, 53, 54, 55, 57, 58, 59, 60, 61, 62, 65, 67, 68, 70, 71, 72, 73, 74, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Serena Williams | EVENT: Marriage
+  -> Ground Truth Age: 36 | Domain: marriage | Karakas: ['Venus', 'Mercury']
+  -> Natal Promise: YES (Primary karaka Venus dignified in house 7)
+  -> Predicted Trigger Ages: [25, 26, 35, 45, 52, 60, 62, 68]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Serena Williams | EVENT: Retirement match.
+  -> Ground Truth Age: 41 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Ketu dignified in house 9)
+  -> Predicted Trigger Ages: [1, 2, 7, 8, 9, 10, 13, 14, 17, 18, 20, 23, 25, 29, 35, 36, 37, 39, 41, 45, 46, 47, 48, 49, 50, 53, 54, 55, 57, 58, 59, 60, 61, 62, 65, 67, 68, 70, 71, 72, 73, 74, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Albert Einstein | EVENT: Photoelectric effect
+  -> Ground Truth Age: 26 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Jupiter dignified in house 9)
+  -> Predicted Trigger Ages: [2, 6, 16, 18, 29, 30, 31, 32, 38, 40, 41, 43, 50, 53, 54, 55, 62, 64, 65, 67, 73, 75]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Albert Einstein | EVENT: Gen. Relativity
+  -> Ground Truth Age: 36 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Jupiter dignified in house 9)
+  -> Predicted Trigger Ages: [2, 6, 16, 18, 29, 30, 31, 32, 38, 40, 41, 43, 50, 53, 54, 55, 62, 64, 65, 67, 73, 75]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Albert Einstein | EVENT: Nobel Prize
+  -> Ground Truth Age: 43 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [2, 16, 18, 29, 30, 31, 32, 41, 43, 50, 54, 55, 62, 65]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Albert Einstein | EVENT: Passing.
+  -> Ground Truth Age: 76 | Domain: health | Karakas: ['Sun', 'Mars', 'Saturn']
+  -> Natal Promise: YES (Primary karaka Mars dignified in house 8)
+  -> Predicted Trigger Ages: [6, 22, 28, 32, 33, 36, 45, 46, 51, 56, 58, 66, 68, 70, 72]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Stephen Hawking | EVENT: ALS diagnosis
+  -> Ground Truth Age: 21 | Domain: health | Karakas: ['Sun', 'Mars', 'Saturn']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [4, 22, 30, 33, 37, 38, 39, 40, 45, 51, 57, 58, 62, 63, 73, 74, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Stephen Hawking | EVENT: Hawking Radiation
+  -> Ground Truth Age: 32 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [2, 7, 12, 16, 19, 21, 22, 25, 26, 27, 29, 31, 33, 36, 37, 39, 43, 45, 46, 47, 49, 56, 57, 58, 60, 61, 64, 65, 66, 67, 71, 72, 73]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Stephen Hawking | EVENT: Brief History of Time
+  -> Ground Truth Age: 46 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [2, 7, 12, 16, 19, 21, 22, 25, 26, 27, 29, 31, 33, 36, 37, 39, 43, 45, 46, 47, 49, 56, 57, 58, 60, 61, 64, 65, 66, 67, 71, 72, 73]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Stephen Hawking | EVENT: Passing.
+  -> Ground Truth Age: 76 | Domain: health | Karakas: ['Sun', 'Mars', 'Saturn']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [4, 22, 30, 33, 37, 38, 39, 40, 45, 51, 57, 58, 62, 63, 73, 74, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Marie Curie | EVENT: Marriage
+  -> Ground Truth Age: 28 | Domain: marriage | Karakas: ['Venus', 'Mercury']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [62]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Marie Curie | EVENT: 1st Nobel (Physics)
+  -> Ground Truth Age: 36 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Jupiter dignified in house 2)
+  -> Predicted Trigger Ages: [2, 16, 17, 19, 21, 28, 30, 35, 52, 55, 58, 63, 65, 66, 73, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Marie Curie | EVENT: 2nd Nobel (Chemistry)
+  -> Ground Truth Age: 44 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Jupiter dignified in house 2)
+  -> Predicted Trigger Ages: [2, 16, 17, 19, 21, 28, 30, 35, 52, 55, 58, 63, 65, 66, 73, 75]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Marie Curie | EVENT: Passing.
+  -> Ground Truth Age: 67 | Domain: health | Karakas: ['Sun', 'Mars', 'Saturn']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [6, 23, 30, 36, 57, 65, 67, 72]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Isaac Newton | EVENT: Trinity Fellow
+  -> Ground Truth Age: 24 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Rahu dignified in house 12)
+  -> Predicted Trigger Ages: [4, 11, 13, 16, 19, 21, 22, 23, 24, 25, 26, 27, 28, 31, 32, 36, 37, 38, 42, 43, 45, 48, 49, 50, 52, 56, 57, 58, 60, 61, 63, 64, 66, 67, 68, 72, 73, 74]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Isaac Newton | EVENT: Principia pub.
+  -> Ground Truth Age: 44 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Rahu dignified in house 12)
+  -> Predicted Trigger Ages: [4, 11, 13, 16, 19, 21, 22, 23, 24, 25, 26, 27, 28, 31, 32, 36, 37, 38, 42, 43, 45, 48, 49, 50, 52, 56, 57, 58, 60, 61, 63, 64, 66, 67, 68, 72, 73, 74]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Isaac Newton | EVENT: Master of Mint
+  -> Ground Truth Age: 56 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Rahu dignified in house 12)
+  -> Predicted Trigger Ages: [4, 11, 13, 16, 19, 21, 22, 23, 24, 25, 26, 27, 28, 31, 32, 36, 37, 38, 42, 43, 45, 48, 49, 50, 52, 56, 57, 58, 60, 61, 63, 64, 66, 67, 68, 72, 73, 74]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Isaac Newton | EVENT: Passing.
+  -> Ground Truth Age: 84 | Domain: health | Karakas: ['Sun', 'Mars', 'Saturn']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [5, 28, 29, 31, 38, 39, 41, 57, 65, 66, 67, 74, 75]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Swami Vivekananda | EVENT: Met Ramakrishna
+  -> Ground Truth Age: 18 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Saturn dignified in house 10)
+  -> Predicted Trigger Ages: [1, 3, 5, 6, 8, 9, 10, 11, 12, 15, 20, 21, 22, 24, 27, 32, 33, 34, 36, 37, 38, 39, 41, 42, 43, 44, 45, 46, 48, 49, 50, 51, 52, 56, 57, 58, 60, 61, 63, 64, 67, 68, 69, 70, 72, 74, 75]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Swami Vivekananda | EVENT: Chicago speech
+  -> Ground Truth Age: 30 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Saturn dignified in house 10)
+  -> Predicted Trigger Ages: [1, 3, 5, 6, 8, 9, 10, 11, 12, 15, 20, 21, 22, 24, 27, 32, 33, 34, 36, 37, 38, 39, 41, 42, 43, 44, 45, 46, 48, 49, 50, 51, 52, 56, 57, 58, 60, 61, 63, 64, 67, 68, 69, 70, 72, 74, 75]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Swami Vivekananda | EVENT: Ramakrishna Mission
+  -> Ground Truth Age: 34 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Saturn dignified in house 10)
+  -> Predicted Trigger Ages: [1, 3, 5, 6, 8, 9, 10, 11, 12, 15, 20, 21, 22, 24, 27, 32, 33, 34, 36, 37, 38, 39, 41, 42, 43, 44, 45, 46, 48, 49, 50, 51, 52, 56, 57, 58, 60, 61, 63, 64, 67, 68, 69, 70, 72, 74, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Swami Vivekananda | EVENT: Passing.
+  -> Ground Truth Age: 39 | Domain: health | Karakas: ['Sun', 'Mars', 'Saturn']
+  -> Natal Promise: YES (Primary karaka Sun dignified in house 1)
+  -> Predicted Trigger Ages: [1, 2, 5, 12, 13, 23, 24, 25, 35, 36, 37, 42, 47, 48, 49, 56, 58, 59, 60, 61, 67, 70, 71, 72, 73]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Sadhguru | EVENT: Enlightenment
+  -> Ground Truth Age: 25 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Rahu dignified in house 6)
+  -> Predicted Trigger Ages: [4, 5, 6, 8, 10, 11, 14, 16, 17, 19, 21, 23, 24, 25, 26, 27, 28, 31, 34, 36, 37, 38, 40, 42, 44, 45, 48, 49, 50, 52, 53, 55, 56, 57, 58, 60, 61, 62, 63, 64, 67, 68, 69, 71, 72, 74, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Sadhguru | EVENT: Isha Foundation
+  -> Ground Truth Age: 35 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Rahu dignified in house 6)
+  -> Predicted Trigger Ages: [4, 5, 6, 8, 10, 11, 14, 16, 17, 19, 21, 23, 24, 25, 26, 27, 28, 31, 34, 36, 37, 38, 40, 42, 44, 45, 48, 49, 50, 52, 53, 55, 56, 57, 58, 60, 61, 62, 63, 64, 67, 68, 69, 71, 72, 74, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Sadhguru | EVENT: Dhyanalinga
+  -> Ground Truth Age: 42 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Rahu dignified in house 6)
+  -> Predicted Trigger Ages: [4, 5, 6, 8, 10, 11, 14, 16, 17, 19, 21, 23, 24, 25, 26, 27, 28, 31, 34, 36, 37, 38, 40, 42, 44, 45, 48, 49, 50, 52, 53, 55, 56, 57, 58, 60, 61, 62, 63, 64, 67, 68, 69, 71, 72, 74, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Sadhguru | EVENT: Padma Vibhushan.
+  -> Ground Truth Age: 60 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Rahu dignified in house 6)
+  -> Predicted Trigger Ages: [4, 5, 6, 8, 10, 11, 14, 16, 17, 19, 21, 23, 24, 25, 26, 27, 28, 31, 34, 36, 37, 38, 40, 42, 44, 45, 48, 49, 50, 52, 53, 55, 56, 57, 58, 60, 61, 62, 63, 64, 67, 68, 69, 71, 72, 74, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: J. Krishnamurti | EVENT: Discovery by Leadbeater
+  -> Ground Truth Age: 14 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Saturn dignified in house 10)
+  -> Predicted Trigger Ages: [1, 5, 6, 7, 12, 17, 20, 23, 37, 38, 41, 44, 47, 51, 53, 55, 59, 69, 74]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: J. Krishnamurti | EVENT: Dissolved Order of Star
+  -> Ground Truth Age: 34 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Saturn dignified in house 10)
+  -> Predicted Trigger Ages: [1, 5, 6, 7, 12, 17, 20, 23, 37, 38, 41, 44, 47, 51, 53, 55, 59, 69, 74]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: J. Krishnamurti | EVENT: UN Peace Medal
+  -> Ground Truth Age: 89 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Saturn dignified in house 10)
+  -> Predicted Trigger Ages: [1, 5, 6, 7, 12, 17, 20, 23, 37, 38, 41, 44, 47, 51, 53, 55, 59, 69, 74]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: J. Krishnamurti | EVENT: Passing.
+  -> Ground Truth Age: 91 | Domain: health | Karakas: ['Sun', 'Mars', 'Saturn']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [2, 5, 28, 30, 42, 47, 52, 56, 58, 64, 66, 67, 70]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Chhatrapati Shivaji | EVENT: Torna Fort capture
+  -> Ground Truth Age: 15 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [1, 17, 20, 28, 30, 37, 41, 42, 49, 53, 55, 63, 65, 71, 73]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Chhatrapati Shivaji | EVENT: Afzal Khan defeat
+  -> Ground Truth Age: 29 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [1, 17, 20, 28, 30, 37, 41, 42, 49, 53, 55, 63, 65, 71, 73]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Chhatrapati Shivaji | EVENT: Coronation
+  -> Ground Truth Age: 44 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [1, 17, 20, 28, 30, 37, 41, 42, 49, 53, 55, 63, 65, 71, 73]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Chhatrapati Shivaji | EVENT: Passing.
+  -> Ground Truth Age: 50 | Domain: health | Karakas: ['Sun', 'Mars', 'Saturn']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [3, 30, 39, 65, 72, 75]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Dalai Lama (14th) | EVENT: Enthronement
+  -> Ground Truth Age: 5 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [8, 9, 10, 12, 15, 16, 19, 21, 22, 24, 27, 32, 33, 34, 36, 38, 39, 40, 41, 44, 45, 46, 48, 51, 56, 57, 58, 60, 63, 67, 68, 69, 70, 71, 72, 73, 75]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Dalai Lama (14th) | EVENT: Escape to India
+  -> Ground Truth Age: 24 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [8, 9, 10, 12, 15, 16, 19, 21, 22, 24, 27, 32, 33, 34, 36, 38, 39, 40, 41, 44, 45, 46, 48, 51, 56, 57, 58, 60, 63, 67, 68, 69, 70, 71, 72, 73, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Dalai Lama (14th) | EVENT: Nobel Peace Prize
+  -> Ground Truth Age: 54 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [10, 12, 21, 22, 24, 27, 32, 34, 36, 39, 40, 41, 44, 45, 46, 48, 56, 57, 58, 60, 67, 68, 70, 71, 72, 73]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Dalai Lama (14th) | EVENT: Political retirement.
+  -> Ground Truth Age: 76 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [8, 9, 10, 12, 15, 16, 19, 21, 22, 24, 27, 32, 33, 34, 36, 38, 39, 40, 41, 44, 45, 46, 48, 51, 56, 57, 58, 60, 63, 67, 68, 69, 70, 71, 72, 73, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Sam Altman | EVENT: President of YC
+  -> Ground Truth Age: 29 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [4, 17, 19, 28, 30, 32, 36, 37, 38, 42, 43, 50, 51, 52, 53, 54, 55, 58, 63, 65, 66, 73, 74]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Sam Altman | EVENT: Founded OpenAI
+  -> Ground Truth Age: 30 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [4, 17, 28, 38, 51, 54, 55, 63, 74]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Sam Altman | EVENT: ChatGPT
+  -> Ground Truth Age: 37 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [4, 17, 19, 28, 30, 32, 36, 37, 38, 42, 43, 50, 51, 52, 53, 54, 55, 58, 63, 65, 66, 73, 74]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Sam Altman | EVENT: OpenAI firing/return.
+  -> Ground Truth Age: 38 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [4, 17, 19, 28, 30, 32, 36, 37, 38, 42, 43, 50, 51, 52, 53, 54, 55, 58, 63, 65, 66, 73, 74]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Vitalik Buterin | EVENT: Ethereum whitepaper
+  -> Ground Truth Age: 19 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Rahu dignified in house 12)
+  -> Predicted Trigger Ages: [1, 2, 11, 13, 17, 18, 19, 21, 22, 23, 25, 29, 33, 34, 35, 36, 37, 41, 42, 43, 47, 48, 49, 50, 52, 53, 57, 58, 59, 60, 61, 62, 64, 65, 71, 72, 73]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Vitalik Buterin | EVENT: Ethereum launch
+  -> Ground Truth Age: 21 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Rahu dignified in house 12)
+  -> Predicted Trigger Ages: [1, 2, 11, 13, 17, 18, 19, 21, 22, 23, 25, 29, 33, 34, 35, 36, 37, 41, 42, 43, 47, 48, 49, 50, 52, 53, 57, 58, 59, 60, 61, 62, 64, 65, 71, 72, 73]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Vitalik Buterin | EVENT: SHIB donation
+  -> Ground Truth Age: 27 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Rahu dignified in house 12)
+  -> Predicted Trigger Ages: [1, 2, 11, 13, 17, 18, 19, 21, 22, 23, 25, 29, 33, 34, 35, 36, 37, 41, 42, 43, 47, 48, 49, 50, 52, 53, 57, 58, 59, 60, 61, 62, 64, 65, 71, 72, 73]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Vitalik Buterin | EVENT: The Merge.
+  -> Ground Truth Age: 28 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Rahu dignified in house 12)
+  -> Predicted Trigger Ages: [1, 2, 11, 13, 17, 18, 19, 21, 22, 23, 25, 29, 33, 34, 35, 36, 37, 41, 42, 43, 47, 48, 49, 50, 52, 53, 57, 58, 59, 60, 61, 62, 64, 65, 71, 72, 73]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Bill Clinton | EVENT: Elected
+  -> Ground Truth Age: 46 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [20, 56, 68]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Bill Clinton | EVENT: Inauguration
+  -> Ground Truth Age: 47 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [20, 21, 32, 51, 56, 58, 63, 68]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Bill Clinton | EVENT: Impeachment
+  -> Ground Truth Age: 52 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [20, 21, 32, 51, 56, 58, 63, 68]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Bill Clinton | EVENT: Left office.
+  -> Ground Truth Age: 55 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [20, 21, 32, 51, 56, 58, 63, 68]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Angelina Jolie | EVENT: Oscar Win
+  -> Ground Truth Age: 25 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [5, 16, 18, 29, 30, 40, 41, 50, 54, 55, 65]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Angelina Jolie | EVENT: Maddox adoption
+  -> Ground Truth Age: 27 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Jupiter dignified in house 9)
+  -> Predicted Trigger Ages: [5, 13, 14, 16, 18, 26, 27, 29, 30, 38, 40, 41, 42, 45, 50, 53, 54, 55, 58, 65, 67, 72, 74]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Angelina Jolie | EVENT: Marriage
+  -> Ground Truth Age: 39 | Domain: marriage | Karakas: ['Venus', 'Mercury']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [6, 18, 30, 31, 39, 42, 53, 56, 65, 67]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Angelina Jolie | EVENT: Filed divorce.
+  -> Ground Truth Age: 41 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Jupiter dignified in house 9)
+  -> Predicted Trigger Ages: [5, 13, 14, 16, 18, 26, 27, 29, 30, 38, 40, 41, 42, 45, 50, 53, 54, 55, 58, 65, 67, 72, 74]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Arnold Schwarzenegger | EVENT: 1st Mr. Olympia
+  -> Ground Truth Age: 23 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [10, 16, 19, 21, 22, 23, 27, 28, 31, 40, 42, 44, 45, 48, 49, 50, 56, 57, 58, 64, 66, 67, 68, 71, 74, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Arnold Schwarzenegger | EVENT: Terminator
+  -> Ground Truth Age: 37 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [10, 16, 19, 21, 22, 23, 27, 28, 31, 40, 42, 44, 45, 48, 49, 50, 56, 57, 58, 64, 66, 67, 68, 71, 74, 75]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Arnold Schwarzenegger | EVENT: Governor
+  -> Ground Truth Age: 56 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [10, 16, 19, 21, 22, 23, 27, 28, 31, 40, 42, 44, 45, 48, 49, 50, 56, 57, 58, 64, 66, 67, 68, 71, 74, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Arnold Schwarzenegger | EVENT: Left governorship.
+  -> Ground Truth Age: 64 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [10, 16, 19, 21, 22, 23, 27, 28, 31, 40, 42, 44, 45, 48, 49, 50, 56, 57, 58, 64, 66, 67, 68, 71, 74, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: George W. Bush | EVENT: TX Governor
+  -> Ground Truth Age: 48 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [5, 17, 18, 28, 38, 40, 42, 44, 49, 50, 58, 64, 65, 66, 72, 74]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: George W. Bush | EVENT: Presidential Win
+  -> Ground Truth Age: 54 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [5, 18, 40, 58, 66]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: George W. Bush | EVENT: 9/11 attacks
+  -> Ground Truth Age: 55 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [5, 17, 18, 28, 38, 40, 42, 44, 49, 50, 58, 64, 65, 66, 72, 74]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: George W. Bush | EVENT: Left office.
+  -> Ground Truth Age: 63 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [5, 17, 18, 28, 38, 40, 42, 44, 49, 50, 58, 64, 65, 66, 72, 74]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Whitney Houston | EVENT: Debut album
+  -> Ground Truth Age: 22 | Domain: career | Karakas: ['Sun', 'Mars', 'Saturn', 'Jupiter']
+  -> Natal Promise: YES (Primary karaka Jupiter dignified in house 2)
+  -> Predicted Trigger Ages: [5, 7, 19, 21, 23, 29, 31, 32, 35, 40, 43, 44, 53, 55, 62, 66, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Whitney Houston | EVENT: Marriage
+  -> Ground Truth Age: 29 | Domain: marriage | Karakas: ['Venus', 'Mercury']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: []
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Whitney Houston | EVENT: Bodyguard
+  -> Ground Truth Age: 29 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Jupiter dignified in house 2)
+  -> Predicted Trigger Ages: [5, 7, 12, 13, 14, 16, 19, 21, 22, 23, 29, 30, 31, 32, 35, 38, 40, 42, 43, 44, 45, 46, 47, 50, 52, 53, 55, 57, 62, 64, 66, 67, 70, 72, 74, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Whitney Houston | EVENT: Passing.
+  -> Ground Truth Age: 49 | Domain: health | Karakas: ['Sun', 'Mars', 'Saturn']
+  -> Natal Promise: YES (Primary karaka Mars dignified in house 8)
+  -> Predicted Trigger Ages: [3, 28, 32, 33, 37, 45, 46, 51, 56, 57, 66, 68, 70, 71]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Prince | EVENT: Prince album
+  -> Ground Truth Age: 21 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [10, 17, 19, 27, 28, 42, 43, 44, 46, 47, 50, 52, 55, 56, 63, 66, 67]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Prince | EVENT: Purple Rain
+  -> Ground Truth Age: 26 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [10, 17, 19, 27, 28, 42, 43, 44, 46, 47, 50, 52, 55, 56, 63, 66, 67]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Prince | EVENT: Symbol name
+  -> Ground Truth Age: 35 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [10, 17, 19, 27, 28, 42, 43, 44, 46, 47, 50, 52, 55, 56, 63, 66, 67]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Prince | EVENT: Passing.
+  -> Ground Truth Age: 58 | Domain: health | Karakas: ['Sun', 'Mars', 'Saturn']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [29, 64, 65]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Elvis Presley | EVENT: That's All Right
+  -> Ground Truth Age: 19 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Ketu dignified in house 9)
+  -> Predicted Trigger Ages: [1, 2, 7, 8, 9, 10, 13, 14, 16, 18, 19, 21, 22, 23, 25, 29, 30, 33, 35, 37, 41, 45, 46, 47, 48, 49, 50, 52, 53, 54, 55, 57, 58, 59, 60, 61, 62, 65, 66, 67, 68, 70, 71, 73]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Elvis Presley | EVENT: Heartbreak Hotel
+  -> Ground Truth Age: 21 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Ketu dignified in house 9)
+  -> Predicted Trigger Ages: [1, 2, 7, 8, 9, 10, 13, 14, 16, 18, 19, 21, 22, 23, 25, 29, 30, 33, 35, 37, 41, 45, 46, 47, 48, 49, 50, 52, 53, 54, 55, 57, 58, 59, 60, 61, 62, 65, 66, 67, 68, 70, 71, 73]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Elvis Presley | EVENT: Marriage
+  -> Ground Truth Age: 32 | Domain: marriage | Karakas: ['Venus', 'Mercury']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: []
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Elvis Presley | EVENT: Passing.
+  -> Ground Truth Age: 42 | Domain: health | Karakas: ['Sun', 'Mars', 'Saturn']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [3, 23, 30, 39, 72, 75]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: John Lennon | EVENT: Ringo joined
+  -> Ground Truth Age: 22 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Jupiter dignified in house 2)
+  -> Predicted Trigger Ages: [1, 6, 12, 16, 19, 21, 28, 32, 33, 35, 40, 44, 45, 52, 53, 58, 66, 68, 70, 71, 74, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: John Lennon | EVENT: Marriage
+  -> Ground Truth Age: 29 | Domain: marriage | Karakas: ['Venus', 'Mercury']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: []
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: John Lennon | EVENT: Imagine
+  -> Ground Truth Age: 31 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Jupiter dignified in house 2)
+  -> Predicted Trigger Ages: [1, 6, 12, 16, 19, 21, 28, 32, 33, 35, 40, 44, 45, 52, 53, 58, 66, 68, 70, 71, 74, 75]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: John Lennon | EVENT: Passing.
+  -> Ground Truth Age: 40 | Domain: health | Karakas: ['Sun', 'Mars', 'Saturn']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [2, 28, 31, 36, 38, 66, 67, 71]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Paul McCartney | EVENT: Met Lennon
+  -> Ground Truth Age: 15 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Rahu dignified in house 12)
+  -> Predicted Trigger Ages: [1, 5, 9, 11, 23, 38, 39, 40, 41, 42, 43, 48, 49, 50, 52, 64, 65, 71, 72, 73]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Paul McCartney | EVENT: Marriage
+  -> Ground Truth Age: 27 | Domain: marriage | Karakas: ['Venus', 'Mercury']
+  -> Natal Promise: NO (No primary karaka dignified in active house)
+  -> Predicted Trigger Ages: [27, 61]
+  -> Match with Ground Truth: YES! (Engine successfully hit the window)
+------------------------------------------------------------------
+FIGURE: Paul McCartney | EVENT: Beatles split
+  -> Ground Truth Age: 28 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Rahu dignified in house 12)
+  -> Predicted Trigger Ages: [1, 5, 9, 11, 23, 38, 39, 40, 41, 42, 43, 48, 49, 50, 52, 64, 65, 71, 72, 73]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+FIGURE: Paul McCartney | EVENT: Knighthood.
+  -> Ground Truth Age: 55 | Domain: career_travel | Karakas: ['Sun', 'Mars', 'Saturn', 'Rahu', 'Jupiter', 'Ketu']
+  -> Natal Promise: YES (Primary karaka Rahu dignified in house 12)
+  -> Predicted Trigger Ages: [1, 5, 9, 11, 23, 38, 39, 40, 41, 42, 43, 48, 49, 50, 52, 64, 65, 71, 72, 73]
+  -> Match with Ground Truth: NO.
+------------------------------------------------------------------
+
+==================================================================
+                          SUMMARY STATS                           
+==================================================================
+Total Events Analyzed        : 264
+Natal Promise Confirmed      : 88 (33.33%)
+Accurate Timing Match (+/-1) : 132 (50.00%)
+==================================================================

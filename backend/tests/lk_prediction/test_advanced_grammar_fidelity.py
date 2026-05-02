@@ -97,7 +97,7 @@ class TestGrammarFidelity:
         chart_sat = {"planets_in_houses": {"Saturn": {"house": 11}}}
         enr_sat = strength.calculate_chart_strengths(chart_sat)
         grammar.apply_grammar_rules(chart_sat, enr_sat)
-        assert "Dharmi Saturn" in enr_sat["Saturn"]["dharmi_status"]
+        assert "Dharmi Planet" in enr_sat["Saturn"]["dharmi_status"]
         
         # 3. Jup + Sat Conjunction — triggers kundli-level "Dharmi Teva"
         chart_conj = {"planets_in_houses": {"Jupiter": {"house": 5}, "Saturn": {"house": 5}}}

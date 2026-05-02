@@ -227,11 +227,14 @@ class TestRulesEngine:
 
     # -- 6. Magnitude calculation and sorting --
     def test_rule_magnitudes_use_config_scaling(self, rules_engine):
-        from astroq.lk_prediction.rules_engine import apply_scale_to_magnitude
-        
+        from astroq.lk_prediction.astrological_context import UnifiedAstrologicalContext
+        from astroq.lk_prediction.data_contracts import EnrichedChart
+
+        ctx = UnifiedAstrologicalContext(enriched=EnrichedChart(source={}))
+
         # Test magnitude scaling function (scale mapping: minor=1, moderate=2, major=3, deterministic/extreme=4+)
-        assert apply_scale_to_magnitude("minor", 0.04) == 0.04 * 1
-        assert apply_scale_to_magnitude("major", 0.04) == 0.04 * 3
+        assert ctx._apply_scale_to_base("minor", 0.04) == 0.04 * 1
+        assert ctx._apply_scale_to_base("major", 0.04) == 0.04 * 3
 
     def test_hits_are_sorted_by_specificity_descending(self, rules_engine):
         chart = _make_minimal_chart({"Sun": {"house": 1}, "Mercury": {"house": 1}})

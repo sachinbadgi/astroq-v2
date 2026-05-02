@@ -270,9 +270,9 @@ class TestM5_BirthChartCleanLedger:
         def patched_generate(chart, **kwargs):
             from astroq.lk_prediction.astrological_context import UnifiedAstrologicalContext
             orig_init = UnifiedAstrologicalContext.__init__
-            def _capture(self_ctx, chart, natal_chart=None, ledger=None, config=None):
+            def _capture(self_ctx, enriched, natal_chart=None, ledger=None, config=None):
                 ledger_used.append(ledger)
-                orig_init(self_ctx, chart, natal_chart, ledger, config)
+                orig_init(self_ctx, enriched, natal_chart, ledger, config)
             UnifiedAstrologicalContext.__init__ = _capture
             result = original_generate(chart, **kwargs)
             UnifiedAstrologicalContext.__init__ = orig_init
