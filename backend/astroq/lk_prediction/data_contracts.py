@@ -5,7 +5,7 @@ Matches the user's request for 'core lal kitab grammar logic'.
 
 from __future__ import annotations
 from dataclasses import dataclass, field
-from typing import Any, Optional, TypedDict, TYPE_CHECKING
+from typing import Any, Optional, TypedDict, TYPE_CHECKING, List, Dict
 
 if TYPE_CHECKING:
     from .grammar.base import GrammarHit
@@ -185,4 +185,16 @@ class RuleHit:
     # Axis label derived from the primary planet pair's house geometry.
     # Populated by RulesEngine from aspect data. Used by FidelityGate.
     # E.g. "1-8", "1-7", "4-10", "2-6", "6-12", "8-2", "3-11", "unknown"
-    axis: str = "unknown"
+@dataclass
+class ClassifiedEvent:
+    """Simplified event for timing and domain analysis."""
+    planet: str
+    house: int
+    domains: List[str]
+    sentiment: str                   # "BENEFIC", "MALEFIC"
+    probability: float = 0.0
+    magnitude: float = 0.0
+    is_peak: bool = False
+    peak_type: str = ""             # "ABSOLUTE", "RELATIVE"
+    prediction_text: str = ""
+    peak_age: int = 0
