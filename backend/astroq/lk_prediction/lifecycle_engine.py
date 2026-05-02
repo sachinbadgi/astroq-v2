@@ -105,6 +105,10 @@ class LifecycleEngine:
             # 4. Save a deep copy of the ledger for this year's history
             self.history[age] = copy.deepcopy(self.ledger)
             
+            # 35-Year cycle boundary: apply Dirty Start penalty (cite: 2176, 2179)
+            if age == 35:
+                self.ledger.apply_dirty_start_penalty()
+
             # 5. Reset volatile modifiers for the next year cycle (Mechanical fatigue remains)
             for p_state in self.ledger.planets.values():
                 if p_state.modifier != "Burst" and p_state.modifier != "Leaking":

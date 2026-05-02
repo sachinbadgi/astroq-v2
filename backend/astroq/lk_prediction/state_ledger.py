@@ -93,6 +93,22 @@ class StateLedger:
             return False
         return state.scapegoat_hit_count >= state.SCAPEGOAT_EXHAUSTION_THRESHOLD
 
+    def apply_dirty_start_penalty(self) -> None:
+        """
+        Called at Age 35→36 cycle boundary.
+        Reduces burst_threshold for traumatized planets — implements
+        'Mechanical Degradation' into Cycle 2 (cite: 2176, 2179).
+        Planets with > 2.0 trauma get 30% lower threshold (burst faster).
+        Planets with 0.5-2.0 trauma get 15% lower threshold.
+        Clean planets (< 0.5 trauma) are unaffected.
+        """
+        for planet, state in self.planets.items():
+            if state.trauma_points >= 2.0:
+                state.burst_threshold = max(1.0, state.burst_threshold * 0.70)
+            elif state.trauma_points >= 0.5:
+                state.burst_threshold = max(1.0, state.burst_threshold * 0.85)
+            # else: clean — no change
+
     def _update_thresholds(self, planet: str):
         """Updates Leaking and Burst status based on cumulative trauma and dynamic thresholds."""
         p = self.planets[planet]
