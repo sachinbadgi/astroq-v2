@@ -5,6 +5,7 @@ from .lk_constants import VARSHPHAL_YEAR_MATRIX
 from .state_ledger import StateLedger
 from .incident_resolver import IncidentResolver
 from .dormancy_engine import DormancyEngine, DormancyState
+from .scapegoat_router import ScapegoatRouter
 
 logger = logging.getLogger(__name__)
 
@@ -18,9 +19,10 @@ class LifecycleEngine:
         self.ledger = StateLedger()
         self.resolver = IncidentResolver()
         self.dormancy = DormancyEngine()
+        self.scapegoat_router = ScapegoatRouter()
         self.history: Dict[int, StateLedger] = {}
 
-    def run_75yr_analysis(self, natal_data: Dict[str, Any]) -> Dict[int, StateLedger]:
+    def run_75yr_analysis(self, natal_data: Dict[str, Any], dignity_overrides: Dict[str, str] = None) -> Dict[int, StateLedger]:
         """
         Runs the full 75-year simulation FIRST.
         Accepts either a ChartData object or a dictionary of natal positions.
@@ -51,11 +53,47 @@ class LifecycleEngine:
                     complex_state = self.dormancy.get_complex_state(incident.target, target_house, annual_positions)
                     
                     if is_awake or complex_state.is_startled:
-                        self.ledger.apply_strike_impact(
-                            incident.target, 
-                            incident.trauma_weight, 
-                            is_startled=complex_state.is_startled
-                        )
+                        overrides = dignity_overrides or {}
+                        fate_type = overrides.get(incident.target, "RASHI_PHAL")
+                        planet_state = self.ledger.get_planet_state(incident.target)
+                        scapegoats = self.scapegoat_router.get_scapegoats(incident.target)
+
+                        if planet_state.is_burst:
+                            # Double Hit: both native and scapegoat absorb full trauma
+                            self.ledger.apply_strike_impact(
+                                incident.target, incident.trauma_weight,
+                                is_startled=complex_state.is_startled
+                            )
+                            for sg in scapegoats:
+                                if not self.ledger.is_scapegoat_exhausted(sg):
+                                    self.ledger.record_scapegoat_hit(sg)
+                                    self.ledger.apply_trauma(sg, incident.trauma_weight)
+
+                        elif fate_type == "GRAHA_PHAL":
+                            # Fixed Fate: 80% native, 20% scapegoat
+                            self.ledger.apply_strike_impact(
+                                incident.target, incident.trauma_weight * 0.8,
+                                is_startled=complex_state.is_startled
+                            )
+                            for sg in scapegoats:
+                                if not self.ledger.is_scapegoat_exhausted(sg):
+                                    self.ledger.record_scapegoat_hit(sg)
+                                    self.ledger.apply_trauma(sg, incident.trauma_weight * 0.2)
+
+                        else:  # RASHI_PHAL default
+                            routed = False
+                            for sg in scapegoats:
+                                if not self.ledger.is_scapegoat_exhausted(sg):
+                                    self.ledger.record_scapegoat_hit(sg)
+                                    self.ledger.apply_trauma(sg, incident.trauma_weight)
+                                    routed = True
+                                    break
+                            if not routed:
+                                # Scapegoat exhausted — planet absorbs hit itself
+                                self.ledger.apply_strike_impact(
+                                    incident.target, incident.trauma_weight,
+                                    is_startled=complex_state.is_startled
+                                )
                     else:
                         # Sleeping planet is safe from external strikes
                         pass
