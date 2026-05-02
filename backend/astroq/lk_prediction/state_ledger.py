@@ -78,6 +78,25 @@ class StateLedger:
             
         return 1.0
 
+    def check_and_fire_recoil(self, planet: str, current_age: int) -> bool:
+        """
+        Checks if maintenance window expired. If so, fires +2.0 trauma once
+        and clears the nexus. Returns True if recoil fired.
+        """
+        p = self.planets[planet]
+        if not p.remedy_nexus:
+            return False
+        
+        nexus = p.remedy_nexus
+        age_gap = current_age - nexus.inception_age
+        
+        if age_gap > nexus.maintenance_window_years:
+            # FIRE RECOIL
+            self.apply_trauma(planet, 2.0)
+            p.remedy_nexus = None # Nexus cleared after recoil fire
+            return True
+        return False
+
     def record_scapegoat_hit(self, scapegoat_planet: str) -> None:
         """Records absorbed scapegoat hit + minor trauma (0.3 pts)."""
         base = scapegoat_planet.replace("Masnui ", "") if scapegoat_planet.startswith("Masnui ") else scapegoat_planet

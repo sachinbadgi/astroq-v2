@@ -22,7 +22,9 @@ class LifecycleEngine:
         self.scapegoat_router = ScapegoatRouter()
         self.history: Dict[int, StateLedger] = {}
 
-    def run_75yr_analysis(self, natal_data: Dict[str, Any], dignity_overrides: Dict[str, str] = None) -> Dict[int, StateLedger]:
+    def run_75yr_analysis(self, natal_data: Dict[str, Any], 
+                          dignity_overrides: Dict[str, str] = None,
+                          remedy_schedule: Dict[int, List[tuple]] = None) -> Dict[int, StateLedger]:
         """
         Runs the full 75-year simulation FIRST.
         Accepts either a ChartData object or a dictionary of natal positions.
@@ -33,6 +35,15 @@ class LifecycleEngine:
         self.history = {}
         
         for age in range(1, 76):
+            # 0. Check for recoil from expired remedies
+            for planet in self.ledger.planets:
+                self.ledger.check_and_fire_recoil(planet, age)
+
+            # 0.5 Apply remedies scheduled for this age
+            if remedy_schedule and age in remedy_schedule:
+                for planet, remedy_id in remedy_schedule[age]:
+                    self.ledger.apply_remedy(planet, age, remedy_id)
+
             # 1. Project annual positions for this age
             annual_positions = self._get_annual_positions(natal_positions, age)
             
