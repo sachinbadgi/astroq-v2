@@ -120,8 +120,8 @@ def render(name, dob, tob, place, natal, fate_entries, rule_preds,
 
     # ── Rule engine predictions ───────────────────────────────────────────────
     if rule_preds is not None:
-        benefic = [p for p in rule_preds if p.polarity == "benefic"]
-        malefic = [p for p in rule_preds if p.polarity == "malefic"]
+        benefic = [p for p in rule_preds if p.polarity.lower() == "benefic"]
+        malefic = [p for p in rule_preds if p.polarity.lower() == "malefic"]
         print(f"  ◈ NATAL RULE ENGINE — {len(rule_preds)} PREDICTIONS  "
               f"(+{len(benefic)} benefic  −{len(malefic)} malefic)")
         print(f"  {THIN}")
@@ -137,7 +137,7 @@ def render(name, dob, tob, place, natal, fate_entries, rule_preds,
         print(f"\n  ◈ ANNUAL CHART — AGE {age} ENGINE PREDICTIONS  ({len(annual_preds)} hits)")
         print(f"  {THIN}")
         for p in sorted(annual_preds, key=lambda x: -x.magnitude)[:15]:
-            pol = "✓" if p.polarity == "benefic" else "✗"
+            pol = "✓" if p.polarity.lower() == "benefic" else "✗"
             tc  = f"[{p.timing_confidence.upper()}]" if p.timing_confidence else ""
             print(f"  [{pol}] {tc:<8} [{p.domain:<14}]  {p.prediction_text[:65]}")
             for sig in p.timing_signals[:2]:
@@ -235,9 +235,26 @@ def _build_natal_chart_json(natal: dict) -> dict:
 def _build_annual_charts_json(full_payload: dict) -> dict:
     """
     Serialise all annual charts (age 1-75) from the full payload.
-    Each entry is keyed by age and contains planet positions + period dates.
+    Supports both raw chart_N payloads and enriched annual_timeline payloads.
     """
     annual = {}
+    
+    # Check if this is an enriched payload from the pipeline
+    timeline = full_payload.get("annual_timeline")
+    if timeline and isinstance(timeline, list):
+        for entry in timeline:
+            age = entry.get("age")
+            if age is not None:
+                annual[str(age)] = {
+                    "period_start": entry.get("from", ""),
+                    "period_end":   entry.get("to", ""),
+                    "planets":      {p: {"house": h} for p, h in entry.get("chart", {}).items()},
+                    "logic":        entry.get("logic", []),
+                    "forensic_machine_ledger": entry.get("forensic_machine_ledger", {})
+                }
+        return annual
+
+    # Fallback to raw chart_N keys
     for age in range(1, 76):
         key = f"chart_{age}"
         chart = full_payload.get(key)
@@ -253,6 +270,8 @@ def _build_annual_charts_json(full_payload: dict) -> dict:
             "period_start": chart.get("period_start", ""),
             "period_end":   chart.get("period_end", ""),
             "planets":      planets,
+            "logic":        chart.get("logic", []),
+            "forensic_machine_ledger": chart.get("forensic_machine_ledger", {})
         }
     return annual
 
@@ -316,10 +335,20 @@ def save_chart(
         },
         "domain_fate_view": fate_entries,
         "rule_predictions": [
-            {"domain": p.domain, "polarity": p.polarity,
-             "magnitude": round(p.magnitude, 3), "text": p.prediction_text}
+            {"domain": p.domain, "polarity": p.polarity, "magnitude": round(p.magnitude, 3), "text": p.prediction_text}
             for p in (rule_preds or [])
         ],
+        "annual_predictions": [
+            {
+                "domain": p.domain, 
+                "polarity": p.polarity, 
+                "magnitude": round(p.magnitude, 3), 
+                "confidence": p.timing_confidence,
+                "text": p.prediction_text,
+                "signals": p.timing_signals
+            }
+            for p in (annual_preds or [])
+        ] if age else None,
     }
 
     if include_charts and full_payload:
@@ -410,7 +439,8 @@ Examples:
         print(f"\n❌  {e}\n"); sys.exit(1)
 
     if results.get("pipeline_error"):
-        print(f"  ⚠️  Rule engine error: {results['pipeline_error']} — continuing with domain fate only.")
+        _out = sys.stderr if args.json else sys.stdout
+        print(f"  ⚠️  Rule engine error: {results['pipeline_error']} — continuing with domain fate only.", file=_out)
 
     natal = results["natal_chart"]
     full_payload = results["full_payload"]
@@ -439,6 +469,17 @@ Examples:
                  "magnitude": round(p.magnitude, 3), "text": p.prediction_text}
                 for p in (rule_preds or [])
             ],
+            "annual_predictions": [
+                {
+                    "domain": p.domain, 
+                    "polarity": p.polarity, 
+                    "magnitude": round(p.magnitude, 3), 
+                    "confidence": p.timing_confidence,
+                    "text": p.prediction_text,
+                    "signals": p.timing_signals
+                }
+                for p in (annual_preds or [])
+            ] if args.age else None,
         }
         if args.charts:
             out["natal_chart"]   = _build_natal_chart_json(natal)

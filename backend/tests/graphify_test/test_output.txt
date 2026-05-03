@@ -1,0 +1,3152 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.11.15, pytest-9.0.3, pluggy-1.6.0
+rootdir: /Users/sachinbadgi/Documents/lal_kitab/astroq-v2
+plugins: langsmith-0.7.30, anyio-4.13.0
+collected 100 items
+
+backend/tests/graphify_test/test_semantic_coverage.py FFFFFFFF.FFFFFFFFF [ 18%]
+.FFFFFFFFFFFFFFFFFF.F...F..FF.FFF.FFF..FFFFF.FF.F..FF...FFFFFFFFF.FFFFF. [ 90%]
+FFF...F...                                                               [100%]
+
+=================================== FAILURES ===================================
+_ test_rule_semantic_coverage[Venus or Mercury in 1,2,10,11,12 AND Saturn in 1 or 10] _
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'annual', 'houses': [1, 2, 10, 11, 12], 'planet': 'Venus'}, {'chart_type': 'annual', '... 'marriage', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'Venus or Mercury in 1,2,10,11,12 AND Saturn in 1 or 10' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+_ test_rule_semantic_coverage[Natal Venus/Mercury in 7 returns to 7 in Annual] _
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [7], 'planet': 'Venus'}, {'chart_type': 'natal', 'houses': [7], 'pl... 'marriage', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'Natal Venus/Mercury in 7 returns to 7 in Annual' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+_ test_rule_semantic_coverage[Annual Venus and Mercury conjoined AND Saturn in 2,7,12] _
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'annual', 'houses': [1, 2, 3, 4, 5, 6, ...], 'planet': 'Venus'}, {'chart_type': 'annua... 'marriage', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'Annual Venus and Mercury conjoined AND Saturn in 2,7,12' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+____________ test_rule_semantic_coverage[Annual Saturn in House 1] _____________
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'annual', 'houses': [1], 'planet': 'Saturn'}], 'description': 'Annual Saturn in House ... 'marriage', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'Annual Saturn in House 1' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+_ test_rule_semantic_coverage[Venus/Mercury returns to Natal House, No enemies in 2,7] _
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'annual', 'houses': [1, 2, 3, 4, 5, 6, ...], 'planet': 'Venus'}, {'chart_type': 'annua... 'marriage', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'Venus/Mercury returns to Natal House, No enemies in 2,7' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+_ test_rule_semantic_coverage[Natal H2, H7 blank, Annual Jupiter/Venus in 2,7] _
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'annual', 'houses': [2, 7], 'planet': 'Jupiter'}, {'chart_type': 'annual', 'houses': [... 'marriage', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'Natal H2, H7 blank, Annual Jupiter/Venus in 2,7' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+________ test_rule_semantic_coverage[Annual Venus or Mercury in 2 or 7] ________
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'annual', 'houses': [2, 7], 'planet': 'Venus'}, {'chart_type': 'annual', 'houses': [2,... 'marriage', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'Annual Venus or Mercury in 2 or 7' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+__ test_rule_semantic_coverage[Annual Jupiter in H7 (Partnership Expansion)] ___
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'annual', 'houses': [7], 'planet': 'Jupiter'}], 'description': 'Annual Jupiter in H7 (... 'marriage', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'Annual Jupiter in H7 (Partnership Expansion)' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+_ test_rule_semantic_coverage[Annual Rahu in H1 or H7 (Fated Partnership Axis)] _
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'annual', 'houses': [1, 7], 'planet': 'Rahu'}], 'description': 'Annual Rahu in H1 or H... 'marriage', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'Annual Rahu in H1 or H7 (Fated Partnership Axis)' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+_ test_rule_semantic_coverage[Annual Ketu in H1 or H7 (Destiny Partnership Axis)] _
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'annual', 'houses': [1, 7], 'planet': 'Ketu'}], 'description': 'Annual Ketu in H1 or H... 'marriage', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'Annual Ketu in H1 or H7 (Destiny Partnership Axis)' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+_ test_rule_semantic_coverage[Saturn 3,5 in Natal AND Ketu+Saturn/Rahu 1,3 in Annual] _
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [3, 5], 'planet': 'Saturn'}, {'chart_type': 'annual', 'houses': [1,...: 'finance', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'Saturn 3,5 in Natal AND Ketu+Saturn/Rahu 1,3 in Annual' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+____ test_rule_semantic_coverage[Ketu 11 in Natal AND Saturn 11 in Annual] _____
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [11], 'planet': 'Ketu'}, {'chart_type': 'annual', 'houses': [11], '...: 'finance', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'Ketu 11 in Natal AND Saturn 11 in Annual' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+___ test_rule_semantic_coverage[Jup+Moon in Natal AND Jup+Moon 9 in Annual] ____
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [1, 2, 3, 4, 5, 6, ...], 'planet': 'Jupiter'}, {'chart_type': 'nata...: 'finance', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'Jup+Moon in Natal AND Jup+Moon 9 in Annual' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+____ test_rule_semantic_coverage[Saturn 6 in Natal AND Mars 1-8 in Annual] _____
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [6], 'planet': 'Saturn'}, {'chart_type': 'annual', 'houses': [1, 2,...: 'finance', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'Saturn 6 in Natal AND Mars 1-8 in Annual' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+____ test_rule_semantic_coverage[Mercury 3 in Natal AND Ketu 11 in Annual] _____
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [3], 'planet': 'Mercury'}, {'chart_type': 'annual', 'houses': [11],...: 'finance', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'Mercury 3 in Natal AND Ketu 11 in Annual' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+_ test_rule_semantic_coverage[Jup+Moon 10 in Natal AND Jup+Moon 10 in Annual] __
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [10], 'planet': 'Jupiter'}, {'chart_type': 'natal', 'houses': [10],...: 'finance', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'Jup+Moon 10 in Natal AND Jup+Moon 10 in Annual' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+_____ test_rule_semantic_coverage[Moon 10 in Natal AND Saturn 1 in Annual] _____
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [10], 'planet': 'Moon'}, {'chart_type': 'annual', 'houses': [1], 'p...: 'finance', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'Moon 10 in Natal AND Saturn 1 in Annual' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+_ test_rule_semantic_coverage[Annual Venus and Mercury both in H2 (Partnership Wealth)] _
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'annual', 'houses': [2], 'planet': 'Venus'}, {'chart_type': 'annual', 'houses': [2], '...: 'finance', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'Annual Venus and Mercury both in H2 (Partnership Wealth)' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+_______ test_rule_semantic_coverage[Annual Saturn in H11 (Steady Gain)] ________
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'annual', 'houses': [11], 'planet': 'Saturn'}], 'description': 'Annual Saturn in H11 (...: 'finance', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'Annual Saturn in H11 (Steady Gain)' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+_ test_rule_semantic_coverage[Annual Mars in H2 or H11 with natal Jupiter active] _
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'annual', 'houses': [2, 11], 'planet': 'Mars'}, {'chart_type': 'natal', 'houses': [1, ...: 'finance', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'Annual Mars in H2 or H11 with natal Jupiter active' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+_____ test_rule_semantic_coverage[Annual Rahu in H2 (Speculative Finance)] _____
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'annual', 'houses': [2], 'planet': 'Rahu'}], 'description': 'Annual Rahu in H2 (Specul...: 'finance', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'Annual Rahu in H2 (Speculative Finance)' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+_______ test_rule_semantic_coverage[Annual Sun in H2 (Authority Income)] _______
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'annual', 'houses': [2], 'planet': 'Sun'}], 'description': 'Annual Sun in H2 (Authorit...: 'finance', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'Annual Sun in H2 (Authority Income)' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+________ test_rule_semantic_coverage[Moon and Venus conjunct in Annual] ________
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'annual', 'houses': [1, 2, 3, 4, 5, 6, ...], 'planet': 'Moon'}, {'chart_type': 'annual...': 'health', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'Moon and Venus conjunct in Annual' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+___ test_rule_semantic_coverage[Jup+Sat 2 in Natal AND Jup+Sat 2 in Annual] ____
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [2], 'planet': 'Jupiter'}, {'chart_type': 'natal', 'houses': [2], '...': 'health', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'Jup+Sat 2 in Natal AND Jup+Sat 2 in Annual' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+__ test_rule_semantic_coverage[Sun 5 in Natal AND Sun 5 in Annual (H8 empty)] __
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [5], 'planet': 'Sun'}, {'chart_type': 'annual', 'houses': [5], 'pla...': 'health', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'Sun 5 in Natal AND Sun 5 in Annual (H8 empty)' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+_ test_rule_semantic_coverage[Mer+Moon 11 in Natal AND Mer 11 alone in Annual] _
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [11], 'planet': 'Mercury'}, {'chart_type': 'natal', 'houses': [11],...': 'health', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'Mer+Moon 11 in Natal AND Mer 11 alone in Annual' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+__ test_rule_semantic_coverage[Sun/Moon conjunct Mer in 1,6,7,8,10 in Annual] __
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'annual', 'houses': [1, 6, 7, 8, 10], 'planet': 'Sun'}, {'chart_type': 'annual', 'hous...': 'health', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'Sun/Moon conjunct Mer in 1,6,7,8,10 in Annual' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+____ test_rule_semantic_coverage[Sun+Sat in Natal AND Sun+Sat 7 in Annual] _____
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [1, 2, 3, 4, 5, 6, ...], 'planet': 'Sun'}, {'chart_type': 'natal', ...eer_travel', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'Sun+Sat in Natal AND Sun+Sat 7 in Annual' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+_______ test_rule_semantic_coverage[Ketu in Natal AND Ketu 1 in Annual] ________
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [1, 2, 3, 4, 5, 6, ...], 'planet': 'Ketu'}, {'chart_type': 'annual'...eer_travel', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'Ketu in Natal AND Ketu 1 in Annual' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+_ test_rule_semantic_coverage[Mercury in Natal AND Rahu/Moon/Sun 1 in Annual] __
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [1, 2, 3, 4, 5, 6, ...], 'planet': 'Mercury'}, {'chart_type': 'annu...eer_travel', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'Mercury in Natal AND Rahu/Moon/Sun 1 in Annual' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+___ test_rule_semantic_coverage[Mercury 2 in Natal AND Mercury 12 in Annual] ___
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [2], 'planet': 'Mercury'}, {'chart_type': 'annual', 'houses': [12],...eer_travel', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'Mercury 2 in Natal AND Mercury 12 in Annual' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+___ test_rule_semantic_coverage[Mercury 8 in Natal AND Mercury 1 in Annual] ____
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [8], 'planet': 'Mercury'}, {'chart_type': 'annual', 'houses': [1], ...eer_travel', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'Mercury 8 in Natal AND Mercury 1 in Annual' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+___ test_rule_semantic_coverage[Mercury 12 in Natal AND Saturn 2 in Annual] ____
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [12], 'planet': 'Mercury'}, {'chart_type': 'annual', 'houses': [2],...: 'progeny', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'Mercury 12 in Natal AND Saturn 2 in Annual' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+____ test_rule_semantic_coverage[Jupiter 5 in Natal AND Venus 9 in Annual] _____
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [5], 'planet': 'Jupiter'}, {'chart_type': 'annual', 'houses': [9], ...: 'progeny', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'Jupiter 5 in Natal AND Venus 9 in Annual' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+______ test_rule_semantic_coverage[Mercury in Natal AND Ketu 1 in Annual] ______
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [1, 2, 3, 4, 5, 6, ...], 'planet': 'Mercury'}, {'chart_type': 'annu...: 'progeny', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'Mercury in Natal AND Ketu 1 in Annual' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+_ test_rule_semantic_coverage[Annual Moon and Jupiter both in H5 (Progeny Blessing)] _
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'annual', 'houses': [5], 'planet': 'Moon'}, {'chart_type': 'annual', 'houses': [5], 'p...: 'progeny', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'Annual Moon and Jupiter both in H5 (Progeny Blessing)' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+_ test_rule_semantic_coverage[Natal H5 occupied AND Annual Jupiter in H5 (Natal Confirmation)] _
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'annual', 'houses': [5], 'planet': 'Jupiter'}], 'description': 'Natal H5 occupied AND ...: 'progeny', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'Natal H5 occupied AND Annual Jupiter in H5 (Natal Confirmation)' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+_____________ test_rule_semantic_coverage[domain_primary_marriage] _____________
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [7], 'planet': 'Venus'}, {'chart_type': 'natal', 'houses': [7], 'pl... 'marriage', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'domain_primary_marriage' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+_____________ test_rule_semantic_coverage[domain_primary_progeny] ______________
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [5], 'planet': 'Jupiter'}, {'chart_type': 'natal', 'houses': [5], '...: 'progeny', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'domain_primary_progeny' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+_____________ test_rule_semantic_coverage[domain_primary_property] _____________
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [4], 'planet': 'Moon'}, {'chart_type': 'natal', 'houses': [4], 'pla... 'property', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'domain_primary_property' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+__________ test_rule_semantic_coverage[domain_primary_foreign_travel] __________
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [12], 'planet': 'Rahu'}, {'chart_type': 'natal', 'houses': [12], 'p...ign_travel', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'domain_primary_foreign_travel' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+____________ test_rule_semantic_coverage[domain_primary_litigation] ____________
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [6], 'planet': 'Mercury'}, {'chart_type': 'natal', 'houses': [6], '...litigation', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'domain_primary_litigation' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+______________ test_rule_semantic_coverage[domain_primary_health] ______________
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [1], 'planet': 'Sun'}, {'chart_type': 'natal', 'houses': [1], 'plan...': 'health', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'domain_primary_health' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+___________ test_rule_semantic_coverage[domain_primary_spirituality] ___________
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [12], 'planet': 'Ketu'}, {'chart_type': 'natal', 'houses': [12], 'p...irituality', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'domain_primary_spirituality' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+______________ test_rule_semantic_coverage[domain_primary_family] ______________
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [4], 'planet': 'Moon'}, {'chart_type': 'natal', 'houses': [4], 'pla...': 'family', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'domain_primary_family' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+_________ test_rule_semantic_coverage[domain_primary_software_coding] __________
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [3], 'planet': 'Mercury'}, {'chart_type': 'natal', 'houses': [3], '...are_coding', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'domain_primary_software_coding' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+___________ test_rule_semantic_coverage[domain_primary_ai_big_data] ____________
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [12], 'planet': 'Rahu'}, {'chart_type': 'natal', 'houses': [12], 'p...i_big_data', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'domain_primary_ai_big_data' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+________ test_rule_semantic_coverage[domain_primary_public_reputation] _________
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [10], 'planet': 'Sun'}, {'chart_type': 'natal', 'houses': [10], 'pl...reputation', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'domain_primary_public_reputation' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+________ test_rule_semantic_coverage[domain_primary_corporate_politics] ________
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [6], 'planet': 'Saturn'}, {'chart_type': 'natal', 'houses': [6], 'p...e_politics', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'domain_primary_corporate_politics' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+_______ test_rule_semantic_coverage[domain_primary_consulting_coaching] ________
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [9], 'planet': 'Jupiter'}], 'description': 'Primary occupancy for c...g_coaching', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'domain_primary_consulting_coaching' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+_______ test_rule_semantic_coverage[domain_primary_stock_market_trading] _______
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [5], 'planet': 'Mercury'}, {'chart_type': 'natal', 'houses': [5], '...et_trading', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'domain_primary_stock_market_trading' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+____________ test_rule_semantic_coverage[domain_primary_gold_bonds] ____________
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [2], 'planet': 'Jupiter'}, {'chart_type': 'natal', 'houses': [2], '...gold_bonds', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'domain_primary_gold_bonds' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+_________ test_rule_semantic_coverage[domain_primary_ecommerce_retail] _________
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [7], 'planet': 'Venus'}, {'chart_type': 'natal', 'houses': [7], 'pl...rce_retail', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'domain_primary_ecommerce_retail' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+___________ test_rule_semantic_coverage[domain_primary_smart_homes] ____________
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [4], 'planet': 'Rahu'}, {'chart_type': 'natal', 'houses': [4], 'pla...mart_homes', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'domain_primary_smart_homes' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+________ test_rule_semantic_coverage[domain_primary_automobiles_travel] ________
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [4], 'planet': 'Venus'}, {'chart_type': 'natal', 'houses': [4], 'pl...les_travel', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'domain_primary_automobiles_travel' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+____ test_rule_semantic_coverage[domain_primary_chronic_lifestyle_diseases] ____
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [6], 'planet': 'Saturn'}, {'chart_type': 'natal', 'houses': [6], 'p...e_diseases', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'domain_primary_chronic_lifestyle_diseases' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+_____ test_rule_semantic_coverage[domain_primary_professional_networking] ______
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [11], 'planet': 'Mercury'}, {'chart_type': 'natal', 'houses': [11],...networking', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'domain_primary_professional_networking' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+____ test_rule_semantic_coverage[domain_primary_education_online_learning] _____
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [5], 'planet': 'Jupiter'}, {'chart_type': 'natal', 'houses': [5], '...e_learning', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'domain_primary_education_online_learning' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+___________ test_rule_semantic_coverage[domain_primary_logic_coding] ___________
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [3], 'planet': 'Mercury'}], 'description': 'Primary occupancy for l...gic_coding', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'domain_primary_logic_coding' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+________ test_rule_semantic_coverage[domain_primary_local_llm_hosting] _________
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [12], 'planet': 'Rahu'}, {'chart_type': 'natal', 'houses': [12], 'p...lm_hosting', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'domain_primary_local_llm_hosting' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+_________ test_rule_semantic_coverage[domain_primary_cloud_computing] __________
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [12], 'planet': 'Rahu'}, {'chart_type': 'natal', 'houses': [12], 'p..._computing', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'domain_primary_cloud_computing' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+_________ test_rule_semantic_coverage[domain_primary_hardware_servers] _________
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [6], 'planet': 'Saturn'}, {'chart_type': 'natal', 'houses': [6], 'p...re_servers', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'domain_primary_hardware_servers' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+__________ test_rule_semantic_coverage[domain_primary_cybersecurity] ___________
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [6], 'planet': 'Rahu'}, {'chart_type': 'natal', 'houses': [6], 'pla...ersecurity', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'domain_primary_cybersecurity' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+_______ test_rule_semantic_coverage[domain_primary_app_launch_branding] ________
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [10], 'planet': 'Sun'}, {'chart_type': 'natal', 'houses': [10], 'pl...h_branding', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'domain_primary_app_launch_branding' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+_________ test_rule_semantic_coverage[domain_primary_mutual_funds_sip] _________
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [2], 'planet': 'Jupiter'}], 'description': 'Primary occupancy for m..._funds_sip', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'domain_primary_mutual_funds_sip' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+__________ test_rule_semantic_coverage[domain_primary_digital_tokens] __________
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [12], 'planet': 'Rahu'}, {'chart_type': 'natal', 'houses': [12], 'p...tal_tokens', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'domain_primary_digital_tokens' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+_________ test_rule_semantic_coverage[domain_primary_venture_capital] __________
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [5], 'planet': 'Rahu'}, {'chart_type': 'natal', 'houses': [5], 'pla...re_capital', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'domain_primary_venture_capital' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+____ test_rule_semantic_coverage[domain_primary_premature_asset_redemption] ____
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [8], 'planet': 'Saturn'}, {'chart_type': 'natal', 'houses': [8], 'p...redemption', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'domain_primary_premature_asset_redemption' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+_________ test_rule_semantic_coverage[domain_primary_corporate_audits] _________
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [6], 'planet': 'Mercury'}, {'chart_type': 'natal', 'houses': [6], '...ate_audits', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'domain_primary_corporate_audits' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+_______ test_rule_semantic_coverage[domain_primary_hydroponics_farming] ________
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [4], 'planet': 'Moon'}, {'chart_type': 'natal', 'houses': [4], 'pla...cs_farming', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'domain_primary_hydroponics_farming' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+________ test_rule_semantic_coverage[domain_primary_cordyceps_mushroom] ________
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [8], 'planet': 'Rahu'}, {'chart_type': 'natal', 'houses': [8], 'pla...s_mushroom', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'domain_primary_cordyceps_mushroom' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+________ test_rule_semantic_coverage[domain_primary_electric_vehicles] _________
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [4], 'planet': 'Venus'}, {'chart_type': 'natal', 'houses': [4], 'pl...c_vehicles', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'domain_primary_electric_vehicles' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+_ test_rule_semantic_coverage[domain_primary_professional_networking_linkedin] _
+
+engine = <astroq.lk_prediction.varshphal_timing_engine.VarshphalTimingEngine object at 0x10a910a50>
+orchestrator = <tests.graphify_test.orchestrator.GraphifyTestOrchestrator object at 0x10a9473d0>
+fuzzer = <tests.graphify_test.fuzzer.ConstraintAwareFuzzer object at 0x10ae84150>
+rule = {'constraints': [{'chart_type': 'natal', 'houses': [7], 'planet': 'Mercury'}, {'chart_type': 'natal', 'houses': [7], '...g_linkedin', 'node_id': 'lk_prediction_varshphal_timing_engine_varshphaltimingengine_evaluate_varshphal_triggers', ...}
+
+    @pytest.mark.parametrize("rule", RULES_DATA, ids=lambda r: r["rule_id"])
+    def test_rule_semantic_coverage(engine, orchestrator, fuzzer, rule):
+        """
+        MASTER TEST: Verifies that a rule is both semantically triggered (engine output)
+        and structurally reached (graphify trace).
+        """
+        rule_id = rule["rule_id"]
+        domain = rule["domain"]
+        target_node = rule["node_id"]
+    
+        # 1. Generate chart satisfying the rule
+        chart_data = fuzzer.generate_chart_for_rule(rule)
+        context = UnifiedAstrologicalContext(enriched=EnrichedChart(source=chart_data))
+        context.age = 30 # Default age for testing
+    
+        # 2. Trace execution
+        with orchestrator.start_trace() as trace:
+            # We call evaluate_varshphal_triggers for all rules currently
+            # since we've bridged the catalogue fallback.
+            results = engine.evaluate_varshphal_triggers(context, domain)
+    
+            # 3. Assertions
+    
+            # Assertion A: Structural Reachability (Did the code path execute?)
+            # We check if the target_node was recorded in the tracer hits.
+            assert target_node in trace.hits, f"Node {target_node} was not hit in graphify trace."
+    
+            # Assertion B: Semantic Intent (Did the rule actually match?)
+            # We check if the specific rule description appears in the results.
+            is_hit = any(r.get("desc") == rule_id for r in results)
+>           assert is_hit, f"Rule '{rule_id}' failed to match engine logic even with satisfied constraints."
+E           AssertionError: Rule 'domain_primary_professional_networking_linkedin' failed to match engine logic even with satisfied constraints.
+E           assert False
+
+backend/tests/graphify_test/test_semantic_coverage.py:61: AssertionError
+=========================== short test summary info ============================
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[Venus or Mercury in 1,2,10,11,12 AND Saturn in 1 or 10]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[Natal Venus/Mercury in 7 returns to 7 in Annual]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[Annual Venus and Mercury conjoined AND Saturn in 2,7,12]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[Annual Saturn in House 1]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[Venus/Mercury returns to Natal House, No enemies in 2,7]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[Natal H2, H7 blank, Annual Jupiter/Venus in 2,7]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[Annual Venus or Mercury in 2 or 7]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[Annual Jupiter in H7 (Partnership Expansion)]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[Annual Rahu in H1 or H7 (Fated Partnership Axis)]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[Annual Ketu in H1 or H7 (Destiny Partnership Axis)]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[Saturn 3,5 in Natal AND Ketu+Saturn/Rahu 1,3 in Annual]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[Ketu 11 in Natal AND Saturn 11 in Annual]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[Jup+Moon in Natal AND Jup+Moon 9 in Annual]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[Saturn 6 in Natal AND Mars 1-8 in Annual]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[Mercury 3 in Natal AND Ketu 11 in Annual]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[Jup+Moon 10 in Natal AND Jup+Moon 10 in Annual]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[Moon 10 in Natal AND Saturn 1 in Annual]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[Annual Venus and Mercury both in H2 (Partnership Wealth)]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[Annual Saturn in H11 (Steady Gain)]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[Annual Mars in H2 or H11 with natal Jupiter active]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[Annual Rahu in H2 (Speculative Finance)]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[Annual Sun in H2 (Authority Income)]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[Moon and Venus conjunct in Annual]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[Jup+Sat 2 in Natal AND Jup+Sat 2 in Annual]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[Sun 5 in Natal AND Sun 5 in Annual (H8 empty)]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[Mer+Moon 11 in Natal AND Mer 11 alone in Annual]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[Sun/Moon conjunct Mer in 1,6,7,8,10 in Annual]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[Sun+Sat in Natal AND Sun+Sat 7 in Annual]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[Ketu in Natal AND Ketu 1 in Annual]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[Mercury in Natal AND Rahu/Moon/Sun 1 in Annual]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[Mercury 2 in Natal AND Mercury 12 in Annual]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[Mercury 8 in Natal AND Mercury 1 in Annual]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[Mercury 12 in Natal AND Saturn 2 in Annual]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[Jupiter 5 in Natal AND Venus 9 in Annual]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[Mercury in Natal AND Ketu 1 in Annual]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[Annual Moon and Jupiter both in H5 (Progeny Blessing)]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[Natal H5 occupied AND Annual Jupiter in H5 (Natal Confirmation)]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[domain_primary_marriage]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[domain_primary_progeny]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[domain_primary_property]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[domain_primary_foreign_travel]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[domain_primary_litigation]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[domain_primary_health]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[domain_primary_spirituality]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[domain_primary_family]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[domain_primary_software_coding]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[domain_primary_ai_big_data]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[domain_primary_public_reputation]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[domain_primary_corporate_politics]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[domain_primary_consulting_coaching]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[domain_primary_stock_market_trading]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[domain_primary_gold_bonds]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[domain_primary_ecommerce_retail]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[domain_primary_smart_homes]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[domain_primary_automobiles_travel]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[domain_primary_chronic_lifestyle_diseases]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[domain_primary_professional_networking]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[domain_primary_education_online_learning]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[domain_primary_logic_coding]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[domain_primary_local_llm_hosting]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[domain_primary_cloud_computing]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[domain_primary_hardware_servers]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[domain_primary_cybersecurity]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[domain_primary_app_launch_branding]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[domain_primary_mutual_funds_sip]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[domain_primary_digital_tokens]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[domain_primary_venture_capital]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[domain_primary_premature_asset_redemption]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[domain_primary_corporate_audits]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[domain_primary_hydroponics_farming]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[domain_primary_cordyceps_mushroom]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[domain_primary_electric_vehicles]
+FAILED backend/tests/graphify_test/test_semantic_coverage.py::test_rule_semantic_coverage[domain_primary_professional_networking_linkedin]
+======================== 73 failed, 27 passed in 0.18s =========================

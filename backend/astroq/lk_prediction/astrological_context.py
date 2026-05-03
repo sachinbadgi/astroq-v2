@@ -10,6 +10,31 @@ from .dormancy_engine import DormancyEngine, DormancyState
 
 logger = logging.getLogger(__name__)
 
+from dataclasses import dataclass, field
+
+@dataclass
+class PlanetState:
+    """
+    DEEP MODULE: The total effective state of a planet.
+    Leverage: Callers don't need to know IF a planet is dormant or how its 
+    strength is scaled—they just ask for the final effective values.
+    """
+    name: str
+    house: int
+    natal_house: Optional[int]
+    is_awake: bool
+    strength: float
+    dignity_multiplier: float
+    recoil_multiplier: float
+    complex_state: Any = None
+    is_startled: bool = False
+
+    @property
+    def effective_strength(self) -> float:
+        """Total strength after applying all state-based multipliers."""
+        return self.strength * self.dignity_multiplier * self.recoil_multiplier
+
+
 class UnifiedAstrologicalContext:
     """
     DEEP MODULE: The source of truth for all planetary states and lookups.
@@ -42,8 +67,38 @@ class UnifiedAstrologicalContext:
         self.boost_scaling = config.get("rules.boost_scaling", fallback=0.04) if config else 0.04
         self.penalty_scaling = config.get("rules.penalty_scaling", fallback=0.15) if config else 0.15
 
-        # Lazy cache for NatalFateView domain classifications (populated on first call)
+        # Lazy cache for NatalFateView domain classifications
         self._fate_type_cache: Optional[Dict[str, str]] = None
+        self._planet_state_cache: Dict[str, PlanetState] = {}
+
+    def get_planet(self, planet_name: str) -> Optional[PlanetState]:
+        """
+        Returns the full effective state of a planet.
+        Caches the result for the lifetime of the context.
+        """
+        if planet_name in self._planet_state_cache:
+            return self._planet_state_cache[planet_name]
+
+        house = self.get_house(planet_name)
+        if house is None:
+            return None
+
+        base_name = self.resolve_base_planet(planet_name)
+        state = self.get_complex_state(planet_name)
+        
+        ps = PlanetState(
+            name=planet_name,
+            house=house,
+            natal_house=self.get_natal_house(planet_name),
+            is_awake=state.is_awake,
+            strength=self.get_planet_strength(planet_name),
+            dignity_multiplier=self.get_dignity_multiplier(planet_name),
+            recoil_multiplier=self.get_recoil_multiplier(planet_name),
+            complex_state=state,
+            is_startled=state.is_startled
+        )
+        self._planet_state_cache[planet_name] = ps
+        return ps
 
     def resolve_base_planet(self, planet_name: str) -> str:
         """Strips 'Masnui ' prefix to get the underlying planetary archetype."""
@@ -63,12 +118,14 @@ class UnifiedAstrologicalContext:
         """Deep check for planetary dormancy using DormancyEngine."""
         house = self.get_house(planet_name)
         if not house: return False
-        return self.dormancy_engine.is_awake(planet_name, house, self.chart.planets, current_age=self.age)
+        ppos = {p: self.get_house(p) for p in self.chart.planets}
+        return self.dormancy_engine.is_awake(planet_name, house, ppos, current_age=self.age)
 
     def get_complex_state(self, planet_name: str) -> DormancyState:
         """Returns the full activation state including sustenance and startle triggers."""
         house = self.get_house(planet_name)
-        return self.dormancy_engine.get_complex_state(planet_name, house or 0, self.chart.planets, current_age=self.age)
+        ppos = {p: self.get_house(p) for p in self.chart.planets}
+        return self.dormancy_engine.get_complex_state(planet_name, house or 0, ppos, current_age=self.age)
 
     def has_180_degree_block(self, planet_name: str) -> bool:
         """Checks if a natural enemy is placed exactly 180 degrees away (house + 6 mod 12)."""
@@ -106,6 +163,10 @@ class UnifiedAstrologicalContext:
         """
         mag = hit.magnitude
         targets = hit.primary_target_planets
+        
+        # Ensure targets is iterable and not a bool
+        if not hasattr(targets, "__iter__") or isinstance(targets, bool):
+            targets = []
 
         # 1. Apply Base Scaling if magnitude is None (Dynamic Scaling)
         if mag is None:
@@ -119,21 +180,22 @@ class UnifiedAstrologicalContext:
             if w is not None:
                 mag *= float(w)
 
-        # 3. Annual Dignity Modifier
-        if self.chart_type == "Yearly" and targets:
-            planet_modifiers = [self.get_dignity_multiplier(p) for p in targets]
-            if planet_modifiers:
-                avg_modifier = sum(planet_modifiers) / len(planet_modifiers)
-                mag *= avg_modifier
+        # 3. Apply Multipliers from targets
+        if targets:
+            multipliers = []
+            for p_name in targets:
+                p_state = self.get_planet(p_name)
+                if p_state:
+                    # Leverage: The context knows how to merge dignity and recoil
+                    multipliers.append(p_state.dignity_multiplier * p_state.recoil_multiplier)
+            
+            if multipliers:
+                avg_mult = sum(multipliers) / len(multipliers)
+                mag *= avg_mult
 
         # 4. 35-Year Cycle Ruler Modifier
         if self.age and targets:
             mag *= self.get_cycle_ruler_multiplier(list(targets))
-
-        # 5. Trauma-induced Recoil (from Ledger)
-        if targets:
-            recoil_mult = self.get_recoil_multiplier(targets[0])
-            mag *= recoil_mult
 
         return mag
 
@@ -155,23 +217,6 @@ class UnifiedAstrologicalContext:
         if not natal_h: return 1.0
         
         return self.dignity_engine.get_annual_dignity_multiplier(base_name, natal_h, self.age)
-
-    def get_cycle_ruler_multiplier(self, planet_names: List[str]) -> float:
-        """Calculates the 35-year cycle ruler bonus or friction."""
-        if not self.age: return 1.0
-        
-        cycle_ruler = get_35_year_ruler(self.age)
-        base_names = {self.resolve_base_planet(p) for p in planet_names}
-        
-        if cycle_ruler in base_names:
-            return 1.20   # Period ruler delivers the rule
-        
-        # Check for hostility
-        for p in base_names:
-            if cycle_ruler in ENEMIES.get(p, []):
-                return 0.85 # Hostility friction
-                
-        return 1.0
 
     def get_planet_ledger_state(self, planet_name: str) -> Any:
         """Returns the current trauma/modifier state from the StateLedger."""
@@ -203,26 +248,35 @@ class UnifiedAstrologicalContext:
         planet_data = self.enriched.planet_strengths.get(base_name, {})
         return float(planet_data.get("strength_total", 0.0))
 
+    def get_cycle_ruler_multiplier(self, planet_names: List[str]) -> float:
+        """Calculates the 35-year cycle ruler bonus or friction."""
+        if not self.age: return 1.0
+        
+        cycle_ruler = get_35_year_ruler(self.age)
+        base_names = {self.resolve_base_planet(p) for p in planet_names}
+        
+        if cycle_ruler in base_names:
+            return 1.20   # Period ruler delivers the rule
+        
+        # Check for hostility
+        for p in base_names:
+            if cycle_ruler in ENEMIES.get(p, []):
+                return 0.85 # Hostility friction
+                
+        return 1.0
+
     def get_fate_type_for_domain(self, domain: str) -> str:
         """
         Returns the natal fate classification for a domain.
         Possible values: "GRAHA_PHAL", "RASHI_PHAL", "HYBRID", "NEITHER".
-
-        Per design decision: HYBRID is treated as RASHI_PHAL (conservative).
-
-        Lazy-initializes NatalFateView on first call and caches the result dict
-        for the lifetime of this context — avoids re-iterating EVENT_DOMAIN_CATALOGUE
-        (50+ entries) on every annual chart in a 75-year lifecycle run.
         """
         if not self.natal_chart:
-            return "RASHI_PHAL"  # No natal chart available → conservative default
+            return "RASHI_PHAL"
 
         if self._fate_type_cache is None:
-            # Import here to avoid circular imports at module load time
             from .natal_fate_view import NatalFateView
             view = NatalFateView()
             entries = view.evaluate(self.natal_chart.data, include_neither=True)
-            # Build domain → fate_type lookup; treat HYBRID as RASHI_PHAL
             self._fate_type_cache = {
                 e["domain"]: (
                     "RASHI_PHAL" if e["fate_type"] == "HYBRID" else e["fate_type"]
@@ -230,13 +284,12 @@ class UnifiedAstrologicalContext:
                 for e in entries
             }
 
-        # Normalize domain key: lowercase, strip whitespace
         domain_key = domain.strip().lower()
-        # Try exact match first, then partial match for flexibility
         if domain_key in self._fate_type_cache:
             return self._fate_type_cache[domain_key]
         for k, v in self._fate_type_cache.items():
             if domain_key in k or k in domain_key:
                 return v
-        return "RASHI_PHAL"  # Unknown domain → conservative default
+        return "RASHI_PHAL"
+
 

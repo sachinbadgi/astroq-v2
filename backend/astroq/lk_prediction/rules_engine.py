@@ -9,9 +9,13 @@ trees (AND, OR, NOT, placement, conjunction, confrontation).
 from __future__ import annotations
 
 import json
+import logging
 import sqlite3
 import os
+import traceback
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 from astroq.lk_prediction.config import ModelConfig
 from astroq.lk_prediction.data_contracts import RuleHit
@@ -116,55 +120,52 @@ class RulesEngine:
             
             try:
                 cond_tree = json.loads(cond_str)
-            except json.JSONDecodeError:
-                continue
-
-            match, specificity, targets, target_houses = self._evaluate_node(cond_tree, context)
-            
-            if match:
-                # Parse targets and houses if they are strings in DB
-                primary_targets = list(targets)
-                if not primary_targets and rule.get("primary_target_planets"):
-                    pt = rule.get("primary_target_planets")
-                    primary_targets = json.loads(pt) if pt.startswith("[") else pt.split(",")
-
-                # Create RuleHit with raw data
-                hit = RuleHit(
-                    rule_id=rid,
-                    domain=rule.get("domain", ""),
-                    description=rule.get("description", ""),
-                    verdict=rule.get("verdict", ""),
-                    magnitude=rule.get("magnitude"), # Raw magnitude, could be None
-                    scoring_type=rule.get("scoring_type", "neutral"),
-                    primary_target_planets=primary_targets,
-                    target_houses=list(target_houses),
-                    source_page=rule.get("source_page", ""),
-                    specificity=specificity,
-                    success_weight=rule.get("success_weight", 0.0),
-                    afflicts_living=bool(rule.get("afflicts_living", False)),
-                )
+                match, specificity, targets, target_houses = self._evaluate_node(cond_tree, context)
                 
-                # Derive axis label from primary planet's aspect data
-                # Use the first two target_houses if available; otherwise unknown.
-                if len(hit.target_houses) >= 2:
-                    hit.axis = AspectFidelityEvaluator.axis_from_houses(
-                        hit.target_houses[0], hit.target_houses[1]
+                if match:
+                    # Parse targets and houses if they are strings in DB
+                    primary_targets = list(targets)
+                    if not primary_targets and rule.get("primary_target_planets"):
+                        pt = rule.get("primary_target_planets")
+                        primary_targets = json.loads(pt) if pt.startswith("[") else pt.split(",")
+
+                    # Create RuleHit with raw data
+                    hit = RuleHit(
+                        rule_id=rid,
+                        domain=rule.get("domain", ""),
+                        description=rule.get("description", ""),
+                        verdict=rule.get("verdict", ""),
+                        magnitude=rule.get("magnitude"), # Raw magnitude, could be None
+                        scoring_type=rule.get("scoring_type", "neutral"),
+                        primary_target_planets=primary_targets,
+                        target_houses=list(target_houses),
+                        source_page=rule.get("source_page", ""),
+                        specificity=specificity,
+                        success_weight=rule.get("success_weight", 0.0),
+                        afflicts_living=bool(rule.get("afflicts_living", False)),
                     )
-                elif len(hit.target_houses) == 1 and primary_targets:
-                    # Single target house — find the source planet's house
-                    src_planet = primary_targets[0]
-                    src_house = context.get_house(src_planet)
-                    if src_house:
+                    
+                    # Derive axis label from primary planet's aspect data
+                    if len(hit.target_houses) >= 2:
                         hit.axis = AspectFidelityEvaluator.axis_from_houses(
-                            hit.target_houses[0], src_house
+                            hit.target_houses[0], hit.target_houses[1]
                         )
-                
-                # DEEP MODULE: Delegation of magnitude normalization/scaling to Context
-                hit.magnitude = context.calculate_rule_magnitude(hit)
-                
-                # Check for zeroed weights after calculation
-                if abs(hit.magnitude) > 0.001:
-                    hits.append(hit)
+                    elif len(hit.target_houses) == 1 and primary_targets:
+                        src_planet = primary_targets[0]
+                        src_house = context.get_house(src_planet)
+                        if src_house:
+                            hit.axis = AspectFidelityEvaluator.axis_from_houses(
+                                hit.target_houses[0], src_house
+                            )
+                    
+                    hit.magnitude = context.calculate_rule_magnitude(hit)
+                    
+                    if abs(hit.magnitude) > 0.001:
+                        hits.append(hit)
+
+            except Exception as e:
+                logger.error(f"Error evaluating rule {rid}: {e}")
+                continue
 
         # Sort descending by specificity
         hits.sort(key=lambda h: h.specificity, reverse=True)
@@ -179,6 +180,7 @@ class RulesEngine:
             return False, 0, set(), set()
             
         n_type = node.get("type", "")
+        from .condition_evaluator import ConditionEvaluator as CE
 
         if n_type == "AND":
             spec_total = 0
@@ -212,30 +214,21 @@ class RulesEngine:
             return False, 0, set(), set()
 
         elif n_type == "house_status":
-            target_h = str(node.get("house", "1"))
+            target_h = int(node.get("house", "1"))
             target_state = node.get("state", "occupied")
+            occupied = (target_state == "occupied")
             
-            actual_state = context.house_status.get(target_h, "Empty House").lower()
-            
-            is_match = False
-            if target_state == "occupied" and "occupied" in actual_state:
-                is_match = True
-            elif target_state == "empty" and "empty" in actual_state:
-                is_match = True
-                
-            if is_match:
-                return True, 1, set(), {int(target_h)}
+            if CE.evaluate_house_occupied(context, target_h, occupied):
+                return True, 1, set(), {target_h}
             return False, 0, set(), set()
 
         elif n_type == "placement":
             planet = node.get("planet", "")
             target_houses = node.get("houses", [])
             
-            # DEEP MODULE: Context handles Masnui/Natal fallback automatically
-            actual_house = context.get_house(planet)
-            
-            if actual_house in target_houses:
-                return True, 1, {planet}, {actual_house}
+            if CE.evaluate_placement(context, planet, target_houses):
+                actual_house = context.get_house(planet)
+                return True, 1, {planet}, {actual_house} if actual_house else set()
             
             return False, 0, set(), set()
 
@@ -243,28 +236,14 @@ class RulesEngine:
             p_a = node.get("planet_a", "")
             p_b = node.get("planet_b", "")
             
-            # Use context to resolve real names and houses
-            h_a = context.get_house(p_a)
-            h_b = context.get_house(p_b)
+            if CE.evaluate_confrontation(context, p_a, p_b):
+                h_a = context.get_house(p_a)
+                h_b = context.get_house(p_b)
+                return True, 1, {p_a, p_b}, {h_a, h_b}
             
-            if h_a is None or h_b is None:
-                return False, 0, set(), set()
-                
-            data_a = context.chart.get_planet_data(p_a)
-            data_b = context.chart.get_planet_data(p_b)
-
-            if not data_a or not data_b:
-                return False, 0, set(), set()
-
-            # Check for direct aspects (100 Percent)
-            for asp in data_a.get("aspects", []):
-                if asp.get("aspect_type") == "100 Percent" and (asp.get("target") == p_b or asp.get("target_house") == h_b):
-                    return True, 1, {p_a, p_b}, {h_a, h_b}
-
-            for asp in data_b.get("aspects", []):
-                if asp.get("aspect_type") == "100 Percent" and (asp.get("target") == p_a or asp.get("target_house") == h_a):
-                    return True, 1, {p_a, p_b}, {h_a, h_b}
-
             return False, 0, set(), set()
+
+        return False, 0, set(), set()
+
 
         return False, 0, set(), set()

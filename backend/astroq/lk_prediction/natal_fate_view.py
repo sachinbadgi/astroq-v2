@@ -257,7 +257,7 @@ class NatalFateView:
         dormant_planets = []
         for planet in key_planets:
             if planet in positions:
-                state = self.dormancy_engine.get_complex_state(planet, positions[planet], natal_chart)
+                state = self.dormancy_engine.get_complex_state(planet, positions[planet], positions)
                 if not state.is_awake:
                     is_any_dormant = True
                     dormant_planets.append(planet)

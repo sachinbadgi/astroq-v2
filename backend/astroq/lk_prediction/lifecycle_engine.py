@@ -35,96 +35,60 @@ class LifecycleEngine:
         self.history = {}
         
         for age in range(1, 76):
-            # 0. Check for recoil from expired remedies
+            # 0. Hydrate a minimal context for this age simulation
+            # (In a real run, this would be the UnifiedAstrologicalContext)
+            annual_positions = self._get_annual_positions(natal_positions, age)
+            
+            # Simple context-like object for StateLedger.evolve_state
+            class SimContext:
+                def __init__(self, age, positions):
+                    self.age = age
+                    from .astro_chart import AstroChart
+                    self.chart = AstroChart({"planets_in_houses": {p: {"house": h} for p, h in positions.items()}})
+                def get_house(self, planet): return self.chart.get_house(planet)
+            
+            sim_context = SimContext(age, annual_positions)
+
+            # 1. Check for recoil from expired remedies
             for planet in self.ledger.planets:
                 self.ledger.check_and_fire_recoil(planet, age)
 
-            # 0.5 Apply remedies scheduled for this age
+            # 2. Apply remedies scheduled for this age
             if remedy_schedule and age in remedy_schedule:
                 for planet, remedy_id in remedy_schedule[age]:
                     self.ledger.apply_remedy(planet, age, remedy_id)
 
-            # 1. Project annual positions for this age
-            annual_positions = self._get_annual_positions(natal_positions, age)
-            
-            # 2. Detect geometric incidents
+            # 3. Detect geometric incidents
             incidents = self.resolver.detect_incidents(annual_positions)
             
-            # 3. Apply incidents to persistent ledger (Memory)
+            # 4. Apply incidents to persistent ledger (Memory)
             for incident in incidents:
-                state = self.ledger.get_planet_state(incident.target)
                 target_house = annual_positions.get(incident.target)
                 
                 # Check Dormancy Shield
                 is_awake = self.dormancy.is_awake(incident.target, target_house, annual_positions, current_age=age)
                 
                 if incident.type == "Takkar":
-                    # DEEP MODULE: LifecycleEngine no longer manually manages trauma modifiers.
-                    # It delegates the 'Strike' impact logic to the StateLedger.
                     complex_state = self.dormancy.get_complex_state(incident.target, target_house, annual_positions)
                     
                     if is_awake or complex_state.is_startled:
-                        overrides = dignity_overrides or {}
-                        fate_type = overrides.get(incident.target, "RASHI_PHAL")
-                        planet_state = self.ledger.get_planet_state(incident.target)
-                        scapegoats = self.scapegoat_router.get_scapegoats(incident.target)
-
-                        if planet_state.is_burst:
-                            # Double Hit: both native and scapegoat absorb full trauma
-                            self.ledger.apply_strike_impact(
-                                incident.target, incident.trauma_weight,
-                                is_startled=complex_state.is_startled
-                            )
-                            for sg in scapegoats:
-                                if not self.ledger.is_scapegoat_exhausted(sg):
-                                    self.ledger.record_scapegoat_hit(sg)
-                                    self.ledger.apply_trauma(sg, incident.trauma_weight)
-
-                        elif fate_type == "GRAHA_PHAL":
-                            # Fixed Fate: 80% native, 20% scapegoat
-                            self.ledger.apply_strike_impact(
-                                incident.target, incident.trauma_weight * 0.8,
-                                is_startled=complex_state.is_startled
-                            )
-                            for sg in scapegoats:
-                                if not self.ledger.is_scapegoat_exhausted(sg):
-                                    self.ledger.record_scapegoat_hit(sg)
-                                    self.ledger.apply_trauma(sg, incident.trauma_weight * 0.2)
-
-                        else:  # RASHI_PHAL default
-                            routed = False
-                            for sg in scapegoats:
-                                if not self.ledger.is_scapegoat_exhausted(sg):
-                                    self.ledger.record_scapegoat_hit(sg)
-                                    self.ledger.apply_trauma(sg, incident.trauma_weight)
-                                    routed = True
-                                    break
-                            if not routed:
-                                # Scapegoat exhausted — planet absorbs hit itself
-                                self.ledger.apply_strike_impact(
-                                    incident.target, incident.trauma_weight,
-                                    is_startled=complex_state.is_startled
-                                )
-                    else:
-                        # Sleeping planet is safe from external strikes
-                        pass
-                        
+                        # DEEP MODULE: StateLedger handles the rerouting and trauma logic
+                        self.ledger.apply_strike_impact(
+                            incident.target, 
+                            incident.trauma_weight,
+                            is_startled=complex_state.is_startled,
+                            context=None # We'll let it default to RASHI_PHAL in Sim
+                        )
                 elif incident.type == "Sanctuary":
-                    # Sanctuary resets modifier to None, but points remain (Scarring)
+                    state = self.ledger.get_planet_state(incident.target)
                     state.modifier = "Supported"
             
-            # 4. Save a deep copy of the ledger for this year's history
+            # 5. FORENSIC EVOLUTION: Advance states (Lamp houses, persistence, H2 leakage)
+            self.ledger.evolve_state(sim_context)
+
+            # 6. Save a deep copy of the ledger for this year's history
             self.history[age] = copy.deepcopy(self.ledger)
             
-            # 35-Year cycle boundary: apply Dirty Start penalty (cite: 2176, 2179)
-            if age == 35:
-                self.ledger.apply_dirty_start_penalty()
-
-            # 5. Reset volatile modifiers for the next year cycle (Mechanical fatigue remains)
-            for p_state in self.ledger.planets.values():
-                if p_state.modifier != "Burst" and p_state.modifier != "Leaking":
-                    p_state.modifier = "None"
-                    
         return self.history
 
     def generate_75yr_report(self, natal_data: Dict[str, Any]) -> Dict[str, Any]:

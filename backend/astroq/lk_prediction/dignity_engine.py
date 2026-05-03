@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 from .lk_constants import (
     PLANET_PAKKA_GHAR,
     PLANET_EXALTATION,
@@ -48,6 +48,39 @@ class DignityEngine:
 
         return 1.0
 
+    def get_dignity_ladder_score(self, planet: str, house: int, context: Optional[Any] = None) -> float:
+        """
+        Deep Module: Returns a unified dignity ladder score (weight).
+        Used by VarshphalTimingEngine and FidelityShield to separate signal from noise.
+        
+        Hierarchy of Power:
+        1. Pakka Ghar (1.5) - Primary power point.
+        2. Exaltation (1.0) - Secondary strength.
+        3. Pucca Ghars Extended (0.6) - Safe territory.
+        4. Base Activation (1.0) - If none of the above match.
+        5. Debilitation (-2.0) - Hard suppression.
+        """
+        from .lk_constants import PUCCA_GHARS_EXTENDED
+
+        # 1. Debilitation check (Hard-Block)
+        if house in PLANET_DEBILITATION.get(planet, []):
+            return -2.0
+
+        # 2. Pakka Ghar check (Strongest signal)
+        if PLANET_PAKKA_GHAR.get(planet) == house:
+            return 1.5
+
+        # 3. Exaltation check
+        if house in PLANET_EXALTATION.get(planet, []):
+            return 1.0
+
+        # 4. Pucca Ghars Extended
+        if house in PUCCA_GHARS_EXTENDED.get(planet, []):
+            return 0.6
+
+        # Base case
+        return 1.0
+
     def get_dignity_score(self, planet: str, house: int, states: List[str], weights: Dict[str, float]) -> float:
         """
         Calculates the absolute dignity score for a planet in a house.
@@ -59,7 +92,7 @@ class DignityEngine:
         
         # Pakka Ghar check
         if PLANET_PAKKA_GHAR.get(planet) == house:
-            dignity += weights.get("pakka_ghar", 2.20)
+            dignity += weights.get("pakka_ghar", 1.50) # forensic boost
 
         # Exaltation check
         ex_houses = PLANET_EXALTATION.get(planet, [])

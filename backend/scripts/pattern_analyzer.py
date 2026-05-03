@@ -18,6 +18,11 @@ from astroq.lk_prediction.aspect_engine import AspectEngine
 from astroq.lk_prediction.astrological_context import UnifiedAstrologicalContext
 from astroq.lk_prediction.config import ModelConfig
 from astroq.lk_prediction.natal_fate_view import NatalFateView
+from astroq.lk_prediction.grammar_analyser import GrammarAnalyser
+from astroq.lk_prediction.strength_engine import StrengthEngine
+from astroq.lk_prediction.chart_enricher import ChartEnricher
+from astroq.lk_prediction.lifecycle_engine import LifecycleEngine
+from astroq.lk_prediction.state_ledger import StateLedger
 
 DOMAIN_MAP = {
     "Career": "career_travel", "Legal": "career_travel", "Business": "career_travel",
@@ -84,8 +89,9 @@ def get_dignity_grade(planet: str, house: int, states: list, config: ModelConfig
     if score <= -2.0: return "Low"
     return "Medium"
 
-def extract_patterns(annual_chart: dict, natal_chart: dict, config: ModelConfig, age: int, engine_domain: str, fate_type: str, is_event: bool, fid: str, cursor):
-    ctx = UnifiedAstrologicalContext(chart=annual_chart, natal_chart=natal_chart, config=config)
+def extract_patterns(annual_chart: dict, natal_chart: dict, config: ModelConfig, age: int, engine_domain: str, fate_type: str, is_event: bool, fid: str, cursor, enricher, ledger):
+    enriched = enricher.enrich(annual_chart, natal_chart)
+    ctx = UnifiedAstrologicalContext(enriched=enriched, natal_chart=natal_chart, ledger=ledger, config=config)
     aspect_engine = AspectEngine()
     all_planets = annual_chart.get("planets_in_houses", {})
     
@@ -170,6 +176,11 @@ def main():
     conn = sqlite3.connect(pf_db_path)
     cursor = conn.cursor()
     
+    grammar_analyser = GrammarAnalyser(config)
+    strengths = StrengthEngine(config)
+    enricher = ChartEnricher(grammar_analyser.registry, strengths)
+    lifecycle = LifecycleEngine()
+    
     init_tables(cursor)
     cursor.execute("DELETE FROM raw_pattern_occurrences") # Reset
     conn.commit()
@@ -214,6 +225,10 @@ def main():
                         death_age = age
             except: pass
             
+        # ── STATEFUL FORENSIC HISTORY ───────────────────────────────────────────
+        ledger_history = lifecycle.run_75yr_analysis(natal)
+        # ────────────────────────────────────────────────────────────────────────
+            
         for ev in valid_events:
             age = ev["age"]
             engine_domain = DOMAIN_MAP.get(ev.get("type", "Career"), "career_travel")
@@ -221,7 +236,8 @@ def main():
             
             annual = annuals.get(f"chart_{age}")
             if annual:
-                extract_patterns(annual, natal, config, age, engine_domain, fate_type, True, fid, cursor)
+                ledger = ledger_history.get(age, StateLedger())
+                extract_patterns(annual, natal, config, age, engine_domain, fate_type, True, fid, cursor, enricher, ledger)
                 
             # Noise years — capped at death_age if known
             max_noise_age = death_age if death_age else (age + NOISE_WINDOW)
@@ -229,7 +245,8 @@ def main():
                 if n_age == age or n_age in event_ages: continue
                 n_annual = annuals.get(f"chart_{n_age}")
                 if n_annual:
-                    extract_patterns(n_annual, natal, config, n_age, engine_domain, fate_type, False, fid, cursor)
+                    n_ledger = ledger_history.get(n_age, StateLedger())
+                    extract_patterns(n_annual, natal, config, n_age, engine_domain, fate_type, False, fid, cursor, enricher, n_ledger)
 
     conn.commit()
     conn.close()

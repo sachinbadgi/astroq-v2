@@ -5,7 +5,6 @@
     "strength.natal.fixed_house_lord": 1.50,
     "strength.natal.sign_lord": 1.00,
     "strength.annual_dignity_factor": 0.50,
-
     "strength.sleeping_planet_factor": 0.0,
     "strength.kaayam_boost": 1.15,
     "strength.dharmi_planet_boost": 1.50,
@@ -19,13 +18,11 @@
     "strength.rin_penalty_factor": 0.85,
     "strength.cycle_35yr_boost": 1.25,
     "strength.spoiler_factor": 0.50,
-
     "probability.sigmoid.k_base": 0.45,
     "probability.sigmoid.k_high_threshold": 7.0,
     "probability.sigmoid.k_decay_rate": 0.08,
     "probability.sigmoid.k_min": 0.15,
     "probability.sigmoid.center": 5.0,
-
     "probability.natal.graha_phal_multiplier": 1.50,
     "probability.natal.dharmi_planet_boost": 1.20,
     "probability.natal.dhoka_graha_penalty": 0.82,
@@ -33,23 +30,18 @@
     "probability.natal.rin_global_penalty": 0.85,
     "probability.natal.sleeping_natal_factor": 0.85,
     "probability.natal.domain_alignment_boost": 1.30,
-
     "probability.delivery.pucca_ghar": 1.80,
     "probability.delivery.intensification": 2.00,
     "probability.delivery.maturation": 1.80,
     "probability.delivery.throne_transit": 1.80,
-
     "probability.year_lord.base_boost": 4.0,
-
     "probability.tvp.alpha": 2.5,
-
     "rules.boost_scaling": 0.05,
     "rules.penalty_scaling": 0.15,
     "rules.penalty_cap": 0.80,
     "rules.dharmi_penalty_reduction": 0.50,
     "rules.deterministic_magnitude_threshold": 0.70,
     "rules.deterministic_success_threshold": 0.80,
-
     "timing.maturation_ages": {
         "Jupiter": 16,
         "Sun": 22,
@@ -66,11 +58,10 @@
         "age_2_3": 0.20,
         "age_4_5": 0.50
     },
-
-    "timing.rashi_phal_medium_threshold": 1.2,
-    "timing.rashi_phal_high_threshold": 2.0,
-    "timing.graha_phal_medium_threshold": 0.6,
-    "timing.graha_phal_high_threshold": 1.5,
+    "timing.rashi_phal_medium_threshold": 0.6,
+    "timing.rashi_phal_high_threshold": 1.2,
+    "timing.graha_phal_medium_threshold": 0.4,
+    "timing.graha_phal_high_threshold": 1.0,
     "timing.maturity_age_window": 2,
     "timing.maturity_boost_fixed": 0.8,
     "timing.maturity_boost_doubtful": 0.3,
@@ -82,10 +73,8 @@
     "timing.rashi_phal_pakka_ghar_weight": 1.5,
     "timing.rashi_phal_exaltation_weight": 1.0,
     "timing.rashi_phal_extended_weight": 0.6,
-
     "classifier.threshold_absolute": 0.85,
     "classifier.threshold_delta": 0.25,
-
     "translator.confidence_thresholds": {
         "certain": 0.90,
         "highly_likely": 0.75,
@@ -93,7 +82,6 @@
         "possible": 0.40,
         "dormant": 0.0
     },
-
     "remedy.shifting_boost": 2.5,
     "remedy.residual_impact_factor": 0.05,
     "remedy.safe_multiplier": 1.0,

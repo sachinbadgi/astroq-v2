@@ -34,6 +34,11 @@ from astroq.lk_prediction.aspect_engine import AspectEngine
 from astroq.lk_prediction.astrological_context import UnifiedAstrologicalContext
 from astroq.lk_prediction.config import ModelConfig
 from astroq.lk_prediction.natal_fate_view import NatalFateView
+from astroq.lk_prediction.grammar_analyser import GrammarAnalyser
+from astroq.lk_prediction.strength_engine import StrengthEngine
+from astroq.lk_prediction.chart_enricher import ChartEnricher
+from astroq.lk_prediction.lifecycle_engine import LifecycleEngine
+from astroq.lk_prediction.state_ledger import StateLedger
 
 # ── Domain mapping (fuzzer key → engine key) ──────────────────────────────────
 DOMAIN_MAP = {
@@ -96,7 +101,7 @@ def _fate_category(fate_type: str) -> str:
 
 # ── Per-figure analysis ───────────────────────────────────────────────────────
 
-def analyse_figure(name: str, natal_chart: dict, annual_charts: dict, events: list, engine, fate_view, config) -> Optional[dict]:
+def analyse_figure(name: str, natal_chart: dict, annual_charts: dict, events: list, engine, fate_view, config, enricher, lifecycle) -> Optional[dict]:
     print(f"\n  → {name}", flush=True)
 
     if not natal_chart:
@@ -136,6 +141,12 @@ def analyse_figure(name: str, natal_chart: dict, annual_charts: dict, events: li
         return None
 
     event_ages = {ev.get("age") for ev in valid_events}
+    
+    # ── STATEFUL FORENSIC HISTORY ───────────────────────────────────────────
+    # Run the 75-year lifecycle simulation to pre-calculate trauma/recoil
+    # ledger states for every age.
+    ledger_history = lifecycle.run_75yr_analysis(natal_chart)
+    # ────────────────────────────────────────────────────────────────────────
 
     # Determine death age if known — cap all analysis at this year
     death_age = None
@@ -158,7 +169,9 @@ def analyse_figure(name: str, natal_chart: dict, annual_charts: dict, events: li
         fate_type  = fate_by_domain.get(engine_domain, "RASHI_PHAL")
         fate_cat   = _fate_category(fate_type)
 
-        ctx    = UnifiedAstrologicalContext(chart=annual, natal_chart=natal_chart, config=config)
+        enriched = enricher.enrich(annual, natal_chart)
+        year_ledger = ledger_history.get(age, StateLedger())
+        ctx    = UnifiedAstrologicalContext(enriched=enriched, natal_chart=natal_chart, ledger=year_ledger, config=config)
         result = engine.get_timing_confidence(ctx, engine_domain, fate_type=fate_type, age=age)
         score  = _confidence_score(result["confidence"])
         hit    = _is_hit(score)
@@ -195,7 +208,9 @@ def analyse_figure(name: str, natal_chart: dict, annual_charts: dict, events: li
             if not n_chart:
                 continue
 
-            n_ctx    = UnifiedAstrologicalContext(chart=n_chart, natal_chart=natal_chart, config=config)
+            n_enriched = enricher.enrich(n_chart, natal_chart)
+            n_ledger = ledger_history.get(n_age, StateLedger())
+            n_ctx    = UnifiedAstrologicalContext(enriched=n_enriched, natal_chart=natal_chart, ledger=n_ledger, config=config)
             n_result = engine.get_timing_confidence(n_ctx, engine_domain, fate_type=fate_type, age=n_age)
             n_score  = _confidence_score(n_result["confidence"])
             n_hit    = _is_hit(n_score)
@@ -272,6 +287,11 @@ def main():
     config    = ModelConfig(db_path, defaults_path)
     engine    = VarshphalTimingEngine()
     fate_view = NatalFateView()
+    
+    grammar_analyser = GrammarAnalyser(config)
+    strengths = StrengthEngine(config)
+    enricher = ChartEnricher(grammar_analyser.registry, strengths)
+    lifecycle = LifecycleEngine()
 
     conn = sqlite3.connect(pf_db_path)
     cursor = conn.cursor()
@@ -297,7 +317,7 @@ def main():
         event_rows = cursor.fetchall()
         events = [{"event": e[0], "date": e[1], "type": e[2]} for e in event_rows]
         
-        result = analyse_figure(name, natal, annuals, events, engine, fate_view, config)
+        result = analyse_figure(name, natal, annuals, events, engine, fate_view, config, enricher, lifecycle)
         if result:
             all_rows.extend(result["rows"])
             per_figure.append(result)

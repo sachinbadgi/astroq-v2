@@ -1,0 +1,21 @@
+# graphify ignore file
+# Only include .py, .db, and .json files within the backend/ directory
+
+# Ignore everything by default
+*
+
+# Allow the backend/ directory itself so it can be traversed
+!backend/
+
+# Ignore all files inside backend/ by default
+backend/*
+
+# Un-ignore specific extensions within backend/ (recursive via fnmatch behavior)
+!backend/*.py
+!backend/*.db
+!backend/*.json
+
+# Ensure graphify internal directories are handled correctly
+# (Note: graphify-out is skipped by noise-dir logic, but we can be explicit)
+!graphify-out/
+graphify-out/*

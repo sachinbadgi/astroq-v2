@@ -182,9 +182,9 @@ class RuleHit:
     success_weight: float = 0.0
     specificity: int = 1
     afflicts_living: bool = False
-    # Axis label derived from the primary planet pair's house geometry.
-    # Populated by RulesEngine from aspect data. Used by FidelityGate.
-    # E.g. "1-8", "1-7", "4-10", "2-6", "6-12", "8-2", "3-11", "unknown"
+    axis: str = "unknown"
+
+
 @dataclass
 class ClassifiedEvent:
     """Simplified event for timing and domain analysis."""

@@ -9,6 +9,7 @@ from .natal_fate_view import NatalFateView
 from .config import ModelConfig
 from .pipeline import LKPredictionPipeline
 from .calibration_module import CalibrationModule, CalibrationResult
+from .tracer import trace_hit
 
 class LKEngineRunner:
     """
@@ -60,6 +61,7 @@ class LKEngineRunner:
         return self.DEFAULT_GEO
 
     def build_chart(self, dob: str, tob: str, place: str) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+        trace_hit("lk_prediction_engine_runner_lkenginerunner_build_chart")
         tob_full = tob + ":00" if len(tob) == 5 else tob
         lat, lon, tz = self._get_geo(place)
         payload = self.gen.build_full_chart_payload(
@@ -72,6 +74,7 @@ class LKEngineRunner:
         return natal, payload
 
     def build_pipeline(self) -> Optional[LKPredictionPipeline]:
+        trace_hit("lk_prediction_engine_runner_lkenginerunner_build_pipeline")
         if not os.path.exists(self.db_path):
             return None
         cfg = ModelConfig(self.db_path, self.config_path)
@@ -86,6 +89,7 @@ class LKEngineRunner:
         domain_only: bool = False,
         include_neither: bool = True
     ) -> Dict[str, Any]:
+        trace_hit("lk_prediction_engine_runner_lkenginerunner_run")
         """
         Executes the engine lifecycle.
         Returns a dictionary containing all computed predictions and charts.
@@ -101,12 +105,18 @@ class LKEngineRunner:
             if pipe:
                 try:
                     pipe.load_natal_baseline(natal)
-                    rule_preds = pipe.generate_predictions(natal)
+                    rule_preds, _ = pipe.generate_predictions(natal)
 
                     if age is not None:
                         annual_chart = full_payload.get(f"chart_{age}")
                         if annual_chart:
-                            annual_preds = pipe.generate_predictions(annual_chart)
+                            annual_preds, _ = pipe.generate_predictions(annual_chart)
+                    
+                    # ENRICHMENT: Replace raw full_payload with forensic timeline
+                    # (This hydrates logic and forensic_machine_ledger for every year)
+                    charts_list = [full_payload[k] for k in sorted(full_payload.keys()) if k.startswith("chart_")]
+                    full_payload = pipe.generate_full_payload(dob, dob, charts_list)
+                    
                 except Exception as e:
                     pipe_error = str(e)
 

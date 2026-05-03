@@ -31,7 +31,8 @@ class SynthesisReporter:
     @staticmethod
     def format_chart_section(
         chart: ChartData, 
-        predictions: List[LKPrediction]
+        predictions: List[LKPrediction],
+        context: Any = None
     ) -> Dict[str, Any]:
         """Formats a single chart's predictions and logic into a report section."""
         
@@ -78,9 +79,22 @@ class SynthesisReporter:
                 
             formatted_preds.append(text)
 
+        # 5. Machine State (Forensic Memory)
+        machine_state = {}
+        if context and context.ledger:
+            for p in context.ledger.planets:
+                st = context.ledger.get_planet_state(p)
+                machine_state[p] = {
+                    "modifier": st.modifier,
+                    "trauma": round(st.trauma_points, 2),
+                    "efficiency": round(context.ledger.get_leakage_multiplier(p), 2),
+                    "is_awake": st.is_awake
+                }
+
         return {
             "chart": positions,
             "logic": sorted(list(set(logic))),
             "significant_aspects": aspects[:15], # Prevent token bloat
-            "predictions": formatted_preds
+            "predictions": formatted_preds,
+            "forensic_machine_ledger": machine_state
         }
