@@ -20,29 +20,7 @@ from astroq.lk_prediction.chart_generator import ChartGenerator
 from astroq.lk_prediction.natal_fate_view import NatalFateView
 
 # ── GEO MAP ────────────────────────────────────────────────────────────────
-GEO_MAP = {
-    "Allahabad, India":                        (25.4358,   81.8463,   "+05:30"),
-    "Mumbai, India":                           (19.0760,   72.8777,   "+05:30"),
-    "Vadnagar, India":                         (23.7801,   72.6373,   "+05:30"),
-    "San Francisco, California, US":           (37.7749,  -122.4194,  "-08:00"),
-    "Seattle, Washington, US":                 (47.6062,  -122.3321,  "-08:00"),
-    "Sandringham, Norfolk, UK":                (52.8311,    0.5054,   "+00:00"),
-    "New Delhi, India":                        (28.6139,   77.2090,   "+05:30"),
-    "Gary, Indiana, US":                       (41.5934,  -87.3464,  "-06:00"),
-    "Pretoria, South Africa":                  (-25.7479,  28.2293,   "+02:00"),
-    "Porbandar, India":                        (21.6417,   69.6293,   "+05:30"),
-    "Jamaica Hospital, Queens, New York, US":  (40.7028,  -73.8152,  "-05:00"),
-    "Honolulu, Hawaii, US":                    (21.3069, -157.8583,  "-10:00"),
-    "Mayfair, London, UK":                     (51.5100,   -0.1458,  "+00:00"),
-    "Skopje, North Macedonia":                 (42.0003,   21.4280,  "+01:00"),
-}
-DEFAULT_GEO = (28.6139, 77.2090, "+05:30")  # New Delhi fallback
-
-
-def load_ground_truth() -> list:
-    gt_path = os.path.join(
-        os.path.dirname(__file__), "..", "data", "public_figures_ground_truth.json"
-    )
+from astroq.lk_prediction.location_provider import GEO_MAP, DEFAULT_GEO
     if os.path.exists(gt_path):
         with open(gt_path) as f:
             return json.load(f)

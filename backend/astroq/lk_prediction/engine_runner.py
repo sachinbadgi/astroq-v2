@@ -9,6 +9,7 @@ from .natal_fate_view import NatalFateView
 from .config import ModelConfig
 from .pipeline import LKPredictionPipeline
 from .calibration_module import CalibrationModule, CalibrationResult
+from .location_provider import GeoProvider
 from .tracer import trace_hit
 
 class LKEngineRunner:
@@ -18,47 +19,14 @@ class LKEngineRunner:
     and classifying the fate domains.
     """
 
-    # ── Geo map ───────────────────────────────────────────────────────────────────
-    GEO_MAP = {
-        "Allahabad, India":                        (25.4358,  81.8463,  "+05:30"),
-        "Mumbai, India":                           (19.0760,  72.8777,  "+05:30"),
-        "Vadnagar, India":                         (23.7801,  72.6373,  "+05:30"),
-        "San Francisco, California, US":           (37.7749,-122.4194,  "-08:00"),
-        "Seattle, Washington, US":                 (47.6062,-122.3321,  "-08:00"),
-        "Sandringham, Norfolk, UK":                (52.8311,   0.5054,  "+00:00"),
-        "New Delhi, India":                        (28.6139,  77.2090,  "+05:30"),
-        "Gary, Indiana, US":                       (41.5934, -87.3464,  "-06:00"),
-        "Pretoria, South Africa":                  (-25.7479, 28.2293,  "+02:00"),
-        "Porbandar, India":                        (21.6417,  69.6293,  "+05:30"),
-        "Jamaica Hospital, Queens, New York, US":  (40.7028, -73.8152,  "-05:00"),
-        "Honolulu, Hawaii, US":                    (21.3069,-157.8583,  "-10:00"),
-        "Mayfair, London, UK":                     (51.5100,  -0.1458,  "+00:00"),
-        "Skopje, North Macedonia":                 (42.0003,  21.4280,  "+01:00"),
-        "Scranton, Pennsylvania, US":              (41.4090, -75.6624,  "-05:00"),
-        "Buckingham Palace, London, UK":           (51.5014,  -0.1419,  "+00:00"),
-        "St. Petersburg, Russia":                  (59.9311,  30.3609,  "+03:00"),
-        "Hodgenville, KY, USA":                    (37.5737, -85.7411,  "-06:00"),
-        "Mvezo, South Africa":                     (-31.9329, 28.9988,  "+02:00"),
-        "Aden, Yemen":                             (12.7855,  45.0187,  "+03:00"),
-        "Indore, India":                           (22.7196,  75.8577,  "+05:30"),
-        "Jamshedpur, India":                       (22.8046,  86.2029,  "+05:30"),
-        "Raisen, India":                           (23.3314,  77.7886,  "+05:30"),
-        "Madanapalle, India":                      (13.5510,  78.5051,  "+05:30"),
-    }
-    DEFAULT_GEO = (28.6139, 77.2090, "+05:30")
-
     def __init__(self, db_path: str, config_path: str):
         self.db_path = db_path
         self.config_path = config_path
         self.gen = ChartGenerator()
         self.view = NatalFateView()
-        
+
     def _get_geo(self, place: str) -> Tuple[float, float, str]:
-        pl = place.lower()
-        for key, val in self.GEO_MAP.items():
-            if key.lower() in pl or pl in key.lower():
-                return val
-        return self.DEFAULT_GEO
+        return GeoProvider.lookup(place)
 
     def build_chart(self, dob: str, tob: str, place: str) -> Tuple[Dict[str, Any], Dict[str, Any]]:
         trace_hit("lk_prediction_engine_runner_lkenginerunner_build_chart")

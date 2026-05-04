@@ -5,17 +5,7 @@ import json
 sys.path.append(os.path.join(os.getcwd(), "backend"))
 from astroq.lk_prediction.chart_generator import ChartGenerator
 
-GEO_MAP = {
-    "Allahabad, India": (25.4358, 81.8463, "+05:30"),
-    "Mumbai, India": (19.0760, 72.8777, "+05:30"),
-    "Seattle, Washington, US": (47.6062, -122.3321, "-08:00"),
-    "Sandringham, Norfolk, UK": (52.8311, 0.5054, "+00:00"),
-    "New Delhi, India": (28.6139, 77.2090, "+05:30"),
-    "Jamshedpur, India": (22.8046, 86.2029, "+05:30"),
-    "Jamaica Hospital, Queens, New York, US": (40.7028, -73.8152, "-05:00"),
-    "Mayfair, London, UK": (51.5100, -0.1458, "+00:00"),
-    "Buckingham Palace, London, UK": (51.5014, -0.1419, "+00:00")
-}
+from astroq.lk_prediction.location_provider import GEO_MAP, DEFAULT_GEO
 
 def check_marriage_rules(natal_pos, annual_pos):
     """
