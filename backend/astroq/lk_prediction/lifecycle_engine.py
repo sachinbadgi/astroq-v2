@@ -1,11 +1,13 @@
 import logging
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 import copy
-from .lk_constants import VARSHPHAL_YEAR_MATRIX
+from .lk_constants import VARSHPHAL_YEAR_MATRIX, KARAKA_DOMAIN_MAP
 from .state_ledger import StateLedger
 from .incident_resolver import IncidentResolver
 from .dormancy_engine import DormancyEngine, DormancyState
 from .scapegoat_router import ScapegoatRouter
+from .dignity_engine import DignityEngine
+from .natal_fate_view import NatalFateView
 
 logger = logging.getLogger(__name__)
 
@@ -20,6 +22,8 @@ class LifecycleEngine:
         self.resolver = IncidentResolver()
         self.dormancy = DormancyEngine()
         self.scapegoat_router = ScapegoatRouter()
+        self.dignity = DignityEngine()
+        self.fate_view = NatalFateView()
         self.history: Dict[int, StateLedger] = {}
 
     def run_75yr_analysis(self, natal_data: Dict[str, Any], 
@@ -33,10 +37,35 @@ class LifecycleEngine:
         natal_positions = self._extract_positions(natal_data)
         self.ledger = StateLedger() # Reset for new run
         self.history = {}
+
+        # ── PRE-CALCULATE NATAL FATE & DIGNITY ───────────────────────────────
+        # We need to know the 'Constitution' of each planet at birth.
+        planet_resilience = {} # planet -> {fate_type, dignity_score}
+
+        # Build a domain → fate_type map from NatalFateView.evaluate().
+        # This replaces the former MockNatalCtx + dead get_domain_fate() call.
+        fate_entries = self.fate_view.evaluate(natal_data, include_neither=True)
+        domain_fate_map = {e["domain"]: e["fate_type"] for e in fate_entries}
+
+        for p in self.ledger.planets:
+            house = natal_positions.get(p)
+            if not house:
+                planet_resilience[p] = {"fate": "RASHI_PHAL", "score": 0.0}
+                continue
+
+            # Use the primary domain of the planet to determine its fate_type
+            domains = KARAKA_DOMAIN_MAP.get(p, [])
+            fate = "RASHI_PHAL"
+            if domains:
+                fate = domain_fate_map.get(domains[0], "RASHI_PHAL")
+
+            # Natal Dignity Score (The Base Armor)
+            score = self.dignity.get_dignity_score(p, house, [], {"pakka_ghar": 1.5, "exalted": 5.0, "debilitated": -5.0, "fixed_house_lord": 1.5})
+            planet_resilience[p] = {"fate": fate, "score": score}
+
+        # ─────────────────────────────────────────────────────────────────────
         
         for age in range(1, 76):
-            # 0. Hydrate a minimal context for this age simulation
-            # (In a real run, this would be the UnifiedAstrologicalContext)
             annual_positions = self._get_annual_positions(natal_positions, age)
             
             # Simple context-like object for StateLedger.evolve_state
@@ -46,6 +75,7 @@ class LifecycleEngine:
                     from .astro_chart import AstroChart
                     self.chart = AstroChart({"planets_in_houses": {p: {"house": h} for p, h in positions.items()}})
                 def get_house(self, planet): return self.chart.get_house(planet)
+                def get_fate_type_for_domain(self, domain): return "RASHI_PHAL" # fallback
             
             sim_context = SimContext(age, annual_positions)
 
@@ -58,7 +88,7 @@ class LifecycleEngine:
                 for planet, remedy_id in remedy_schedule[age]:
                     self.ledger.apply_remedy(planet, age, remedy_id)
 
-            # 3. Detect geometric incidents
+            # 3. Detect geometric incidents (Using Canonical Weights)
             incidents = self.resolver.detect_incidents(annual_positions)
             
             # 4. Apply incidents to persistent ledger (Memory)
@@ -73,17 +103,31 @@ class LifecycleEngine:
                     
                     if is_awake or complex_state.is_startled:
                         # DEEP MODULE: StateLedger handles the rerouting and trauma logic
+                        res = planet_resilience.get(incident.target, {"fate": "RASHI_PHAL", "score": 0.0})
+                        
+                        # ── CANONICAL STRIKE ────────────────────────────────
                         self.ledger.apply_strike_impact(
                             incident.target, 
                             incident.trauma_weight,
                             is_startled=complex_state.is_startled,
-                            context=None # We'll let it default to RASHI_PHAL in Sim
+                            context=sim_context,
+                            fate_type=res["fate"]
                         )
                 elif incident.type == "Sanctuary":
                     state = self.ledger.get_planet_state(incident.target)
                     state.modifier = "Supported"
             
             # 5. FORENSIC EVOLUTION: Advance states (Lamp houses, persistence, H2 leakage)
+            # Update thresholds based on current year's dignity as well?
+            # User said: "Fixed Fate resilience driven by Natal Dignity"
+            # But we should still account for Annual Dignity for Rashi Phal.
+            for p in self.ledger.planets:
+                res = planet_resilience.get(p, {"score": 0.0})
+                # If Rashi Phal, annual dignity matters more for current state.
+                # If Graha Phal, natal dignity is the armor.
+                # We'll use a blend or just the Natal score for "Constitution".
+                self.ledger._update_thresholds(p, dignity_score=res["score"])
+
             self.ledger.evolve_state(sim_context)
 
             # 6. Save a deep copy of the ledger for this year's history

@@ -102,15 +102,10 @@ class VarshphalTimingEngine:
                 "warnings": []
             }
             
-        # Dynamically determine the fate type (GRAHA_PHAL vs RASHI_PHAL)
-        # to ensure the correct thresholds are applied.
-        fate_type = "RASHI_PHAL"
-        try:
-            from .natal_fate_view import NatalFateView
-            fate_view = NatalFateView()
-            fate_type = fate_view.get_domain_fate(context, engine_domain)
-        except Exception as e:
-            pass # fallback to RASHI_PHAL
+        # Dynamically determine the fate type (GRAHA_PHAL vs RASHI_PHAL).
+        # context.get_fate_type_for_domain() already does this correctly via
+        # NatalFateView — replaces the dead fate_view.get_domain_fate() call.
+        fate_type = context.get_fate_type_for_domain(engine_domain)
 
         return self.get_timing_confidence(
             context=context, 
@@ -574,12 +569,17 @@ class VarshphalTimingEngine:
         if context.ledger:
             net_multiplier = sum(context.ledger.get_leakage_multiplier(p) for p in context.ledger.planets) / 9.0
             if net_multiplier < 0.5:
-                # System Friction: Demote instead of forcing Low
-                friction_signal = f"SYSTEM FRICTION: High cumulative trauma (Net: {net_multiplier:.2f})"
-                if confidence == "High":
-                    confidence = "Medium"
-                elif confidence == "Medium":
-                    confidence = "Low"
+                # System Friction: Demote RASHI_PHAL instead of forcing Low
+                # GRAHA_PHAL is relatively immune to cumulative friction as it is 'Steel'.
+                if not is_fixed:
+                    friction_signal = f"SYSTEM FRICTION: High cumulative trauma (Net: {net_multiplier:.2f}) - Rashi Phal Demoted"
+                    if confidence == "High":
+                        confidence = "Medium"
+                    elif confidence == "Medium":
+                        confidence = "Low"
+                else:
+                    # GRAHA_PHAL ignores friction demotion but records a warning
+                    friction_signal = f"SYSTEM FRICTION WARNING: High trauma (Net: {net_multiplier:.2f}) - Fixed Fate Resilience override"
         # ─────────────────────────────────────────────────────────────────────
 
         # Add sustenance warnings
