@@ -38,11 +38,22 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
             
     terminalreporter.write_sep("=", bold=True, cyan=True)
 
-    # Optional: Save a markdown report
-    _generate_markdown_report(total, passed, failed, coverage)
+    # Save manifest of passed rules for graph filtering
+    passed_reports = stats.get('passed', [])
+    passed_rule_ids = []
+    for rep in passed_reports:
+        if "[" in rep.nodeid:
+            rule_id = rep.nodeid.split("[")[-1].replace("]", "")
+            passed_rule_ids.append(rule_id)
+    
+    with open("backend/tests/graphify_test/passed_rules.json", "w") as f:
+        json.dump(passed_rule_ids, f, indent=2)
 
-def _generate_markdown_report(total, passed, failed, coverage):
+    _generate_markdown_report(total, passed, failed, coverage, passed_rule_ids)
+
+def _generate_markdown_report(total, passed, failed, coverage, passed_rule_ids):
     report_path = "backend/tests/graphify_test/latest_regression_report.md"
+    passed_rules_str = "\n".join([f"- {rid}" for rid in passed_rule_ids])
     content = f"""# Graphify Regression Report
 Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
@@ -52,6 +63,9 @@ Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 | Passed | {passed} |
 | Failed | {failed} |
 | **Coverage** | **{coverage:.2f}%** |
+
+## Passed Rules (Mapped to Graphify Nodes)
+{passed_rules_str}
 
 ## Summary
 The suite verified the semantic reachability of {total} astrological rules against the Graphify-tagged codebase.

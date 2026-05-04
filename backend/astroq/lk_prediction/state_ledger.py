@@ -13,6 +13,7 @@ class PlanetaryState:
     base_state: str = "Dormant"
     modifier: str = "None" # None, Startled Malefic, Supported, Blunt, Leaking, Burst
     trauma_points: float = 0.0
+    failure_threshold: float = 2.0 # Default failure threshold (Uchha/Neech scaling)
     leak_threshold: float = 0.5
     burst_threshold: float = 3.0
     base_burst_threshold: Optional[float] = None
@@ -85,17 +86,17 @@ class StateLedger:
                         state.base_state = "Dormant"
             
             # 5. Manda (Blunt) Status
-            # Trauma > 2.0 makes the planet permanently Blunt.
-            if state.trauma_points > 2.0:
+            # Failure threshold is dynamic based on dignity (Uchha/Neech)
+            if state.trauma_points > state.failure_threshold:
                 state.is_manda = True
                 state.modifier = "Blunt"
 
             self._update_thresholds(planet)
 
-    def apply_trauma(self, planet: str, points: float, context: Optional[Any] = None):
+    def apply_trauma(self, planet: str, points: float, context: Optional[Any] = None, fate_type: str = "RASHI_PHAL"):
         """
         Permanent accumulation of trauma (Scarring Model).
-        Includes Dignity-Aware Scapegoat Rerouting.
+        Differentiates between Fixed Fate (Armor) and Doubtful Fate (Volatility).
         """
         base = self._resolve_base(planet)
         if base not in self.planets:
@@ -103,20 +104,18 @@ class StateLedger:
 
         state = self.planets[base]
         
-        # ── SCAPEGOAT REROUTING (Dignity-Aware) ─────────────────────────────
-        # 1. Check Dignity (Rashi Phal allows rerouting, Graha Phal doesn't)
-        fate_type = "RASHI_PHAL"
-        if context:
-            # We check the dominant karaka domain for this planet to get its fate_type
-            from .lk_constants import KARAKA_DOMAIN_MAP
-            domains = KARAKA_DOMAIN_MAP.get(base, [])
-            if domains:
-                fate_type = context.get_fate_type_for_domain(domains[0])
+        # ── CANONICAL RESILIENCE (Armor) ────────────────────────────────────
+        # GRAHA_PHAL (Fixed Fate) is a Steel Promise — 50% trauma reduction.
+        resilience_mult = 1.0
+        if fate_type == "GRAHA_PHAL":
+            resilience_mult = 0.5
+            
+        effective_points = points * resilience_mult
         
-        # 2. Determine Rerouting Logic
+        # ── SCAPEGOAT REROUTING (Dignity-Aware) ─────────────────────────────
+        # 1. Determine Rerouting Logic
         # Rashi Phal + Healthy: 100% Scapegoat Impact.
-        # Graha Phal: 100% Native Impact.
-        # Fatigued/Burst: Double Impact (Native + Scapegoat).
+        # Graha Phal: 100% Native Impact (Fixed Fate cannot be shifted).
         
         can_reroute = (fate_type == "RASHI_PHAL")
         is_fatigued = (state.trauma_points > 1.5) # Fatigue threshold
@@ -126,30 +125,30 @@ class StateLedger:
         
         if not scapegoat_targets or not can_reroute:
             # Native takes the hit
-            state.trauma_points += points
+            state.trauma_points += effective_points
         elif is_fatigued or state.is_burst:
             # Double Hit (Native + Scapegoat)
-            state.trauma_points += points
+            state.trauma_points += effective_points
             for sg, weight in scapegoat_targets.items():
                 if not self.is_scapegoat_exhausted(sg):
-                    self.record_scapegoat_hit(sg, points * weight)
+                    self.record_scapegoat_hit(sg, effective_points * weight)
         else:
             # Full Scapegoat Reroute
             for sg, weight in scapegoat_targets.items():
                 if not self.is_scapegoat_exhausted(sg):
-                    self.record_scapegoat_hit(sg, points * weight)
+                    self.record_scapegoat_hit(sg, effective_points * weight)
                 else:
                     # Scapegoat exhausted -> Native takes it anyway
-                    state.trauma_points += (points * weight)
+                    state.trauma_points += (effective_points * weight)
 
         self._update_thresholds(base)
 
-    def apply_strike_impact(self, planet: str, points: float, is_startled: bool, context: Optional[Any] = None):
+    def apply_strike_impact(self, planet: str, points: float, is_startled: bool, context: Optional[Any] = None, fate_type: str = "RASHI_PHAL"):
         """
         Deep Module: Encapsulates how a geometric strike (Takkar) affects state.
         Determines if the planet becomes 'Startled Malefic' or just 'Friction'.
         """
-        self.apply_trauma(planet, points, context)
+        self.apply_trauma(planet, points, context, fate_type=fate_type)
         state = self.get_planet_state(planet)
         
         if is_startled:
@@ -228,8 +227,8 @@ class StateLedger:
             elif state.trauma_points >= 0.5:
                 state.burst_threshold = max(1.0, state.burst_threshold * 0.85)
 
-    def _update_thresholds(self, planet: str, init: bool = False):
-        """Updates Leaking and Burst status."""
+    def _update_thresholds(self, planet: str, init: bool = False, dignity_score: float = 0.0):
+        """Updates Leaking, Burst, and Failure (Manda) status."""
         p = self.planets[planet]
         
         if init:
@@ -241,14 +240,32 @@ class StateLedger:
                 p.leak_threshold = 0.8
             p.base_burst_threshold = p.burst_threshold
         
+        # ── DIGNITY-BASED FAILURE THRESHOLD (Uchha/Neech) ───────────────────
+        # Exalted (+5) -> 4.0, Normal (0) -> 2.0, Debilitated (-5) -> 1.0
+        if dignity_score >= 5.0:
+            p.failure_threshold = 4.0
+        elif dignity_score <= -5.0:
+            p.failure_threshold = 1.0
+        else:
+            # Linear interpolation for middle ground
+            p.failure_threshold = 2.0 + (dignity_score / 5.0) * (2.0 if dignity_score > 0 else 1.0)
+            
+        # ── LEAK & BURST ──────────────────────────────────────────────────
         # Dynamically set leak_threshold as a fraction of CURRENT burst_threshold
-        # This ensures that if burst_threshold drops, leaking threshold also drops.
         p.leak_threshold = p.burst_threshold * (0.3 / 2.0 if planet in ["Moon", "Mercury", "Venus"] else 0.8 / 4.0)
 
         if p.trauma_points > p.burst_threshold:
             p.is_burst = True
             p.is_leaking = False
             p.modifier = "Burst"
+        elif p.trauma_points > p.leak_threshold:
+            p.is_leaking = True
+            p.modifier = "Leaking"
+        
+        # ── MANDA (BLUNT) ─────────────────────────────────────────────────
+        if p.trauma_points > p.failure_threshold:
+            p.is_manda = True
+            p.modifier = "Blunt"
         elif p.trauma_points >= p.leak_threshold:
             p.is_burst = False
             p.is_leaking = True

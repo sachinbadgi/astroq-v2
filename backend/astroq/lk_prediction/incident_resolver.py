@@ -28,6 +28,11 @@ class IncidentResolver:
     }
 
     def detect_incidents(self, positions: Dict[str, int]) -> List[Incident]:
+        """
+        Scans annual chart geometric pairs to detect 'Ghatna' (Incidents).
+        Uses ASPECT_STRENGTH_DATA from lk_constants for canonical weighting.
+        """
+        from .lk_constants import ASPECT_STRENGTH_DATA
         incidents = []
         
         # Reverse lookup house to planets
@@ -37,7 +42,7 @@ class IncidentResolver:
                 house_to_planets[h] = []
             house_to_planets[h].append(p)
             
-        for p_name, p_house in positions.items():
+        for p_source, p_house in positions.items():
             aspect_data = HOUSE_ASPECT_DATA.get(p_house, {})
             
             # 1. Takkar (Confrontation)
@@ -46,38 +51,49 @@ class IncidentResolver:
             # Canonical confrontation
             confrontation_h = aspect_data.get("Confrontation")
             if confrontation_h:
-                targets.append((confrontation_h, 1.0 if (p_house, confrontation_h) in self.PRIMARY_STRIKES else 0.5))
+                targets.append(confrontation_h)
             
             # Explicit Primary/Secondary Strikes
             for h_target in range(1, 13):
-                if (p_house, h_target) in self.SECONDARY_STRIKES:
-                    targets.append((h_target, 0.5))
-                elif (p_house, h_target) in self.PRIMARY_STRIKES and h_target != confrontation_h:
-                    targets.append((h_target, 1.0))
+                if (p_house, h_target) in self.SECONDARY_STRIKES or (p_house, h_target) in self.PRIMARY_STRIKES:
+                    targets.append(h_target)
 
-            # Deduplicate targets by house, keeping max weight
-            final_targets = {}
-            for h, w in targets:
-                final_targets[h] = max(final_targets.get(h, 0.0), w)
+            # Deduplicate targets
+            final_targets = sorted(set(targets))
 
-            for target_house, weight in final_targets.items():
+            for target_house in final_targets:
                 if target_house in house_to_planets:
-                    for target_p in house_to_planets[target_house]:
+                    for p_target in house_to_planets[target_house]:
+                        # ── CANONICAL WEIGHTING ──────────────────────────────
+                        # Use ASPECT_STRENGTH_DATA to determine impact.
+                        # If the value is negative, it's a Malefic Strike (Trauma).
+                        # If positive, it's a Benefic Impact (Lower Trauma or Sanctuary).
+                        
+                        aspect_strength = ASPECT_STRENGTH_DATA.get(p_source, {}).get(p_target, 0.0)
+                        
+                        trauma_weight = 0.0
+                        if aspect_strength < 0:
+                            # Malefic Strike: Magnitude of hostility is the trauma
+                            trauma_weight = abs(aspect_strength)
+                        elif aspect_strength > 0:
+                            # Benefic Contact: Soft impact (0.1) or handled by Sanctuary
+                            trauma_weight = 0.1
+                        
                         incidents.append(Incident(
                             type="Takkar",
-                            source=p_name,
-                            target=target_p,
-                            trauma_weight=weight
+                            source=p_source,
+                            target=p_target,
+                            trauma_weight=trauma_weight
                         ))
             
             # 2. Sanctuary (Foundation/Buniyad)
             sanctuary_target_house = aspect_data.get("Foundation")
             if sanctuary_target_house and sanctuary_target_house in house_to_planets:
-                for target_p in house_to_planets[sanctuary_target_house]:
+                for p_target in house_to_planets[sanctuary_target_house]:
                     incidents.append(Incident(
                         type="Sanctuary",
-                        source=p_name,
-                        target=target_p,
+                        source=p_source,
+                        target=p_target,
                         trauma_weight=0.0
                     ))
                         
