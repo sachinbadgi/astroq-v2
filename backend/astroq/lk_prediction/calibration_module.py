@@ -61,9 +61,35 @@ class DomainMetrics:
 
 
 @dataclass
+class AxisMetrics:
+    """Precision of a given dignity-pattern axis, computed from raw_pattern_occurrences."""
+    axis: str
+    tp: int = 0  # pattern fired AND is_event=1
+    fp: int = 0  # pattern fired AND is_event=0
+
+    @property
+    def precision(self) -> float:
+        denom = self.tp + self.fp
+        return self.tp / denom if denom > 0 else 0.0
+
+    @property
+    def sample_count(self) -> int:
+        return self.tp + self.fp
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "axis": self.axis,
+            "tp": self.tp,
+            "fp": self.fp,
+            "precision": round(self.precision, 4),
+            "sample_count": self.sample_count,
+        }
+
+
+@dataclass
 class CalibrationResult:
     domain_metrics: Dict[str, Dict[str, DomainMetrics]] = field(default_factory=dict)
-    axis_metrics: Dict[str, DomainMetrics] = field(default_factory=dict)
+    axis_metrics: Dict[str, AxisMetrics] = field(default_factory=dict)  # keyed by axis label
     recommended_thresholds: Dict[str, Any] = field(default_factory=dict)
     baseline_f1: float = 0.0
 
@@ -168,27 +194,81 @@ class CalibrationModule:
 
     def _compute_axis_metrics(
         self, rows: List[Dict[str, Any]]
-    ) -> Dict[str, DomainMetrics]:
-        """Compute per-axis precision based on pattern firings."""
-        from .aspect_fidelity_evaluator import HOUSE_PAIR_TO_AXIS
+    ) -> Dict[str, AxisMetrics]:
+        """
+        Compute per-axis precision from raw_pattern_occurrences.
 
-        axis_data: Dict[str, Dict[str, int]] = defaultdict(
-            lambda: {"tp": 0, "fp": 0}
+        Approach: for each row with a source-target planet pair, infer the
+        likely Lal Kitab axis from the dignity pair pattern using
+        AspectFidelityEvaluator thresholds. Count TP/FP per axis-dignity
+        pattern. This avoids the need for house lookups (which aren't directly
+        available in raw_pattern_occurrences).
+
+        A row contributes to an axis bucket when:
+          - source_dignity and target_dignity are both non-NULL
+          - The dignity category pair (Low/Medium/High × Low/Medium/High)
+            maps to a known Lal Kitab axis pattern.
+
+        Dignity-to-axis mapping heuristics (from empirical research):
+          Low×Low  → 1-8 Takkar axis   (confrontation paradox)
+          High×Med → 2-6 Gali axis     (sweet spot)
+          Any×High → 1-7 Opposition    (strong shield)
+          Any×Low  → 4-10 Square       (weak anvil)
+          other    → 3-11 Support      (general case)
+        """
+        from .aspect_fidelity_evaluator import AspectFidelityEvaluator
+
+        afe = AspectFidelityEvaluator()
+
+        def _infer_axis(src_dignity: float, tgt_dignity: float) -> str:
+            """Map dignity pair to the most likely Lal Kitab axis."""
+            src_cat = afe.categorize(src_dignity)
+            tgt_cat = afe.categorize(tgt_dignity)
+
+            if src_cat == "Low" and tgt_cat == "Low":
+                return "1-8"   # Takkar Paradox
+            if src_cat == "High" and tgt_cat == "Medium":
+                return "2-6"   # Gali Sweet Spot
+            if tgt_cat == "High":
+                return "1-7"   # Strong Shield (Opposition)
+            if tgt_cat == "Low":
+                return "4-10"  # Weak Anvil (Square)
+            return "3-11"      # General support / unknown
+
+        axis_data: Dict[str, AxisMetrics] = {}
+        rows_with_dignity = [
+            r for r in rows
+            if r.get("source_dignity") is not None
+            and r.get("target_dignity") is not None
+        ]
+
+        if not rows_with_dignity:
+            logger.warning(
+                "CalibrationModule: no rows with source_dignity/target_dignity — "
+                "axis metrics unavailable. Run the fuzzer to populate "
+                "raw_pattern_occurrences with dignity fields."
+            )
+            return {}
+
+        for row in rows_with_dignity:
+            src_d = float(row["source_dignity"])
+            tgt_d = float(row["target_dignity"])
+            axis  = _infer_axis(src_d, tgt_d)
+            is_ev = int(row.get("is_event", 0))
+
+            if axis not in axis_data:
+                axis_data[axis] = AxisMetrics(axis=axis)
+
+            if is_ev:
+                axis_data[axis].tp += 1
+            else:
+                axis_data[axis].fp += 1
+
+        logger.info(
+            "CalibrationModule: computed axis metrics from %d dignity rows across %d axes",
+            len(rows_with_dignity), len(axis_data),
         )
-
-        for row in rows:
-            src = row.get("source_planet")
-            tgt = row.get("target_planet")
-            if not src or not tgt:
-                continue
-
-            # We need house numbers, not planet names — skip if not available
-            # Axis metrics are best computed from the structured data path
-
-        # For now, return an empty dict — axis metrics require house-pair data
-        # that isn't directly available from raw_pattern_occurrences.
-        # This is populated when run via the full engine pipeline.
-        return {}
+        return axis_data
 
     # ------------------------------------------------------------------ #
     # Threshold Derivation                                                #
@@ -197,7 +277,7 @@ class CalibrationModule:
     def _derive_recommendations(
         self,
         domain_metrics: Dict[str, Dict[str, DomainMetrics]],
-        axis_metrics: Dict[str, DomainMetrics],
+        axis_metrics: Dict[str, AxisMetrics],
     ) -> Dict[str, Any]:
         """
         Derive recommended threshold adjustments from empirical data.
@@ -205,7 +285,7 @@ class CalibrationModule:
         Strategy:
         - For domains with recall < 10%: lower the gate multipliers
         - For domains with precision < 10%: tighten the gate multipliers
-        - Auto-tune AspectFidelityEvaluator thresholds based on axis precision
+        - Auto-tune AspectFidelityEvaluator thresholds from axis precision
         """
         recommendations: Dict[str, Any] = {
             "fidelity_gate": {},
@@ -213,45 +293,73 @@ class CalibrationModule:
             "timing_engine": {},
         }
 
-        # ── FidelityGate adjustments per domain ───────────────────────────
+        # ── FidelityGate adjustments per domain ────────────────────────────────
         for domain, fate_metrics in domain_metrics.items():
             for fate_type, m in fate_metrics.items():
                 key = f"{domain}__{fate_type}"
                 if m.recall < 0.10 and (m.tp + m.fn) > 5:
-                    # Low recall with sufficient sample → loosen gate
                     recommendations["fidelity_gate"][key] = {
                         "action": "loosen",
                         "current_recall": round(m.recall, 4),
                         "current_precision": round(m.precision, 4),
-                        "suggested_base_multiplier": 0.90,  # was 0.70
+                        "suggested_base_multiplier": 0.90,
                     }
                 elif m.precision < 0.10 and (m.tp + m.fp) > 5:
-                    # Low precision with sufficient sample → tighten gate
                     recommendations["fidelity_gate"][key] = {
                         "action": "tighten",
                         "current_recall": round(m.recall, 4),
                         "current_precision": round(m.precision, 4),
-                        "suggested_base_multiplier": 0.35,  # was 0.70
+                        "suggested_base_multiplier": 0.35,
                     }
 
-        # ── AspectFidelityEvaluator threshold tuning ─────────────────────
-        # Analyze strength distribution to suggest optimal LOW/HIGH thresholds
-        recommendations["aspect_evaluator"] = {
-            "low_threshold": -2.0,   # current default
-            "high_threshold": 2.2,   # current default
-            "note": "Thresholds derived from DignityEngine scoring ranges. "
-                    "Adjust based on actual planet strength distribution "
-                    "from the chart corpus.",
-        }
+        # ── AspectFidelityEvaluator threshold tuning from real axis data ───────
+        if axis_metrics:
+            # Use precision from high-sample axes to suggest threshold adjustments.
+            # Takkar (1-8) paradox: if precision > 0.75, LOW_THRESHOLD can be lowered.
+            takkar = axis_metrics.get("1-8")
+            if takkar and takkar.sample_count > 50:
+                if takkar.precision > 0.75:
+                    recommendations["aspect_evaluator"]["low_threshold"] = -1.5  # raise (less strict)
+                elif takkar.precision < 0.40:
+                    recommendations["aspect_evaluator"]["low_threshold"] = -2.5  # lower (more strict)
 
-        # ── Timing engine confidence thresholds ──────────────────────────
+            gali = axis_metrics.get("2-6")
+            if gali and gali.sample_count > 50:
+                if gali.precision > 0.85:
+                    recommendations["aspect_evaluator"]["high_threshold"] = 2.0  # lower threshold (more hits)
+                elif gali.precision < 0.60:
+                    recommendations["aspect_evaluator"]["high_threshold"] = 2.5  # raise (stricter)
+
+            # Fill in defaults for any not yet set
+            recommendations["aspect_evaluator"].setdefault(
+                "low_threshold",
+                -2.0  # current default
+            )
+            recommendations["aspect_evaluator"].setdefault(
+                "high_threshold",
+                2.2   # current default
+            )
+            recommendations["aspect_evaluator"]["axes_used"] = sorted(axis_metrics.keys())
+            recommendations["aspect_evaluator"]["note"] = (
+                f"Thresholds derived from {sum(m.sample_count for m in axis_metrics.values())} "
+                f"dignity-pair observations across {len(axis_metrics)} axes."
+            )
+        else:
+            # No dignity data available — report defaults clearly
+            recommendations["aspect_evaluator"] = {
+                "low_threshold":  -2.0,
+                "high_threshold":  2.2,
+                "note": "No dignity data in raw_pattern_occurrences — using hardcoded defaults. "
+                        "Run a fuzzer pass to populate source_dignity / target_dignity fields.",
+            }
+
+        # ── Timing engine confidence thresholds ──────────────────────────────
         recommendations["timing_engine"] = {
-            "rashi_phal_medium_threshold": 1.2,   # current default
-            "rashi_phal_high_threshold": 2.0,      # current default
-            "graha_phal_medium_threshold": 0.6,    # current default
-            "graha_phal_high_threshold": 1.5,      # current default
-            "note": "These are starting values configurable via model_defaults.json. "
-                    "Run a grid search over these values to maximize per-domain F1.",
+            "rashi_phal_medium_threshold":  1.2,
+            "rashi_phal_high_threshold":    2.0,
+            "graha_phal_medium_threshold":  0.6,
+            "graha_phal_high_threshold":    1.5,
+            "note": "Configurable via model_defaults.json. Run a grid search to maximize per-domain F1.",
         }
 
         return recommendations
@@ -271,7 +379,7 @@ class CalibrationModule:
         lines.append("\n--- Per-Domain Metrics ---")
         for domain in sorted(result.domain_metrics.keys()):
             for fate_type, m in result.domain_metrics[domain].items():
-                m_dict = m  # already a dict from to_dict()
+                m_dict = m if isinstance(m, dict) else m.to_dict()
                 lines.append(
                     f"  {domain:20s} | {fate_type:12s} | "
                     f"F1={m_dict['f1']:.3f} | P={m_dict['precision']:.3f} | "
@@ -279,6 +387,21 @@ class CalibrationModule:
                     f"TP={m_dict['tp']} FP={m_dict['fp']} "
                     f"FN={m_dict['fn']} TN={m_dict['tn']}"
                 )
+
+        if result.axis_metrics:
+            lines.append("\n--- Per-Axis Metrics (dignity-pair empirical) ---")
+            for axis in sorted(result.axis_metrics.keys()):
+                am = result.axis_metrics[axis]
+                am_dict = am if isinstance(am, dict) else am.to_dict()
+                lines.append(
+                    f"  {am_dict['axis']:10s} | "
+                    f"P={am_dict['precision']:.3f} | "
+                    f"TP={am_dict['tp']} FP={am_dict['fp']} "
+                    f"(n={am_dict['sample_count']})"
+                )
+        else:
+            lines.append("\n--- Per-Axis Metrics ---")
+            lines.append("  [No dignity data] — run a fuzzer pass to populate source_dignity/target_dignity")
 
         lines.append("\n--- Recommended Threshold Changes ---")
         gate_recs = result.recommended_thresholds.get("fidelity_gate", {})
@@ -291,6 +414,13 @@ class CalibrationModule:
                 )
         else:
             lines.append("  No threshold changes recommended.")
+
+        ae_rec = result.recommended_thresholds.get("aspect_evaluator", {})
+        if ae_rec:
+            lines.append("\n--- AspectFidelityEvaluator Thresholds ---")
+            lines.append(f"  LOW_THRESHOLD : {ae_rec.get('low_threshold', -2.0)}")
+            lines.append(f"  HIGH_THRESHOLD: {ae_rec.get('high_threshold', 2.2)}")
+            lines.append(f"  Note: {ae_rec.get('note', '')}")
 
         return "\n".join(lines)
 
