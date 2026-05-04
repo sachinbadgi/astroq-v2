@@ -8,8 +8,42 @@ from .dormancy_engine import DormancyEngine, DormancyState
 from .scapegoat_router import ScapegoatRouter
 from .dignity_engine import DignityEngine
 from .natal_fate_view import NatalFateView
+from .astro_chart import AstroChart
 
 logger = logging.getLogger(__name__)
+
+
+class AnnualSimContext:
+    """
+    Lightweight simulation context for LifecycleEngine's 75-year loop.
+
+    Replaces the inline SimContext class that was re-defined inside the for-loop
+    on every iteration. Promotes the class to module level so it is defined once,
+    constructed 75 times, and is importable from tests.
+
+    Key improvement: get_fate_type_for_domain() is wired to the actual
+    domain_fate_map computed by NatalFateView.evaluate() at the start of the run,
+    instead of always returning the hardcoded 'RASHI_PHAL' fallback.
+    """
+
+    def __init__(
+        self,
+        age: int,
+        positions: Dict[str, int],
+        domain_fate_map: Dict[str, str],
+    ):
+        self.age = age
+        self.domain_fate_map = domain_fate_map
+        self.chart = AstroChart({
+            "planets_in_houses": {p: {"house": h} for p, h in positions.items()}
+        })
+
+    def get_house(self, planet: str) -> Optional[int]:
+        return self.chart.get_house(planet)
+
+    def get_fate_type_for_domain(self, domain: str) -> str:
+        """Returns the fate type from the natal evaluation map, not a hardcoded fallback."""
+        return self.domain_fate_map.get(domain, "RASHI_PHAL")
 
 
 class LifecycleEngine:
@@ -67,17 +101,11 @@ class LifecycleEngine:
         
         for age in range(1, 76):
             annual_positions = self._get_annual_positions(natal_positions, age)
-            
-            # Simple context-like object for StateLedger.evolve_state
-            class SimContext:
-                def __init__(self, age, positions):
-                    self.age = age
-                    from .astro_chart import AstroChart
-                    self.chart = AstroChart({"planets_in_houses": {p: {"house": h} for p, h in positions.items()}})
-                def get_house(self, planet): return self.chart.get_house(planet)
-                def get_fate_type_for_domain(self, domain): return "RASHI_PHAL" # fallback
-            
-            sim_context = SimContext(age, annual_positions)
+
+            # AnnualSimContext is defined at module level — not re-created as an
+            # inline class on every loop iteration. domain_fate_map is wired in
+            # so get_fate_type_for_domain() returns real NatalFateView data.
+            sim_context = AnnualSimContext(age, annual_positions, domain_fate_map)
 
             # 1. Check for recoil from expired remedies
             for planet in self.ledger.planets:
