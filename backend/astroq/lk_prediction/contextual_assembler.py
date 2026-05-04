@@ -6,6 +6,8 @@ from .data_contracts import RuleHit, LKPrediction, ChartData
 from .state_ledger import StateLedger
 from .remedy_engine import RemedyEngine
 from .varshphal_timing_engine import VarshphalTimingEngine
+from .doubtful_timing_engine import DoubtfulTimingEngine
+from .timing_engine_protocol import TimingEngineRouter
 from .lk_constants import PLANET_HOUSE_ITEMS, PLANET_RELATIVES
 from .astrological_context import UnifiedAstrologicalContext
 
@@ -43,7 +45,8 @@ class ContextualAssembler:
     Hides the complexity of:
     1. Gravity scoring (Magnitude * State * Domain).
     2. Narrative assembly (Delegated to NarrativeEngine).
-    3. Timing Analysis (Delegated to VarshphalTimingEngine).
+    3. Timing Analysis: routes to VarshphalTimingEngine (GRAHA_PHAL) or
+       DoubtfulTimingEngine (RASHI_PHAL) via TimingEngineRouter.
     4. Remedy coordination.
     """
 
@@ -55,7 +58,10 @@ class ContextualAssembler:
     ):
         self.narrative = narrative_engine or NarrativeEngine()
         self.remedies = remedy_engine or RemedyEngine()
-        self.timing_engine = timing_engine or VarshphalTimingEngine()
+        # Primary adapter: Graha Phal (Fixed Fate) timing
+        self.varshphal_engine = timing_engine or VarshphalTimingEngine()
+        # Secondary adapter: Rashi Phal (Doubtful Fate) timing
+        self.doubtful_engine = DoubtfulTimingEngine()
 
     def assemble(
         self,
@@ -167,21 +173,31 @@ class ContextualAssembler:
         p.affected_people = sorted(list(set([x for x in p.affected_people if x])))
 
     def _apply_timing_analysis(
-        self, 
-        p: LKPrediction, 
+        self,
+        p: LKPrediction,
         context: UnifiedAstrologicalContext
     ):
-        # DEEP MODULE: Delegation of timing resolution to the engine
-        timing_result = self.timing_engine.resolve_timing_for_prediction(p, context)
-        
+        # Route to the correct timing adapter based on fate_type.
+        # GRAHA_PHAL → VarshphalTimingEngine  (geometric Goswami triggers)
+        # RASHI_PHAL → DoubtfulTimingEngine   (promise resolution)
+        fate_type = context.get_fate_type_for_domain(p.domain)
+        timing_result = TimingEngineRouter.route_and_call(
+            fate_type=fate_type,
+            varshphal_engine=self.varshphal_engine,
+            doubtful_engine=self.doubtful_engine,
+            context=context,
+            domain=p.domain.lower(),
+            age=context.age or 0,
+        )
+
         p.timing_confidence = timing_result["confidence"]
-        
+
         if timing_result.get("prohibited"):
             p.timing_signals.append(f"PROHIBITED: {timing_result['reason']}")
             p.gravity_score *= 0.1 # Severely reduce gravity if prohibited
-        
+
         if timing_result.get("friction_signal"):
             p.timing_signals.append(timing_result["friction_signal"])
-        
+
         for t in timing_result.get("triggers", []): p.timing_signals.append(f"TIMING TRIGGER: {t}")
         for w in timing_result.get("warnings", []): p.timing_signals.append(f"WARNING: {w}")

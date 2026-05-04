@@ -304,10 +304,21 @@ class DoubtfulTimingEngine:
         self,
         context: 'UnifiedAstrologicalContext',
         domain: str,
-    ) -> Dict[str, Any]:
+        fate_type: str = "RASHI_PHAL",
+        age: int = 0,
+    ) -> 'Dict[str, Any]':
         """
-        Runs ONLY the doubtful evaluation to mock out the original interface for tests.
-        In reality, VarshphalTimingEngine uses the evaluated triggers directly.
+        Evaluates Doubtful Natal Promises for the given domain and year.
+
+        Returns a result dict matching the TimingEngine protocol schema:
+            confidence: "High" | "Medium" | "Low"
+            prohibited: False (age-gates are handled by VarshphalTimingEngine)
+            reason:     plain-English verdict summary
+            triggers:   descriptions of TRIGGERED promises
+            warnings:   descriptions of RESOLVED/CONTESTED promises
+            doubtful_promises:            names of active natal promises
+            doubtful_evaluations:         full evaluation objects
+            doubtful_confidence_modifier: "Boost" | "Suppress" | "Contested" | "Neutral"
         """
         active_promises = self._identify_doubtful_natal_promises(context)
         doubtful_evals = self.evaluate_doubtful_timing(
@@ -315,23 +326,33 @@ class DoubtfulTimingEngine:
         )
 
         resolutions = [e for e in doubtful_evals if e["verdict"] in ("RESOLVED", "CONTESTED")]
-        triggers    = [e for e in doubtful_evals if e["verdict"] in ("TRIGGERED", "CONTESTED")]
+        triggered   = [e for e in doubtful_evals if e["verdict"] in ("TRIGGERED", "CONTESTED")]
 
-        if resolutions and not triggers:
-            modifier = "Boost"
-        elif triggers and not resolutions:
-            modifier = "Suppress"
-        elif triggers and resolutions:
-            modifier = "Contested"
+        # Determine modifier and map to Confidence tier
+        if resolutions and not triggered:
+            modifier   = "Boost"
+            confidence = "High"
+        elif triggered and not resolutions:
+            modifier   = "Suppress"
+            confidence = "Low"
+        elif triggered and resolutions:
+            modifier   = "Contested"
+            confidence = "Medium"
         else:
-            modifier = "Neutral"
+            modifier   = "Neutral"
+            confidence = "Low"   # No doubtful promises active → domain not in scope
+
+        trigger_descs   = [msg for e in triggered   for msg in e.get("triggers", [])]
+        resolution_msgs = [msg for e in resolutions for msg in e.get("resolutions", [])]
 
         return {
-            "confidence": "Low", # Base mock
-            "doubtful_promises": [p["name"] for p in active_promises],
-            "doubtful_evaluations": doubtful_evals,
-            "doubtful_confidence_modifier": modifier,
-            "triggers": [],
-            "warnings": []
+            "confidence":   confidence,
+            "prohibited":   False,
+            "reason":       f"Doubtful timing modifier: {modifier} (age={age}, domain={domain})",
+            "triggers":     trigger_descs,
+            "warnings":     resolution_msgs,
+            "doubtful_promises":             [p["name"] for p in active_promises],
+            "doubtful_evaluations":          doubtful_evals,
+            "doubtful_confidence_modifier":  modifier,
         }
 
